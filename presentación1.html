@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentación de Tesis - Composición Audiovisual</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        #presentation-container {
+            position: relative;
+            width: 100vw; height: 100vh;
+            background-color: #000;
+            overflow: hidden;
+        }
+
+        /* CAPAS: CLIP -> TRANSLATE -> CROP -> MEDIA */
+        .clip-wrapper, .translate-wrapper, .crop-wrapper {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+        }
+
+        /* CAPA DE IMAGEN PREVIA (DIAPOSITIVA 1) */
+        #img-intro {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 10;
+            transition: opacity 1.5s cubic-bezier(0.65, 0, 0.35, 1);
+            will-change: opacity;
+            pointer-events: none;
+        }
+        #img-intro img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* CAPAS DE VIDEO - JERARQUÍA Z-INDEX */
+        .clip-wrapper {
+            transition: clip-path 1.5s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.5s ease;
+            will-change: clip-path, opacity;
+        }
+        
+        /* Secuencia 1: Sujetos */
+        #clip-s1 { z-index: 8; }
+        #clip-s2 { z-index: 7; }
+        #clip-s3 { z-index: 6; }
+        
+        /* Transición: Cohetero 1 */
+        #clip-c1 { z-index: 5; }
+
+        /* Secuencia 2: Peloteros */
+        #clip-p1 { z-index: 4; }
+        #clip-p2 { z-index: 3; }
+        #clip-p3 { z-index: 2; }
+
+        /* Secuencia 3: Colectivo (diapositivas 9-13) */
+        #clip-col1 { 
+            z-index: 1; 
+            transition: clip-path 1.5s cubic-bezier(0.65, 0, 0.35, 1), opacity 2.5s ease-in-out;
+        }
+
+        /* Secuencia 4: Bandera de Paraguay (diapositivas 14-16) */
+        #clip-bandera { z-index: 0; }
+
+        /* Secuencia 5: Juramento (diapositiva 17) */
+        #clip-juramento { z-index: 55; }
+
+        .translate-wrapper {
+            transition: transform 1.5s cubic-bezier(0.65, 0, 0.35, 1);
+            will-change: transform;
+        }
+
+        .crop-wrapper { overflow: hidden; }
+
+        video {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            display: block;
+            background: #000;
+        }
+
+        /* ---------------------------------------------------------
+           ESTADOS DE DIAPOSITIVA (1 A 19)
+           --------------------------------------------------------- */
+
+        /* Configuración base de cohetero y peloteros */
+        #clip-c1 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; }
+        #trans-c1 { transform: translateX(100%); }
+
+        #clip-p1, #clip-p2, #clip-p3 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; }
+        #trans-p1, #trans-p2, #trans-p3 { transform: translateX(0%); }
+
+        /* Configuración base del colectivo */
+        #clip-col1 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; }
+        #trans-col1 { transform: translateX(0%); }
+
+        /* Configuración base de la bandera */
+        #clip-bandera { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; }
+        #trans-bandera { transform: translateX(0%); }
+
+        /* Configuración base del juramento (oculto por defecto) */
+        #clip-juramento { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 0; }
+        #trans-juramento { transform: translateX(0%); }
+
+        /* Diapositiva 1 — Portada */
+        .state-1 #img-intro { opacity: 1; pointer-events: auto; }
+        .state-1 #clip-s1, .state-1 #clip-s2, .state-1 #clip-s3 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+        .state-1 #trans-s1, .state-1 #trans-s2, .state-1 #trans-s3 { transform: translateX(0%); }
+
+        /* Ocultar capa de imagen en diapositivas 2 a 19 */
+        .state-2 #img-intro, .state-3 #img-intro, .state-4 #img-intro,
+        .state-5 #img-intro, .state-6 #img-intro, .state-7 #img-intro,
+        .state-8 #img-intro, .state-9 #img-intro, .state-10 #img-intro,
+        .state-11 #img-intro, .state-12 #img-intro, .state-13 #img-intro,
+        .state-14 #img-intro, .state-15 #img-intro, .state-16 #img-intro,
+        .state-17 #img-intro, .state-18 #img-intro, .state-19 #img-intro { opacity: 0; pointer-events: none; }
+
+        /* Diapositiva 2 — Sujeto 1 a pantalla completa */
+        .state-2 #clip-s1, .state-2 #clip-s2, .state-2 #clip-s3 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+        .state-2 #trans-s1, .state-2 #trans-s2, .state-2 #trans-s3 { transform: translateX(0%); }
+
+        /* Diapositiva 3 — s1 izquierda, s2 derecha */
+        .state-3 #clip-s1 { clip-path: polygon(0 0, 56.5% 0, 46.5% 100%, 0 100%); }
+        .state-3 #clip-s2, .state-3 #clip-s3 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+        .state-3 #trans-s1 { transform: translateX(-25%); }
+        .state-3 #trans-s2, .state-3 #trans-s3 { transform: translateX(0%); }
+
+        /* Diapositiva 4 — composición final de sujetos */
+        .state-4 #clip-s1 { clip-path: polygon(0 0, 36.5% 0, 26.5% 100%, 0 100%); }
+        .state-4 #clip-s2 { clip-path: polygon(0 0, 70.5% 0, 60.5% 100%, 0 100%); }
+        .state-4 #clip-s3 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+        .state-4 #trans-s1 { transform: translateX(-40%); }
+        .state-4 #trans-s2 { transform: translateX(-20%); }
+        .state-4 #trans-s3 { transform: translateX(25%); }
+
+        /* Diapositiva 5 — sujetos salen, cohetero entra */
+        .state-5 #clip-s1, .state-5 #clip-s2, .state-5 #clip-s3 { clip-path: polygon(-100% 0, 0% 0, -10% 100%, -100% 100%); }
+        .state-5 #trans-s1, .state-5 #trans-s2, .state-5 #trans-s3 { transform: translateX(-100%); }
+        .state-5 #clip-c1 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; }
+        .state-5 #trans-c1 { transform: translateX(0%); }
+
+        /* Ocultar sujetos en 6 a 19 */
+        .state-6 #clip-s1, .state-7 #clip-s1, .state-8 #clip-s1, .state-9 #clip-s1,
+        .state-10 #clip-s1, .state-11 #clip-s1, .state-12 #clip-s1, .state-13 #clip-s1,
+        .state-14 #clip-s1, .state-15 #clip-s1, .state-16 #clip-s1, .state-17 #clip-s1,
+        .state-18 #clip-s1, .state-19 #clip-s1,
+        .state-6 #clip-s2, .state-7 #clip-s2, .state-8 #clip-s2, .state-9 #clip-s2,
+        .state-10 #clip-s2, .state-11 #clip-s2, .state-12 #clip-s2, .state-13 #clip-s2,
+        .state-14 #clip-s2, .state-15 #clip-s2, .state-16 #clip-s2, .state-17 #clip-s2,
+        .state-18 #clip-s2, .state-19 #clip-s2,
+        .state-6 #clip-s3, .state-7 #clip-s3, .state-8 #clip-s3, .state-9 #clip-s3,
+        .state-10 #clip-s3, .state-11 #clip-s3, .state-12 #clip-s3, .state-13 #clip-s3,
+        .state-14 #clip-s3, .state-15 #clip-s3, .state-16 #clip-s3, .state-17 #clip-s3,
+        .state-18 #clip-s3, .state-19 #clip-s3 { clip-path: polygon(-100% 0, 0% 0, -10% 100%, -100% 100%); }
+
+        .state-6 #clip-c1, .state-7 #clip-c1, .state-8 #clip-c1, .state-9 #clip-c1,
+        .state-10 #clip-c1, .state-11 #clip-c1, .state-12 #clip-c1, .state-13 #clip-c1,
+        .state-14 #clip-c1, .state-15 #clip-c1, .state-16 #clip-c1,
+        .state-17 #clip-c1, .state-18 #clip-c1, .state-19 #clip-c1 { opacity: 0; pointer-events: none; }
+
+        /* Diapositiva 6 — pelotero1 a pantalla completa */
+        .state-6 #clip-p1, .state-6 #clip-p2, .state-6 #clip-p3 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+        .state-6 #trans-p1 { transform: translateX(0%); }
+        .state-6 #trans-p2 { transform: translateX(33%); }
+        .state-6 #trans-p3 { transform: translateX(0%); }
+
+        /* Diapositiva 7 — p1 izquierda, p2 aparece en el tercio derecho */
+        .state-7 #clip-p1 { clip-path: polygon(0 0, 56.5% 0, 46.5% 100%, 0 100%); }
+        .state-7 #clip-p2, .state-7 #clip-p3 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+        .state-7 #trans-p1 { transform: translateX(-25%); }
+        .state-7 #trans-p2 { transform: translateX(33%); }
+        .state-7 #trans-p3 { transform: translateX(0%); }
+
+        /* Diapositiva 8 — composición final peloteros */
+        .state-8 #clip-p1 { clip-path: polygon(0 0, 36.5% 0, 26.5% 100%, 0 100%); }
+        .state-8 #clip-p2 { clip-path: polygon(0 0, 70.5% 0, 60.5% 100%, 0 100%); }
+        .state-8 #clip-p3 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+        .state-8 #trans-p1 { transform: translateX(-40%); }
+        .state-8 #trans-p2 { transform: translateX(0%); }
+        .state-8 #trans-p3 { transform: translateX(0%); }
+
+        /* Ocultar peloteros en diapositivas 9 a 19 */
+        .state-9 #clip-p1, .state-9 #clip-p2, .state-9 #clip-p3,
+        .state-10 #clip-p1, .state-10 #clip-p2, .state-10 #clip-p3,
+        .state-11 #clip-p1, .state-11 #clip-p2, .state-11 #clip-p3,
+        .state-12 #clip-p1, .state-12 #clip-p2, .state-12 #clip-p3,
+        .state-13 #clip-p1, .state-13 #clip-p2, .state-13 #clip-p3,
+        .state-14 #clip-p1, .state-14 #clip-p2, .state-14 #clip-p3,
+        .state-15 #clip-p1, .state-15 #clip-p2, .state-15 #clip-p3,
+        .state-16 #clip-p1, .state-16 #clip-p2, .state-16 #clip-p3,
+        .state-17 #clip-p1, .state-17 #clip-p2, .state-17 #clip-p3,
+        .state-18 #clip-p1, .state-18 #clip-p2, .state-18 #clip-p3,
+        .state-19 #clip-p1, .state-19 #clip-p2, .state-19 #clip-p3 { opacity: 0; pointer-events: none; }
+
+        /* Diapositiva 9 — Colectivo a pantalla completa */
+        .state-9 #clip-col1 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; }
+        .state-9 #trans-col1 { transform: translateX(0%); }
+
+        /* Diapositivas 10 a 13 — Colectivo visible de fondo con frases */
+        .state-10 #clip-col1, .state-11 #clip-col1, .state-12 #clip-col1,
+        .state-13 #clip-col1 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; }
+
+        /* Diapositivas 14 a 19 — Colectivo fade-out */
+        .state-14 #clip-col1, .state-15 #clip-col1, .state-16 #clip-col1,
+        .state-17 #clip-col1, .state-18 #clip-col1, .state-19 #clip-col1 { opacity: 0; pointer-events: none; }
+        
+        .state-14 #clip-bandera, .state-15 #clip-bandera, .state-16 #clip-bandera { 
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; 
+        }
+        .state-14 #trans-bandera, .state-15 #trans-bandera, .state-16 #trans-bandera { 
+            transform: translateX(0%); 
+        }
+
+        /* Diapositiva 17 — bandera se oculta, juramento entra */
+        .state-17 #clip-bandera, .state-18 #clip-bandera, .state-19 #clip-bandera { opacity: 0; pointer-events: none; }
+        .state-17 #clip-juramento { opacity: 1; }
+
+        /* Materialización del juramento desde el centro con escala */
+        #juramento-video-wrap {
+            transform-origin: center center;
+            transition: transform 1.8s cubic-bezier(0.22, 1, 0.36, 1),
+                        opacity 1.8s cubic-bezier(0.22, 1, 0.36, 1),
+                        filter 1.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        #clip-juramento #juramento-video-wrap {
+            transform: scale(0.6);
+            opacity: 0;
+            filter: blur(20px);
+        }
+        .state-17 #clip-juramento #juramento-video-wrap {
+            transform: scale(1);
+            opacity: 1;
+            filter: blur(0px);
+        }
+
+        /* Efecto desenfoque del colectivo en diapositiva 13 */
+        .state-13 #colectivo1 {
+            filter: blur(8px);
+            transform: scale(1.05);
+            transition: filter 2s cubic-bezier(0.65, 0, 0.35, 1), transform 2s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+        #colectivo1 {
+            filter: blur(0px);
+            transform: scale(1);
+            transition: filter 2s cubic-bezier(0.65, 0, 0.35, 1), transform 2s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        /* Desenfoque final del colectivo */
+        .state-14 #colectivo1, .state-15 #colectivo1, .state-16 #colectivo1,
+        .state-17 #colectivo1, .state-18 #colectivo1, .state-19 #colectivo1 {
+            filter: blur(20px);
+            transform: scale(1.1);
+        }
+
+        /* ---------------------------------------------------------
+           FRASES SOBRE EL VIDEO (DIAPOSITIVAS 10 A 16)
+           --------------------------------------------------------- */
+        #frases-layer {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .frase {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            text-align: center;
+            font-size: clamp(1.8rem, 5.25vw, 4.8rem); 
+            white-space: nowrap; 
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            line-height: 1.1;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-shadow:
+                0 4px 18px rgba(0,0,0,0.85),
+                0 0 3px rgba(0,0,0,1);
+            -webkit-text-stroke: 2px rgba(0,0,0,0.75);
+            padding: 0 5vw;
+            transition: opacity 1.5s cubic-bezier(0.65, 0, 0.35, 1),
+                        transform 1.5s cubic-bezier(0.65, 0, 0.35, 1);
+            will-change: opacity, transform;
+        }
+
+        /* Frases visibles según diapositiva (10 a 13 al centro) */
+        .state-10 #frase-12 { opacity: 1; transform: translate(-50%, -50%); }
+        .state-11 #frase-13 { opacity: 1; transform: translate(-50%, -50%); }
+        .state-12 #frase-14 { opacity: 1; transform: translate(-50%, -50%); }
+        .state-13 #frase-15 { opacity: 1; transform: translate(-50%, -50%); }
+
+        /* Diapositiva 14 — "En Paraguay" centrada */
+        .state-14 #frase-16 { opacity: 1; transform: translate(-50%, -50%); }
+
+        /* Diapositiva 15 — Línea 1 sube, Línea 2 centrada */
+        .state-15 #frase-16 { opacity: 1; transform: translate(-50%, -180%); }
+        .state-15 #frase-17 { opacity: 1; transform: translate(-50%, -50%); }
+
+        /* Diapositiva 16 — Línea 1 arriba, Línea 2 abajo, SMO centrada */
+        .state-16 #frase-16 { opacity: 1; transform: translate(-50%, -180%); }
+        .state-16 #frase-17 { opacity: 1; transform: translate(-50%, 80%); }
+        .state-16 #frase-18 { opacity: 1; transform: translate(-50%, -50%); }
+
+        /* Diapositiva 17 — todas las frases anteriores desaparecen */
+        .state-17 #frase-16, .state-17 #frase-17, .state-17 #frase-18 {
+            opacity: 0;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Estilo especial para SMO */
+        #frase-18 {
+            color: #e30613;
+            -webkit-text-stroke: 2px rgba(0,0,0,0.85);
+            text-shadow:
+                0 4px 22px rgba(0,0,0,0.9),
+                0 0 4px rgba(0,0,0,1);
+        }
+
+        /* ---------------------------------------------------------
+           TEXTO ESTILO CRÉDITOS DE PELÍCULA (DIAPOSITIVA 17)
+           --------------------------------------------------------- */
+        #creditos-layer {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 60;
+            overflow: hidden;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .state-17 #creditos-layer { opacity: 1; }
+
+        #creditos-texto {
+            position: absolute;
+            left: 50%;
+            bottom: -100%;
+            width: 85%;
+            transform: translateX(-50%);
+            color: #ffffff;
+            font-family: 'Arial', 'Helvetica Neue', Helvetica, sans-serif;
+            font-size: clamp(1.6rem, 3.5vw, 2.8rem);
+            font-weight: 700;
+            line-height: 1.6;
+            text-align: center;
+            letter-spacing: 0.05em;
+            -webkit-text-stroke: 2.5px #000000;
+            text-shadow: 
+                0 5px 15px rgba(0, 0, 0, 1),
+                0 0 10px rgba(0, 0, 0, 1);
+            padding: 0 2vw;
+            animation: creditosScroll 55s linear forwards;
+            animation-play-state: paused;
+        }
+        .state-17 #creditos-texto { animation-play-state: running; }
+
+        @keyframes creditosScroll {
+            0%   { bottom: -100%; opacity: 0; }
+            5%   { opacity: 1; }
+            95%  { opacity: 1; }
+            100% { bottom: 110%; opacity: 0; }
+        }
+
+        /* Oscurecimiento final de la diapositiva 17 */
+        #fadeout-negro {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #000;
+            z-index: 70;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 2s ease-in;
+        }
+        .state-17.fade-final #fadeout-negro { opacity: 1; }
+
+        /* ---------------------------------------------------------
+           BISAGRA — DIAPOSITIVAS 18 y 19 (PUENTE AL ARCHIVO DE DATOS)
+           --------------------------------------------------------- */
+        #bisagra-layer {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 80;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            overflow: hidden;
+            background: #000;
+            opacity: 0;
+            transition: opacity 1.5s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        .state-18 #bisagra-layer,
+        .state-19 #bisagra-layer { opacity: 1; }
+
+        .bisagra-texto-arriba,
+        .bisagra-texto-abajo {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            text-align: center;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-shadow:
+                0 4px 18px rgba(0,0,0,0.85),
+                0 0 3px rgba(0,0,0,1);
+            -webkit-text-stroke: 1.5px rgba(0,0,0,0.85);
+            opacity: 0;
+            transition: opacity 1.8s cubic-bezier(0.65, 0, 0.35, 1),
+                        transform 1.8s cubic-bezier(0.65, 0, 0.35, 1);
+            will-change: opacity, transform;
+            padding: 0 6vw;
+            transform: translate(-50%, -50%);
+        }
+
+        .bisagra-texto-arriba {
+            font-size: clamp(1.6rem, 4vw, 3.2rem);
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            line-height: 1.25;
+        }
+
+        .bisagra-texto-abajo {
+            font-size: clamp(1.6rem, 3.6vw, 2.8rem);
+            font-weight: 700;
+            font-style: italic;
+            letter-spacing: 0.03em;
+            line-height: 1.4;
+            color: #e2e8f0;
+        }
+
+        .state-18 .bisagra-texto-arriba {
+            opacity: 1;
+            transform: translate(-50%, -50%) translateY(-2vh);
+        }
+
+        .state-19 .bisagra-texto-arriba {
+            opacity: 1;
+            transform: translate(-50%, -50%) translateY(-22vh);
+        }
+
+        .state-19 .bisagra-texto-abajo {
+            opacity: 1;
+            transform: translate(-50%, -50%) translateY(18vh);
+        }
+
+        /* ---------------------------------------------------------
+           OCULTAMIENTO DEL PUNTERO DEL MOUSE
+           --------------------------------------------------------- */
+        html, body, #presentation-container {
+            cursor: none;
+        }
+        html.cursor-visible,
+        html.cursor-visible body,
+        html.cursor-visible #presentation-container {
+            cursor: default;
+        }
+
+        /* UI CONTROLES */
+        #ui-layer {
+            position: absolute;
+            bottom: 30px; left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 10px 25px;
+            border-radius: 30px;
+            color: #fff;
+            display: flex; align-items: center; gap: 20px;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+            transition: opacity 0.6s ease;
+            opacity: 1;
+            pointer-events: none;
+        }
+        .ui-key {
+            background: #fff; color: #000;
+            padding: 4px 10px; border-radius: 6px;
+            font-weight: bold; font-size: 0.85rem;
+        }
+
+        /* DIAGNÓSTICO */
+        #debug-layer {
+            position: absolute;
+            top: 12px; left: 12px;
+            z-index: 200;
+            font-family: monospace;
+            font-size: 13px;
+            color: #ff4d4d;
+            background: rgba(0,0,0,0.85);
+            padding: 10px 15px;
+            border: 1px solid #ff4d4d;
+            border-radius: 8px;
+            max-width: 80vw;
+            white-space: pre-wrap;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="presentation-container" class="state-1">
+
+        <!-- DIAPOSITIVA 1: IMAGEN INICIAL -->
+        <div id="img-intro">
+            <img id="img-sujeto1" src="sujeto1.png" alt="Sujeto 1 Imagen Portada">
+        </div>
+
+        <!-- SECUENCIA 1: VIDEOS SUJETO -->
+        <div class="clip-wrapper" id="clip-s1">
+            <div class="translate-wrapper" id="trans-s1">
+                <div class="crop-wrapper" id="crop-s1">
+                    <video id="sujeto1" muted playsinline webkit-playsinline loop preload="auto"></video>
+                </div>
+            </div>
+        </div>
+
+        <div class="clip-wrapper" id="clip-s2">
+            <div class="translate-wrapper" id="trans-s2">
+                <div class="crop-wrapper" id="crop-s2">
+                    <video id="sujeto2" muted playsinline webkit-playsinline loop preload="auto"></video>
+                </div>
+            </div>
+        </div>
+
+        <div class="clip-wrapper" id="clip-s3">
+            <div class="translate-wrapper" id="trans-s3">
+                <div class="crop-wrapper" id="crop-s3">
+                    <video id="sujeto3" muted playsinline webkit-playsinline loop preload="auto"></video>
+                </div>
+            </div>
+        </div>
+
+        <!-- TRANSICIÓN: COHETERO 1 -->
+        <div class="clip-wrapper" id="clip-c1">
+            <div class="translate-wrapper" id="trans-c1">
+                <div class="crop-wrapper" id="crop-c1">
+                    <video id="cohetero1" muted playsinline webkit-playsinline loop preload="auto"></video>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECUENCIA 2: VIDEOS PELOTERO -->
+        <div class="clip-wrapper" id="clip-p1">
+            <div class="translate-wrapper" id="trans-p1">
+                <div class="crop-wrapper" id="crop-p1">
+                    <video id="pelotero1" muted playsinline webkit-playsinline loop preload="auto"></video>
+                </div>
+            </div>
+        </div>
+
+        <div class="clip-wrapper" id="clip-p2">
+            <div class="translate-wrapper" id="trans-p2">
+                <div class="crop-wrapper" id="crop-p2">
+                    <video id="pelotero2" muted playsinline webkit-playsinline loop preload="auto"></video>
+                </div>
+            </div>
+        </div>
+
+        <div class="clip-wrapper" id="clip-p3">
+            <div class="translate-wrapper" id="trans-p3">
+                <div class="crop-wrapper" id="crop-p3">
+                    <video id="pelotero3" muted playsinline webkit-playsinline loop preload="auto"></video>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECUENCIA 3: VIDEO COLECTIVO (DIAPOSITIVAS 9-13) -->
+        <div class="clip-wrapper" id="clip-col1">
+            <div class="translate-wrapper" id="trans-col1">
+                <div class="crop-wrapper" id="crop-col1">
+                    <video id="colectivo1" muted playsinline webkit-playsinline loop preload="auto"></video>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECUENCIA 4: VIDEO BANDERA DE PARAGUAY (DIAPOSITIVAS 14-16) -->
+        <div class="clip-wrapper" id="clip-bandera">
+            <div class="translate-wrapper" id="trans-bandera">
+                <div class="crop-wrapper" id="crop-bandera">
+                    <video id="bandera" muted playsinline webkit-playsinline loop preload="auto"></video>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECUENCIA 5: VIDEO JURAMENTO CON AUDIO (DIAPOSITIVA 17) -->
+        <div class="clip-wrapper" id="clip-juramento">
+            <div class="translate-wrapper" id="trans-juramento">
+                <div class="crop-wrapper" id="crop-juramento">
+                    <div id="juramento-video-wrap" style="width:100%;height:100%;">
+                        <video id="juramento" playsinline webkit-playsinline preload="auto"></video>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CAPA DE FRASES (DIAPOSITIVAS 10-16) -->
+        <div id="frases-layer">
+            <div class="frase" id="frase-12">¿Qué tienen en común?</div>
+            <div class="frase" id="frase-13">Distintos talentos</div>
+            <div class="frase" id="frase-14">Distintos caminos</div>
+            <div class="frase" id="frase-15">Una misma realidad</div>
+            <div class="frase" id="frase-16">En Paraguay</div>
+            <div class="frase" id="frase-17">al cumplir los 18 años</div>
+            <div class="frase" id="frase-18">SMO</div>
+        </div>
+
+        <!-- CRÉDITOS ESTILO STAR WARS (DIAPOSITIVA 17) -->
+        <div id="creditos-layer">
+            <div id="creditos-texto">
+                Servicio Militar Obligatorio. Todo ciudadano paraguayo tiene la obligación constitucional de prepararse y de prestar su concurso para la defensa armada de la Patria. Bajo el amparo del Artículo 129 de la Constitución Nacional, se establece este deber para ser cumplido en las Fuerzas Armadas de la Nación por el término y en las condiciones que fije la ley. Asimismo, la normativa reconoce el derecho fundamental a la objeción de conciencia, permitiendo a quienes lo declaren realizar un servicio civil alternativo en beneficio de la población, bajo jurisdicción civil y sin carácter punitivo, quedando finalmente todos los ciudadanos en situación de reserva.
+            </div>
+        </div>
+
+        <!-- CAPA DE OSCURECIMIENTO FINAL (DIAPOSITIVA 17) -->
+        <div id="fadeout-negro"></div>
+
+        <!-- BISAGRA — DIAPOSITIVAS 18 Y 19 (PUENTE AL ARCHIVO DE DATOS) -->
+        <div id="bisagra-layer">
+            <div class="bisagra-texto-arriba">
+                Lo que acaban de ver no es una metáfora. Es el problema.
+            </div>
+            <div class="bisagra-texto-abajo">
+                A partir de aquí, los datos.
+            </div>
+        </div>
+
+    </div>
+
+    <div id="ui-layer">
+        <span><span class="ui-key">P</span> Atrás</span>
+        <span id="slide-indicator">Diapositiva 1 / 19</span>
+        <span>Adelante <span class="ui-key">N</span></span>
+        <span>Pantalla Completa <span class="ui-key">F</span></span>
+    </div>
+
+    <div id="debug-layer"></div>
+
+    <script>
+        const IMAGE_SOURCE = 'sujeto1.png';
+
+        const VIDEO_SOURCES = {
+            sujeto1: 'videos1/sujeto1.mp4',
+            sujeto2: 'videos1/sujeto2.mp4',
+            sujeto3: 'videos1/sujeto3.mp4',
+            cohetero1: 'videos1/cohetero1.mp4',
+            pelotero1: 'videos1/pelotero1.mp4',
+            pelotero2: 'videos1/pelotero2.mp4',
+            pelotero3: 'videos1/pelotero3.mp4',
+            colectivo1: 'videos1/colectivo1.mp4',
+            bandera: 'videos1/bandera de paraguay.mp4',
+            juramento: 'videos1/juramento1.mp4'
+        };
+
+        const SUBJECT_CONFIG = {
+            sujeto1: { objectPosition: 'center center', cropLeft: 0, cropRight: 0 },
+            sujeto2: { objectPosition: 'center center', cropLeft: 0, cropRight: 0 },
+            sujeto3: { objectPosition: 'center center', cropLeft: 0, cropRight: 0 },
+            cohetero1: { objectPosition: 'center center', cropLeft: 0, cropRight: 0 },
+            pelotero1: { objectPosition: 'center center', cropLeft: 0, cropRight: 0 },
+            pelotero2: { objectPosition: 'center center', cropLeft: 0, cropRight: 0 },
+            pelotero3: { objectPosition: 'center center', cropLeft: 0, cropRight: 0 },
+            colectivo1: { objectPosition: 'center center', cropLeft: 0, cropRight: 0 },
+            bandera: { objectPosition: 'center center', cropLeft: 0, cropRight: 0 },
+            juramento: { objectPosition: 'center center', cropLeft: 0, cropRight: 0 }
+        };
+
+        const ID_MAP = {
+            sujeto1: 's1', sujeto2: 's2', sujeto3: 's3',
+            cohetero1: 'c1',
+            pelotero1: 'p1', pelotero2: 'p2', pelotero3: 'p3',
+            colectivo1: 'col1',
+            bandera: 'bandera',
+            juramento: 'juramento'
+        };
+
+        const debugLayer = document.getElementById('debug-layer');
+        const errors = [];
+        function reportError(msg) {
+            errors.push(msg);
+            debugLayer.style.display = 'block';
+            debugLayer.textContent = 'DIAGNÓSTICO:\n' + errors.join('\n');
+            console.error(msg);
+        }
+
+        const videosState = {
+            sujeto1: { element: null, loaded: false },
+            sujeto2: { element: null, loaded: false },
+            sujeto3: { element: null, loaded: false },
+            cohetero1: { element: null, loaded: false },
+            pelotero1: { element: null, loaded: false },
+            pelotero2: { element: null, loaded: false },
+            pelotero3: { element: null, loaded: false },
+            colectivo1: { element: null, loaded: false },
+            bandera: { element: null, loaded: false },
+            juramento: { element: null, loaded: false }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const imgEl = document.getElementById('img-sujeto1');
+            imgEl.addEventListener('error', () => {
+                reportError(`✖ No se pudo cargar la imagen "${IMAGE_SOURCE}"`);
+            });
+
+            ['sujeto1', 'sujeto2', 'sujeto3', 'cohetero1', 'pelotero1', 'pelotero2', 'pelotero3', 'colectivo1', 'bandera', 'juramento'].forEach(id => {
+                const conf = SUBJECT_CONFIG[id];
+                const videoEl = document.getElementById(id);
+                const cropEl = document.getElementById(`crop-${ID_MAP[id]}`);
+
+                if (!videoEl || !cropEl) {
+                    reportError(`✖ Faltan elementos HTML para "${id}"`);
+                    return;
+                }
+
+                videosState[id].element = videoEl;
+                videoEl.src = VIDEO_SOURCES[id];
+                videoEl.style.objectPosition = conf.objectPosition;
+
+                if (id === 'juramento') {
+                    videoEl.loop = false;
+                    videoEl.muted = false;
+                    videoEl.volume = 1.0;
+                } else {
+                    videoEl.loop = true;
+                    videoEl.muted = true;
+                }
+
+                cropEl.style.clipPath =
+                    `polygon(${conf.cropLeft}% 0, ${100 - conf.cropRight}% 0, ` +
+                    `${100 - conf.cropRight}% 100%, ${conf.cropLeft}% 100%)`;
+
+                videoEl.addEventListener('loadedmetadata', () => {
+                    videosState[id].loaded = true;
+                });
+
+                videoEl.addEventListener('error', () => {
+                    reportError(`✖ No se pudo cargar el video "${VIDEO_SOURCES[id]}"`);
+                });
+
+                videoEl.addEventListener('canplay', () => {
+                    if (id.startsWith('sujeto')) {
+                        videoEl.play().catch(() => {});
+                    }
+                });
+
+                videoEl.load();
+            });
+
+            // Manejo específico del juramento
+            const vJuramento = videosState.juramento.element;
+            vJuramento.addEventListener('timeupdate', () => {
+                if (!vJuramento.duration) return;
+                const restante = vJuramento.duration - vJuramento.currentTime;
+                if (restante <= 2.0) {
+                    const factor = Math.max(0, restante / 2.0);
+                    vJuramento.volume = Math.min(1.0, factor);
+                    document.getElementById('fadeout-negro').style.opacity = String(1 - factor);
+                } else {
+                    vJuramento.volume = 1.0;
+                    document.getElementById('fadeout-negro').style.opacity = '0';
+                }
+            });
+
+            vJuramento.addEventListener('ended', () => {
+                document.getElementById('fadeout-negro').style.opacity = '1';
+            });
+        });
+
+        let currentSlide = 1;
+        let isTransitioning = false;
+        const totalSlides = 19;
+        const NEXT_FILE = 'presentación2.html';
+
+        function changeSlide(target) {
+            if (isTransitioning) return;
+            if (target < 1) return;
+
+            // Salto automático al archivo siguiente cuando se avanza desde la 19
+            if (target > totalSlides) {
+                window.location.href = NEXT_FILE;
+                return;
+            }
+
+            isTransitioning = true;
+            currentSlide = target;
+
+            const cont = document.getElementById('presentation-container');
+            cont.className = `state-${target}`;
+            document.getElementById('slide-indicator').textContent = `Diapositiva ${target} / ${totalSlides}`;
+
+            if (target !== 17 && target !== 18 && target !== 19) {
+                document.getElementById('fadeout-negro').style.opacity = '0';
+            }
+
+            if (target === 5) {
+                const v = videosState.cohetero1.element;
+                if (v) { v.currentTime = 0; v.play().catch(() => {}); }
+            } else if (target === 6) {
+                const v = videosState.pelotero1.element;
+                if (v) { v.currentTime = 0; v.play().catch(() => {}); }
+            } else if (target === 7) {
+                const v = videosState.pelotero2.element;
+                if (v) { v.currentTime = 0; v.play().catch(() => {}); }
+            } else if (target === 8) {
+                const v = videosState.pelotero3.element;
+                if (v && v.paused) { v.currentTime = 0; v.play().catch(() => {}); }
+            } else if (target === 9) {
+                const v = videosState.colectivo1.element;
+                if (v) { v.currentTime = 0; v.play().catch(() => {}); }
+            } else if (target >= 10 && target <= 13) {
+                const v = videosState.colectivo1.element;
+                if (v && v.paused) { v.play().catch(() => {}); }
+            } else if (target === 14) {
+                const v = videosState.bandera.element;
+                if (v) { v.currentTime = 0; v.play().catch(() => {}); }
+            } else if (target >= 15 && target <= 16) {
+                const v = videosState.bandera.element;
+                if (v && v.paused) { v.play().catch(() => {}); }
+            } else if (target === 17) {
+                const v = videosState.juramento.element;
+                if (v) {
+                    v.currentTime = 0;
+                    v.volume = 1.0;
+                    v.play().catch(err => {
+                        reportError('✖ No se pudo reproducir juramento1.mp4 con audio: ' + err.message);
+                    });
+                }
+                const creditos = document.getElementById('creditos-texto');
+                creditos.style.animation = 'none';
+                void creditos.offsetWidth;
+                creditos.style.animation = 'creditosScroll 55s linear forwards';
+            } else if (target === 18) {
+                const v = videosState.juramento.element;
+                if (v && !v.paused) { v.pause(); }
+            } else if (target === 19) {
+                // Bisagra 2 — texto arriba se mantiene y texto abajo aparece en cursiva
+            }
+
+            setTimeout(() => { isTransitioning = false; }, 1500);
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.warn("No se pudo activar pantalla completa:", err);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        let uiTimeout;
+        function showUI() {
+            const ui = document.getElementById('ui-layer');
+            ui.style.opacity = '1';
+            clearTimeout(uiTimeout);
+            uiTimeout = setTimeout(() => { ui.style.opacity = '0'; }, 3500);
+        }
+
+        function kickVideos() {
+            if (currentSlide === 18 || currentSlide === 19) return;
+
+            if (currentSlide <= 4) {
+                ['sujeto1', 'sujeto2', 'sujeto3'].forEach(id => {
+                    const st = videosState[id];
+                    if (st.element && st.element.paused) st.element.play().catch(() => {});
+                });
+            } else if (currentSlide === 5) {
+                const st = videosState.cohetero1;
+                if (st.element && st.element.paused) st.element.play().catch(() => {});
+            } else if (currentSlide >= 6 && currentSlide <= 8) {
+                ['pelotero1', 'pelotero2', 'pelotero3'].forEach(id => {
+                    const st = videosState[id];
+                    if (st.element && st.element.paused) st.element.play().catch(() => {});
+                });
+            } else if (currentSlide >= 9 && currentSlide <= 13) {
+                const st = videosState.colectivo1;
+                if (st.element && st.element.paused) st.element.play().catch(() => {});
+            } else if (currentSlide >= 14 && currentSlide <= 16) {
+                const st = videosState.bandera;
+                if (st.element && st.element.paused) st.element.play().catch(() => {});
+            } else if (currentSlide === 17) {
+                const st = videosState.juramento;
+                if (st.element && st.element.paused) {
+                    st.element.volume = 1.0;
+                    st.element.play().catch(() => {});
+                }
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            showUI();
+            kickVideos();
+            const key = e.key.toLowerCase();
+
+            if (key === 'n' || key === 'arrowright' || e.code === 'Space') {
+                e.preventDefault();
+                // Si estamos en la 19, salta al archivo siguiente
+                if (currentSlide === totalSlides) {
+                    window.location.href = NEXT_FILE;
+                    return;
+                }
+                changeSlide(currentSlide + 1);
+            } else if (key === 'p' || key === 'arrowleft' || key === 'backspace') {
+                e.preventDefault();
+                changeSlide(currentSlide - 1);
+            } else if (key === 'f') {
+                e.preventDefault();
+                toggleFullscreen();
+            }
+        });
+
+        document.addEventListener('click', () => {
+            showUI();
+            kickVideos();
+        });
+
+        /* ---------------------------------------------------------
+           OCULTAMIENTO DEL PUNTERO DEL MOUSE
+           --------------------------------------------------------- */
+        let cursorTimeout;
+        function mostrarCursorTemporalmente() {
+            document.documentElement.classList.add('cursor-visible');
+            clearTimeout(cursorTimeout);
+            cursorTimeout = setTimeout(() => {
+                document.documentElement.classList.remove('cursor-visible');
+            }, 2000);
+        }
+
+        document.addEventListener('mousemove', mostrarCursorTemporalmente);
+        document.addEventListener('mousedown', mostrarCursorTemporalmente);
+
+        showUI();
+    </script>
+</body>
+</html>

@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="es" style="background:#000">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- ANTI-CACHÉ -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <title>Presentación de Tesis - Sección 4</title>
+
+    <!-- ANTI-FLASH — primer byte -->
+    <style>
+        html { background: #000 !important; }
+        body { background: #000 !important; margin: 0; padding: 0; overflow: hidden; }
+        #black-cover {
+            position: fixed; inset: 0; background: #000;
+            z-index: 2147483647; pointer-events: none; opacity: 1;
+        }
+        #black-cover.quitar { transition: opacity 0.5s ease; opacity: 0; }
+        #contenido { display: none; }
+        #contenido.listo { display: block; }
+    </style>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            width: 100vw; height: 100vh; overflow: hidden;
+            background-color: #050811;
+            font-family: 'Inter', sans-serif;
+            color: #f8fafc;
+        }
+
+        :root {
+            --navy: #050811;
+            --navy-2: #0a1220;
+            --cian: #0ea5e9;
+            --cian-suave: #38bdf8;
+            --ambar: #f59e0b;
+            --ambar-suave: #fbbf24;
+            --gris: #94a3b8;
+            --gris-oscuro: #475569;
+            --borde: rgba(148, 163, 184, 0.15);
+        }
+
+        #contenido {
+            position: relative;
+            width: 100vw; height: 100vh;
+            overflow: hidden;
+        }
+
+        /* CAPA NEGRA DE ENTRADA */
+        #entrada-fade {
+            position: fixed; inset: 0; background: #000;
+            z-index: 9999; pointer-events: none; opacity: 1;
+            will-change: opacity;
+        }
+        #entrada-fade.arrancar {
+            animation: entradaFade 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+        }
+        @keyframes entradaFade {
+            0%   { opacity: 1; }
+            37.5% { opacity: 1; }
+            100% { opacity: 0; visibility: hidden; }
+        }
+
+        /* Aviso de audio (por si se agregan videos después) */
+        #aviso-audio {
+            position: fixed; left: 50%; top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9998;
+            padding: 14px 26px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            color: #fff;
+            background: rgba(0,0,0,.7);
+            border: 1px solid rgba(255,255,255,.35);
+            border-radius: 4px;
+            backdrop-filter: blur(6px);
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+        #aviso-audio.show { opacity: 1; }
+
+        /* =====================================================
+           SISTEMA DE SLIDES
+           ===================================================== */
+        .slide {
+            position: absolute;
+            inset: 0;
+            padding: 4vh 5vw;
+            display: none;
+            flex-direction: column;
+            overflow-y: auto;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+        }
+        .slide.activo { display: flex; opacity: 1; }
+
+        /* Encabezado de slide */
+        .slide-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--borde);
+            padding-bottom: 14px;
+            margin-bottom: 28px;
+            flex-shrink: 0;
+        }
+        .slide-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--ambar);
+            letter-spacing: 0.15em;
+            font-weight: 700;
+        }
+        .slide-fase {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--gris);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .slide-titulo {
+            font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            margin-bottom: 6px;
+            color: #f8fafc;
+        }
+        .slide-titulo .acento { color: var(--ambar); }
+
+        .slide-sub {
+            font-size: 0.95rem;
+            color: var(--gris);
+            margin-bottom: 26px;
+            font-weight: 400;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+            flex: 1;
+            min-height: 0;
+        }
+        .grid-1 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 22px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .card {
+            background: rgba(10, 18, 32, 0.65);
+            border: 1px solid var(--borde);
+            border-radius: 10px;
+            padding: 20px 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+        }
+        .card-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--cian-suave);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-label::before {
+            content: '';
+            width: 18px; height: 1px;
+            background: var(--cian-suave);
+        }
+        .card.ambar .card-label { color: var(--ambar-suave); }
+        .card.ambar .card-label::before { background: var(--ambar-suave); }
+
+        .card p, .card li {
+            font-size: 0.92rem;
+            line-height: 1.55;
+            color: #cbd5e1;
+        }
+        .card ul { padding-left: 18px; }
+        .card li { margin-bottom: 6px; }
+        .card strong { color: #f1f5f9; font-weight: 600; }
+        .card em { color: var(--ambar-suave); font-style: normal; font-weight: 500; }
+
+        .guion {
+            background: rgba(14, 165, 233, 0.05);
+            border-left: 3px solid var(--cian);
+            padding: 14px 18px;
+            border-radius: 4px;
+            font-style: italic;
+            color: #e2e8f0;
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+
+        .asset-tag {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            background: rgba(245, 158, 11, 0.12);
+            color: var(--ambar-suave);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            padding: 4px 10px;
+            border-radius: 4px;
+            margin-right: 6px;
+            margin-bottom: 6px;
+        }
+
+        .anclaje {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--gris-oscuro);
+            letter-spacing: 0.08em;
+            margin-top: auto;
+            padding-top: 12px;
+            border-top: 1px dashed var(--borde);
+        }
+
+        /* Slide especial: Título */
+        .titulo-central {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            text-align: center;
+            padding: 0 8vw;
+        }
+        .titulo-central h1 {
+            font-size: clamp(1.8rem, 4.5vw, 3.4rem);
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+            color: var(--ambar);
+        }
+        .titulo-central h1 .gris { color: #f8fafc; }
+
+        .checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .checklist-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            font-size: 0.92rem;
+            color: #cbd5e1;
+            line-height: 1.5;
+        }
+        .checklist-item::before {
+            content: '▸';
+            color: var(--ambar);
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* UI DE NAVEGACIÓN */
+        #ui-layer {
+            position: absolute;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 8px 20px;
+            border-radius: 30px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            z-index: 100;
+            font-size: 0.82rem;
+            font-family: 'JetBrains Mono', monospace;
+            transition: opacity 0.3s ease;
+        }
+        #ui-layer.atenuada { opacity: 0.3; }
+        #ui-layer:hover { opacity: 1 !important; }
+
+        .ui-btn {
+            background: rgba(255, 255, 255, 0.12);
+            border: none;
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: background 0.2s;
+            font-family: inherit;
+            font-size: 0.78rem;
+        }
+        .ui-btn:hover { background: rgba(245, 158, 11, 0.5); }
+        .ui-key {
+            background: #ffffff;
+            color: #000000;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.72rem;
+        }
+        #slide-indicador {
+            color: var(--ambar-suave);
+            font-weight: 700;
+            letter-spacing: 0.08em;
+        }
+
+        /* OCULTAMIENTO DEL PUNTERO */
+        html, body, button, a, input, textarea, select { cursor: none; }
+        html.cursor-visible,
+        html.cursor-visible body,
+        html.cursor-visible button { cursor: default; }
+
+        /* ACCESIBILIDAD */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+            #entrada-fade { animation: none !important; opacity: 0; visibility: hidden; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CORTINA NEGRA IMPENETRABLE -->
+    <div id="black-cover"></div>
+
+    <!-- CAPA NEGRA DE ENTRADA -->
+    <div id="entrada-fade"></div>
+
+    <div id="aviso-audio">🔇 Click o presiona una tecla para activar el sonido</div>
+
+    <!-- CONTENEDOR DE LA SECCIÓN -->
+    <div id="contenido">
+
+        <!-- ============================================================
+             SLIDE 01 — TÍTULO Y BISAGRA
+             ============================================================ -->
+        <div class="slide activo" data-slide="1">
+            <div class="slide-header">
+                <span class="slide-num">SLIDE 01</span>
+                <span class="slide-fase">FASE 3 · EL DESPLIEGUE DE LA TESIS</span>
+            </div>
+
+            <div class="titulo-central">
+                <div>
+                    <p style="font-size:clamp(1rem,2vw,1.4rem); color:#94a3b8; margin-bottom:28px; font-weight:400; font-style:italic; line-height:1.5;">
+                        "Este trabajo no propone comprar drones.<br>
+                        Propone construir el mecanismo institucional<br>
+                        para que la Armada capture a esos jóvenes antes de perderlos."
+                    </p>
+                    <div style="width:80px; height:2px; background:#f59e0b; margin:0 auto 32px;"></div>
+                    <h1>
+                        SIMULACIÓN PARA COMPETENCIAS STEAM<br>
+                        <span class="gris">EN EL SERVICIO MILITAR OBLIGATORIO</span><br>
+                        <span class="gris">DE LA ARMADA PARAGUAYA</span><br>
+                        <span style="font-size:0.6em; color:#94a3b8; font-weight:500; letter-spacing:0.05em;">(2026–2028)</span>
+                    </h1>
+                </div>
+            </div>
+            <div class="anclaje" style="text-align:center;">Frase bisagra · Cap. I — Originalidad</div>
+        </div>
+
+        <!-- ============================================================
+             SLIDE 02 — ASIMETRÍA INSTITUCIONAL
+             ============================================================ -->
+        <div class="slide" data-slide="2">
+            <div class="slide-header">
+                <span class="slide-num">SLIDE 02</span>
+                <span class="slide-fase">BLUEPRINT · LA ASIMETRÍA</span>
+            </div>
+            <div class="slide-titulo">La asimetría <span class="acento">institucional</span></div>
+            <div class="slide-sub">El acceso selectivo por competencias ya existe. Pero no para conscriptos.</div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-label">Contenido visual</div>
+                    <p>Diagrama de dos columnas:</p>
+                    <ul>
+                        <li><strong>Cuadros complementarios</strong> (oficiales, suboficiales, profesionales) → check verde. El mecanismo existe.</li>
+                        <li><strong>Conscriptos</strong> → vacío. El mecanismo no existe.</li>
+                    </ul>
+                    <p>Texto de cierre: <em>"No es una innovación sin precedentes. Es cerrar un vacío que ya existe."</em></p>
+                </div>
+                <div class="card">
+                    <div class="card-label">Guion verbal</div>
+                    <div class="guion">
+                        "La Armada ya selecciona talento por competencias. Lo hace para oficiales complementarios, para suboficiales complementarios, para el cuadro de profesionales. Lo que no hace es extender ese mecanismo al segmento STEAM de la conscripción. No es una innovación sin precedentes. Es cerrar un vacío que ya existe."
+                    </div>
+                    <div class="card-label" style="margin-top:14px;">Respuesta a objeción</div>
+                    <p style="font-size:0.85rem;">Si preguntan "¿por qué no comprar drones?": <em>"Porque el dron no es el problema. El problema es que el joven que sabría operarlo no llega al cuartel. El mecanismo de llegada es lo que hay que rediseñar."</em></p>
+                </div>
+            </div>
+            <div class="anclaje">Ley N.º 1.115/1997, art. 57 — Estatuto del Personal Militar</div>
+        </div>
+
+        <!-- ============================================================
+             SLIDE 03 — FILTRO STEAM
+             ============================================================ -->
+        <div class="slide" data-slide="3">
+            <div class="slide-header">
+                <span class="slide-num">SLIDE 03</span>
+                <span class="slide-fase">BLUEPRINT · EL MECANISMO</span>
+            </div>
+            <div class="slide-titulo">El filtro <span class="acento">STEAM</span></div>
+            <div class="slide-sub">Dos umbrales. Una sola lógica: canalización diferenciada, no exclusión.</div>
+
+            <div class="grid-2">
+                <div class="card ambar">
+                    <div class="card-label">Estructura del filtro</div>
+                    <p><strong>Umbral 1 — Entrada (bajo):</strong> cualquier joven con al menos <em>una subcompetencia STEAM verificable</em> accede al canal tecnológico.</p>
+                    <p><strong>Umbral 2 — Detección (alto):</strong> sobre los ya nivelados, se identifican perfiles avanzados y se los canaliza hacia especialización superior.</p>
+                    <p style="margin-top:8px; padding:10px 14px; background:rgba(245,158,11,0.08); border-left:3px solid #f59e0b; border-radius:4px; font-size:0.88rem;">
+                        <strong>No excluye:</strong> quien no presenta perfil STEAM continúa bajo el régimen tradicional del SMO, sin cambios.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-label">Guion verbal</div>
+                    <div class="guion">
+                        "El filtro opera en dos umbrales. El primero es de entrada: cualquier joven con al menos una subcompetencia STEAM verificable accede al canal tecnológico. El segundo es de detección: sobre los ya nivelados, se identifican los perfiles avanzados y se los canaliza hacia especialización superior. No es exclusión. Es canalización diferenciada. Quien no presenta perfil STEAM sigue el SMO tradicional, sin cambios."
+                    </div>
+                    <div class="card-label" style="margin-top:14px;">Anclaje teórico</div>
+                    <p style="font-size:0.85rem;">Teoría del Filtro (Arrow, 1973; Spence, 1973) — la organización selecciona talento mediante señales certificadas.</p>
+                </div>
+            </div>
+            <div class="anclaje">Cap. I — Originalidad · Constructo propio: filtro social por competencias STEAM</div>
+        </div>
+
+        <!-- ============================================================
+             SLIDE 04 — NIVELACIÓN
+             ============================================================ -->
+        <div class="slide" data-slide="4">
+            <div class="slide-header">
+                <span class="slide-num">SLIDE 04</span>
+                <span class="slide-fase">BLUEPRINT · LA RESPUESTA AL 0 %</span>
+            </div>
+            <div class="slide-titulo">Módulo de <span class="acento">nivelación</span> inicial</div>
+            <div class="slide-sub">Antes de simular, hay que homogeneizar. Dos semanas. 40 horas cátedra.</div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-label">El dato que lo justifica</div>
+                    <div style="display:flex; gap:20px; flex-wrap:wrap; margin-top:6px;">
+                        <div><span style="font-family:'JetBrains Mono',monospace; font-size:2rem; color:#f59e0b; font-weight:700;">51,4 %</span><br><span style="font-size:0.78rem; color:#94a3b8;">Mixto</span></div>
+                        <div><span style="font-family:'JetBrains Mono',monospace; font-size:2rem; color:#38bdf8; font-weight:700;">40,5 %</span><br><span style="font-size:0.78rem; color:#94a3b8;">Medio</span></div>
+                        <div><span style="font-family:'JetBrains Mono',monospace; font-size:2rem; color:#94a3b8; font-weight:700;">8,1 %</span><br><span style="font-size:0.78rem; color:#94a3b8;">Bajo</span></div>
+                        <div><span style="font-family:'JetBrains Mono',monospace; font-size:2rem; color:#475569; font-weight:700;">0 %</span><br><span style="font-size:0.78rem; color:#94a3b8;">Alto</span></div>
+                    </div>
+                    <p style="margin-top:14px; font-size:0.88rem;">El perfil de ingreso es heterogéneo. La respuesta no es bajar la exigencia: es nivelar antes de simular.</p>
+                </div>
+                <div class="card ambar">
+                    <div class="card-label">Estructura del módulo</div>
+                    <p><strong>Semana 1 — Fundamentos de infraestructura digital</strong><br>Alfabetización digital aplicada, arquitectura elemental de hardware, sistemas operativos locales, diagnóstico básico de fallas, protocolos offline y ciberseguridad.</p>
+                    <p><strong>Semana 2 — Electrónica básica e interfaces</strong><br>Reconocimiento de componentes, soldadura de circuitos, modulación de frecuencias, emparejamiento de telemetría, configuración de periféricos y mandos.</p>
+                </div>
+            </div>
+
+            <div style="margin-top:20px;">
+                <div class="card">
+                    <div class="card-label">Guion verbal</div>
+                    <div class="guion">
+                        "El diagnóstico directo mostró lo que el baremo estricto no perdona: 51,4 % de perfil Mixto, 40,5 % Medio, 8,1 % Bajo, 0 % Alto. El perfil de ingreso es heterogéneo. La respuesta no es bajar la exigencia: es nivelar antes de simular. Dos semanas. Cuarenta horas cátedra. Semana uno: alfabetización digital aplicada e infraestructura. Semana dos: electrónica básica e interfaces de radiofrecuencia."
+                    </div>
+                </div>
+            </div>
+            <div class="anclaje">Cap. IV, Tabla 22 / Cap. V, Rec. 2</div>
+        </div>
+
+        <!-- ============================================================
+             SLIDE 05 — SOLDADO-TECNÓLOGO
+             ============================================================ -->
+        <div class="slide" data-slide="5">
+            <div class="slide-header">
+                <span class="slide-num">SLIDE 05</span>
+                <span class="slide-fase">BLUEPRINT · LA IDENTIDAD</span>
+            </div>
+            <div class="slide-titulo">El <span class="acento">soldado-tecnólogo</span></div>
+            <div class="slide-sub">El producto final del adiestramiento. Una identidad nueva del conscripto.</div>
+
+            <div class="grid-2">
+                <div class="card ambar">
+                    <div class="card-label">Definición operativa</div>
+                    <p>Un operador capaz de:</p>
+                    <ul>
+                        <li>Pilotar plataformas FPV en condiciones de guerra electrónica.</li>
+                        <li>Diagnosticar fallas en tiempo real.</li>
+                        <li>Modificar componentes de hardware.</li>
+                        <li>Adaptar plataformas en el teatro de operaciones.</li>
+                    </ul>
+                    <p style="margin-top:10px;"><em>No es un conscripto que sabe usar un dron. Es un activo estratégico especializado.</em></p>
+                </div>
+                <div class="card">
+                    <div class="card-label">Guion verbal</div>
+                    <div class="guion">
+                        "El producto no es un conscripto que sabe usar un dron. Es un soldado-tecnólogo: un operador capaz de pilotar, diagnosticar fallas, modificar componentes y adaptar plataformas en el teatro de operaciones. La doctrina regional revisada no tiene este perfil. La guerra híbrida sí lo exige."
+                    </div>
+                    <div class="card-label" style="margin-top:14px;">Brecha doctrinal</div>
+                    <p style="font-size:0.85rem;">El análisis documental del CINAE confirma que los manuales vigentes mantienen un enfoque analógico tradicional, sin mención a sistemas no tripulados ni simulación.</p>
+                </div>
+            </div>
+            <div class="anclaje">Cap. I — Originalidad · Constructo propio: soldado-tecnólogo</div>
+        </div>
+
+        <!-- ============================================================
+             SLIDE 06 — RESERVA TECNOLÓGICA
+             ============================================================ -->
+        <div class="slide" data-slide="6">
+            <div class="slide-header">
+                <span class="slide-num">SLIDE 06</span>
+                <span class="slide-fase">BLUEPRINT · EL ESCUDO LEGAL</span>
+            </div>
+            <div class="slide-titulo">La reserva <span class="acento">tecnológica</span></div>
+            <div class="slide-sub">El marco legal ya existe. Solo hay que usarlo.</div>
+
+            <div class="grid-2">
+                <div class="card ambar">
+                    <div class="card-label">El dato</div>
+                    <div style="font-family:'JetBrains Mono',monospace; font-size:clamp(3rem,7vw,5rem); color:#f59e0b; font-weight:700; line-height:1; margin:10px 0;">93,3 %</div>
+                    <p>de los encuestados manifestó interés en continuar vinculado a la Armada como reservista al terminar el SMO.</p>
+                    <p style="margin-top:10px; font-size:0.85rem; color:#94a3b8;">Cap. IV, Tabla 45</p>
+                </div>
+                <div class="card">
+                    <div class="card-label">El respaldo legal</div>
+                    <p><strong>Ley N.º 6.723/2021</strong> de Reserva Militar Activa, art. 2.º: la reserva se constituye <em>también sobre la base de personal civil sin instrucción militar previa</em>.</p>
+                    <p><strong>Decreto Reglamentario N.º 9237/2023:</strong> restringe la capacitación a presentación física en cuarteles.</p>
+                    <p style="margin-top:8px; padding:10px 14px; background:rgba(14,165,233,0.08); border-left:3px solid #0ea5e9; border-radius:4px; font-size:0.88rem;">
+                        <strong>Oportunidad:</strong> el ordenamiento ya posee antecedentes de flexibilización (Ley N.º 569/1975, art. 40 inc. b). La simulación remota se alinea con el espíritu de la norma.
+                    </p>
+                </div>
+            </div>
+
+            <div style="margin-top:20px;">
+                <div class="card">
+                    <div class="card-label">Guion verbal</div>
+                    <div class="guion">
+                        "El 93,3 % de los encuestados manifestó interés en continuar vinculado a la Armada como reservista al terminar el SMO. Y la ley ya lo permite: la Ley 6.723 de Reserva Militar Activa contempla la reserva sobre la base de personal civil sin instrucción militar previa. No hay que inventar el marco. Hay que usarlo."
+                    </div>
+                </div>
+            </div>
+            <div class="anclaje">Ley N.º 6.723/2021, art. 2 / Cap. IV, Tabla 45</div>
+        </div>
+
+        <!-- ============================================================
+             SLIDE 07 — CERTIFICACIÓN DUAL
+             ============================================================ -->
+        <div class="slide" data-slide="7">
+            <div class="slide-header">
+                <span class="slide-num">SLIDE 07</span>
+                <span class="slide-fase">BLUEPRINT · EL ELEVADOR DE TALENTO</span>
+            </div>
+            <div class="slide-titulo">Certificación <span class="acento">dual</span></div>
+            <div class="slide-sub">El conscripto no se va con las manos vacías. Se va con un título homologado.</div>
+
+            <div class="grid-2">
+                <div class="card ambar">
+                    <div class="card-label">Mecanismo</div>
+                    <p>Convenios de cooperación con:</p>
+                    <div style="display:flex; gap:14px; margin:14px 0; flex-wrap:wrap;">
+                        <span class="asset-tag" style="font-size:0.85rem; padding:8px 16px;">MITIC</span>
+                        <span class="asset-tag" style="font-size:0.85rem; padding:8px 16px;">SNPP</span>
+                    </div>
+                    <p>Al finalizar el canal tecnológico, el conscripto recibe una <strong>certificación civil homologada</strong> en soporte informático y operación técnica.</p>
+                    <p style="margin-top:10px;"><em>El SMO deja de interrumpir la trayectoria civil del joven y empieza a impulsarla.</em></p>
+                </div>
+                <div class="card">
+                    <div class="card-label">Guion verbal</div>
+                    <div class="guion">
+                        "El conscripto que termina el canal tecnológico no se va con las manos vacías. Se va con una certificación civil homologada, gestionada con el MITIC y el SNPP. Eso es el elevador de talento: el SMO deja de interrumpir la trayectoria civil del joven y empieza a impulsarla."
+                    </div>
+                    <div class="card-label" style="margin-top:14px;">Impacto institucional</div>
+                    <p style="font-size:0.85rem;">Convierte al SMO en un centro de formación de ciudadanos con competencias tecnológicas de vanguardia, reduciendo la resistencia al cumplimiento del deber constitucional.</p>
+                </div>
+            </div>
+            <div class="anclaje">Cap. V, Rec. 5 — Gestión de convenios interinstitucionales</div>
+        </div>
+
+        <!-- ============================================================
+             SLIDE 08 — ARQUITECTURA DE BAJO REQUERIMIENTO
+             ============================================================ -->
+        <div class="slide" data-slide="8">
+            <div class="slide-header">
+                <span class="slide-num">SLIDE 08</span>
+                <span class="slide-fase">BLUEPRINT · SOSTENIBILIDAD</span>
+            </div>
+            <div class="slide-titulo">Arquitectura de <span class="acento">bajo requerimiento</span></div>
+            <div class="slide-sub">Supuestos de sostenibilidad a verificar en piloto</div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-label">Lo que sí sostiene la tesis</div>
+                    <ul>
+                        <li><strong>Arquitectura local/offline:</strong> hardware abierto, mandos estándar, software comercial accesible.</li>
+                        <li>Reduce dependencia de conectividad y de periféricos especializados.</li>
+                        <li><strong>Expectativa de ahorro</strong> concentrada en insumos didácticos y desgaste de material real.</li>
+                        <li>Los instructores <strong>no seleccionaron</strong> combustible ni municiones como rubros de ahorro.</li>
+                    </ul>
+                </div>
+                <div class="card ambar">
+                    <div class="card-label">Lo que la tesis NO afirma</div>
+                    <p style="padding:14px; background:rgba(245,158,11,0.08); border-left:3px solid #f59e0b; border-radius:4px;">
+                        <strong>La cuantificación presupuestaria requiere la fase piloto.</strong><br><br>
+                        Este estudio no la afirma: <em>la delimita</em>.<br>
+                        El costo-beneficio no se supone: <em>se mide</em>.
+                    </p>
+                    <p style="font-size:0.85rem; margin-top:10px; color:#94a3b8;">Esta delimitación es intencional y constituye un blindaje metodológico ante la mesa.</p>
+                </div>
+            </div>
+
+            <div style="margin-top:20px;">
+                <div class="card">
+                    <div class="card-label">Guion verbal</div>
+                    <div class="guion">
+                        "La arquitectura es de bajo requerimiento: local, offline, con hardware abierto, mandos estándar y software comercial accesible. Eso reduce la dependencia de conectividad. Los instructores concentraron la expectativa de ahorro en insumos didácticos y desgaste de material real. No mencionaron combustible ni municiones. Y acá quiero ser preciso: este estudio no cuantifica el ahorro. Lo delimita. La cifra real sale de la fase piloto."
+                    </div>
+                </div>
+            </div>
+            <div class="anclaje">Cap. IV, Tabla 39 / Cuestionario a informantes clave (n=116)</div>
+        </div>
+
+        <!-- ============================================================
+             SLIDE 09 — FASE PILOTO EPSOA
+             ============================================================ -->
+        <div class="slide" data-slide="9">
+            <div class="slide-header">
+                <span class="slide-num">SLIDE 09</span>
+                <span class="slide-fase">BLUEPRINT · EL CABLE A TIERRA</span>
+            </div>
+            <div class="slide-titulo">Fase <span class="acento">piloto</span> EPSOA</div>
+            <div class="slide-sub">Tres meses. Software local. Mandos estándar. Indicadores medibles.</div>
+
+            <div class="grid-2">
+                <div class="card ambar">
+                    <div class="card-label">Parámetros del piloto</div>
+                    <div class="checklist">
+                        <div class="checklist-item"><strong>Duración:</strong> tres meses</div>
+                        <div class="checklist-item"><strong>Modalidad:</strong> software comercial en modalidad local (offline)</div>
+                        <div class="checklist-item"><strong>Hardware:</strong> mandos estándar, sin periféricos especializados</div>
+                        <div class="checklist-item"><strong>Contingente:</strong> reducido, conscriptos voluntarios</div>
+                        <div class="checklist-item"><strong>Sede:</strong> EPSOA (condiciones de adaptabilidad física observadas)</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-label">Objetivos de medición</div>
+                    <ul>
+                        <li>Tasa real de transferencia de habilidades motoras hacia vectores reales.</li>
+                        <li>Carga horaria óptima de instrucción virtual.</li>
+                        <li>Registro de costos efectivos de mantenimiento y consumo energético.</li>
+                    </ul>
+                    <div class="card-label" style="margin-top:14px;">Alineación normativa</div>
+                    <p style="font-size:0.85rem;">Tratamiento de datos conforme a la Ley N.º 7.593/2025, previendo el período de transición para su vigencia plena (nov. 2027).</p>
+                </div>
+            </div>
+
+            <div style="margin-top:20px;">
+                <div class="card">
+                    <div class="card-label">Guion verbal de cierre</div>
+                    <div class="guion">
+                        "Señores: esto no es una visión. Es un experimento de tres meses, en la EPSOA, con software comercial en modalidad local, mandos estándar, y un contingente reducido de conscriptos voluntarios. Objetivo: medir transferencia de habilidades hacia vectores reales, carga horaria óptima, y registrar los costos efectivos para validar o refutar la hipótesis económica. Eso es lo que pido autorizar."
+                    </div>
+                </div>
+            </div>
+            <div class="anclaje">Cap. V, Rec. 1 — Evaluación e implementación de un proyecto piloto</div>
+        </div>
+
+    </div>
+
+    <!-- UI FLOTANTE -->
+    <div id="ui-layer">
+        <button class="ui-btn" onclick="slideAnterior()">← <span class="ui-key">P</span></button>
+        <span id="slide-indicador">01 / 09</span>
+        <button class="ui-btn" onclick="slideSiguiente()"><span class="ui-key">N</span> →</button>
+        <button class="ui-btn" onclick="salirAlSiguiente()">Salir <span class="ui-key">ESC</span></button>
+        <button class="ui-btn" onclick="toggleFullscreen()">⛶ <span class="ui-key">F</span></button>
+    </div>
+
+    <script>
+        const NEXT_FILE = 'presentación5.html';
+
+        /* ---------------------------------------------------------
+           SISTEMA DE SLIDES
+           --------------------------------------------------------- */
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        let slideActual = 0;
+
+        function mostrarSlide(idx) {
+            if (idx < 0 || idx >= totalSlides) return;
+            slides.forEach((s, i) => s.classList.toggle('activo', i === idx));
+            slideActual = idx;
+            const indicador = document.getElementById('slide-indicador');
+            if (indicador) {
+                const num = String(idx + 1).padStart(2, '0');
+                const tot = String(totalSlides).padStart(2, '0');
+                indicador.textContent = num + ' / ' + tot;
+            }
+            const ui = document.getElementById('ui-layer');
+            if (ui) ui.classList.toggle('atenuada', idx === 0);
+        }
+
+        function slideSiguiente() {
+            if (slideActual < totalSlides - 1) mostrarSlide(slideActual + 1);
+            else salirAlSiguiente();
+        }
+
+        function slideAnterior() {
+            if (slideActual > 0) mostrarSlide(slideActual - 1);
+        }
+
+        /* ---------------------------------------------------------
+           ARRANQUE REAL DE LA SECCIÓN
+           --------------------------------------------------------- */
+        function arrancarSeccion() {
+            const contenido = document.getElementById('contenido');
+            const entrada   = document.getElementById('entrada-fade');
+            const cover     = document.getElementById('black-cover');
+
+            contenido.classList.add('listo');
+            entrada.classList.add('arrancar');
+
+            function onFadeEnd(e) {
+                if (e.animationName !== 'entradaFade') return;
+                entrada.removeEventListener('animationend', onFadeEnd);
+                cover.classList.add('quitar');
+                setTimeout(() => { if (cover.parentNode) cover.remove(); }, 600);
+            }
+            entrada.addEventListener('animationend', onFadeEnd);
+
+            setTimeout(() => {
+                if (document.getElementById('black-cover')) {
+                    cover.classList.add('quitar');
+                    setTimeout(() => { if (cover.parentNode) cover.remove(); }, 600);
+                }
+            }, 2000);
+
+            mostrarSlide(0);
+        }
+
+        window.addEventListener('load', () => {
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    arrancarSeccion();
+                });
+            });
+        });
+        setTimeout(() => {
+            const c = document.getElementById('contenido');
+            if (!c.classList.contains('listo')) arrancarSeccion();
+        }, 3000);
+
+        /* ---------------------------------------------------------
+           SALIDA AL SIGUIENTE ARCHIVO CON FUNDIDO A NEGRO
+           --------------------------------------------------------- */
+        function salirAlSiguiente() {
+            const salida = document.createElement('div');
+            salida.style.cssText = 'position:fixed;inset:0;background:#000;z-index:99999;opacity:0;pointer-events:none;transition:opacity 0.4s ease;';
+            document.body.appendChild(salida);
+            requestAnimationFrame(() => { salida.style.opacity = '1'; });
+            setTimeout(() => { window.location.href = NEXT_FILE; }, 450);
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        /* ---------------------------------------------------------
+           RECUPERACIÓN DE FULLSCREEN
+           Al navegar desde presentación3, el navegador sale de
+           fullscreen al cargar el nuevo documento. Reintentamos
+           en cada input hasta lograrlo.
+           --------------------------------------------------------- */
+        let fullscreenLogrado = false;
+        function intentarFullscreen() {
+            if (fullscreenLogrado) return;
+            if (document.fullscreenElement) {
+                fullscreenLogrado = true;
+                return;
+            }
+            const p = document.documentElement.requestFullscreen();
+            if (p && typeof p.then === 'function') {
+                p.then(() => { fullscreenLogrado = true; }).catch(() => {
+                    // falló: se reintentará en el próximo input
+                });
+            }
+        }
+        document.addEventListener('keydown', intentarFullscreen);
+        document.addEventListener('click', intentarFullscreen);
+        document.addEventListener('mousedown', intentarFullscreen);
+        document.addEventListener('touchstart', intentarFullscreen, { passive: true });
+
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (key === 'n' || key === 'arrowright' || e.code === 'Space') {
+                e.preventDefault();
+                slideSiguiente();
+            } else if (key === 'p' || key === 'arrowleft' || key === 'backspace') {
+                e.preventDefault();
+                slideAnterior();
+            } else if (key === 'f') {
+                e.preventDefault();
+                toggleFullscreen();
+            } else if (key === 'escape') {
+                e.preventDefault();
+                salirAlSiguiente();
+            }
+        });
+
+        /* CURSOR OCULTO */
+        let cursorTimeout;
+        function mostrarCursorTemporalmente() {
+            document.documentElement.classList.add('cursor-visible');
+            clearTimeout(cursorTimeout);
+            cursorTimeout = setTimeout(() => {
+                document.documentElement.classList.remove('cursor-visible');
+            }, 2000);
+        }
+        document.addEventListener('mousemove', mostrarCursorTemporalmente);
+        document.addEventListener('mousedown', mostrarCursorTemporalmente);
+    </script>
+</body>
+</html>

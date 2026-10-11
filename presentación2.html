@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="es" style="background:#000">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Presentación - Tablas y Paradoja</title>
+
+    <style>
+        html { background: #000 !important; }
+        body { background: #000 !important; margin: 0; padding: 0; overflow: hidden; }
+        #black-cover {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 2147483647;
+            pointer-events: none;
+            opacity: 1;
+        }
+        #black-cover.quitar {
+            transition: opacity 0.5s ease;
+            opacity: 0;
+        }
+        #presentation-container { display: none; }
+        #presentation-container.listo { display: block; }
+    </style>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #050811;
+            font-family: 'Inter', sans-serif;
+            color: #f8fafc;
+        }
+
+        #presentation-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* CAPA NEGRA DE ENTRADA — 0.8s total (0.3s negro + 0.5s fade) */
+        #entrada-fade {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 1;
+            will-change: opacity;
+        }
+        #entrada-fade.arrancar {
+            animation: entradaFade 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+        }
+        @keyframes entradaFade {
+            0%   { opacity: 1; }
+            37.5% { opacity: 1; }
+            100% { opacity: 0; visibility: hidden; }
+        }
+
+        /* VIDEO DE FONDO */
+        .bg-parallax {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            overflow: hidden;
+            transform: scale(1.06);
+            transition: transform 1.8s cubic-bezier(0.7, 0, 0.3, 1);
+            will-change: transform;
+        }
+        .bg-parallax::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+            background: radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.75) 100%);
+        }
+        .bg-video {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            object-fit: cover;
+            filter: grayscale(100%) contrast(1.15) brightness(0.45);
+            animation: bgDrift 40s ease-in-out infinite alternate;
+            will-change: transform;
+        }
+        .state-1 .bg-parallax { transform: scale(1.06) translateX(0); }
+        .state-2 .bg-parallax { transform: scale(1.14) translateX(-3%); }
+        .state-3 .bg-parallax { transform: scale(1.22) translateX(-6%); }
+        .state-4 .bg-parallax { transform: scale(1.12) translateX(3%); }
+        .state-5 .bg-parallax { transform: scale(1.05) translateX(7%); }
+        .state-6 .bg-parallax { transform: scale(1.02) translateX(10%); }
+        .state-7 .bg-parallax { transform: scale(1.22) translateX(-4%); }
+        .state-8 .bg-parallax { transform: scale(1.30) translateX(-8%); }
+        @keyframes bgDrift { from { transform: scale(1); } to { transform: scale(1.07); } }
+
+        /* GLASSMORPHISM */
+        .glass-container {
+            position: absolute;
+            top: 6vh; left: 4vw;
+            z-index: 2;
+            width: 92vw; height: 88vh;
+            background: rgba(15, 23, 42, 0.86);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+            padding: 32px 38px;
+            visibility: hidden;
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+            pointer-events: none;
+            transition: transform 0.9s cubic-bezier(0.7, 0, 0.3, 1),
+                        opacity 0.7s cubic-bezier(0.7, 0, 0.3, 1),
+                        visibility 0s linear 0.9s;
+            will-change: transform, opacity;
+            backface-visibility: hidden;
+        }
+
+        /* TEXTO CON CONTORNO */
+     .text-outlined {
+    text-align: center !important;
+    font-size: 1rem !important;
+    line-height: 1.45;
+    color: #ffffff !important;
+    font-weight: 500;
+    filter: 
+        drop-shadow(0 0 1.5px rgba(0, 0, 0, 1))
+        drop-shadow(0 0 3px rgba(0, 0, 0, 0.95))
+        drop-shadow(0 2px 6px rgba(0, 0, 0, 0.8));
+}
+    .highlight-outlined {
+    color: #ffffff !important;
+    font-weight: 700;
+    text-shadow: 
+        -0.5px -0.5px 0 rgba(0, 0, 0, 0.5), 
+         0.5px -0.5px 0 rgba(0, 0, 0, 0.5),
+        -0.5px  0.5px 0 rgba(0, 0, 0, 0.5),
+         0.5px  0.5px 0 rgba(0, 0, 0, 0.5),
+         0px    0px   3px rgba(0, 0, 0, 0.45);
+    -webkit-text-stroke: 0.3px rgba(0, 0, 0, 0.5);
+}
+
+        /* ESTADOS ACTIVOS */
+        .state-1 #slide-19, .state-2 #slide-20, .state-3 #slide-21,
+        .state-4 #slide-22, .state-5 #slide-23, .state-6 #slide-24,
+        .state-7 #slide-25, .state-8 #slide-26 {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+            visibility: visible;
+            transition-delay: 0.3s;
+        }
+
+        /* GRID COMÚN */
+        #slide-19, #slide-21, #slide-22, #slide-23, #slide-24, #slide-25 {
+            display: grid;
+            grid-template-columns: 1.35fr 1fr;
+            gap: 28px;
+        }
+        .left-column { display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+        .right-column { display: flex; flex-direction: column; gap: 16px; height: 100%; }
+        .table-title { font-size: 1.1rem; font-weight: 600; color: #38bdf8; line-height: 1.35; }
+
+        /* BARRAS SLIDE 19 */
+        #slide-19 .chart-container { display: flex; flex-direction: column; gap: 16px; margin: auto 0; padding: 10px 0; }
+        #slide-19 .bar-row { display: flex; flex-direction: column; gap: 6px; }
+        #slide-19 .bar-track { position: relative; width: 100%; height: 22px; background: rgba(255, 255, 255, 0.06); border-radius: 12px; overflow: hidden; contain: layout paint; border: 1px solid rgba(255, 255, 255, 0.08); }
+
+        /* BARRAS SLIDE 21 */
+        #slide-21 .chart-container { display: flex; flex-direction: column; gap: 5px; margin: auto 0; padding: 4px 0; }
+        #slide-21 .bar-row { display: flex; flex-direction: column; gap: 2px; }
+        #slide-21 .bar-info { display: flex; justify-content: space-between; font-size: 0.74rem; font-weight: 500; color: #e2e8f0; }
+        #slide-21 .bar-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 72%; }
+        #slide-21 .bar-metrics { font-size: 0.74rem; color: #94a3b8; }
+        #slide-21 .bar-metrics strong { color: #ffffff; }
+        #slide-21 .bar-track { position: relative; width: 100%; height: 12px; background: rgba(255, 255, 255, 0.06); border-radius: 8px; overflow: hidden; contain: layout paint; border: 1px solid rgba(255, 255, 255, 0.08); }
+
+        /* BARRAS SLIDE 22 Y 23 */
+        #slide-22 .chart-container, #slide-23 .chart-container { display: flex; flex-direction: column; gap: 22px; margin: auto 0; padding: 12px 0; }
+        #slide-22 .bar-row, #slide-23 .bar-row { display: flex; flex-direction: column; gap: 8px; }
+        #slide-22 .bar-info, #slide-23 .bar-info { display: flex; justify-content: space-between; align-items: center; font-size: 0.92rem; font-weight: 600; color: #e2e8f0; }
+        #slide-22 .bar-metrics, #slide-23 .bar-metrics { font-size: 0.9rem; color: #38bdf8; font-weight: 700; }
+        #slide-22 .bar-metrics strong, #slide-23 .bar-metrics strong { color: #ffffff; font-size: 1.05rem; }
+        #slide-22 .bar-track, #slide-23 .bar-track { position: relative; width: 100%; height: 26px; background: rgba(255, 255, 255, 0.06); border-radius: 14px; overflow: hidden; contain: layout paint; border: 1px solid rgba(255, 255, 255, 0.1); }
+
+        /* SLIDE 24 */
+        #slide-24 .doc-grid { display: flex; flex-direction: column; gap: 10px; margin: auto 0; padding: 6px 0; }
+        .doc-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-left: 4px solid #38bdf8; border-radius: 12px; padding: 10px 14px; display: grid; grid-template-columns: 0.8fr 1.8fr 1.2fr 1.4fr; gap: 12px; align-items: center; }
+        .doc-card.brecha { border-left-color: #ef4444; background: rgba(239, 68, 68, 0.04); }
+        .doc-header { display: flex; flex-direction: column; gap: 2px; }
+        .doc-title { font-size: 0.92rem; font-weight: 700; color: #38bdf8; }
+        .doc-sub { font-size: 0.72rem; color: #94a3b8; }
+        .doc-cell { font-size: 0.78rem; color: #e2e8f0; line-height: 1.35; }
+        .doc-cell strong { color: #ffffff; }
+        .badge-brecha { display: inline-block; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #fca5a5; font-size: 0.68rem; font-weight: 700; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.03em; }
+
+        /* SLIDE 25 */
+        #slide-25 .matrix-grid { display: flex; flex-direction: column; gap: 6px; margin: auto 0; padding: 4px 0; max-height: 52vh; overflow-y: auto; }
+        .matrix-row { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 8px 12px; display: grid; grid-template-columns: 1.2fr 2fr; gap: 12px; align-items: center; }
+        .matrix-crit { font-size: 0.78rem; font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 6px; }
+        .matrix-badge { font-size: 0.62rem; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; font-weight: 700; background: rgba(56, 189, 248, 0.15); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.3); white-space: nowrap; }
+        .matrix-badge.obs { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.3); }
+        .matrix-evid { font-size: 0.75rem; color: #e2e8f0; line-height: 1.3; }
+
+        /* SLIDE 26 */
+        #slide-26 { display: flex; flex-direction: column; justify-content: space-between; }
+        .slide26-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin: auto 0; height: 64vh; }
+        .cond-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-top: 4px solid #38bdf8; border-radius: 18px; padding: 22px 18px; display: flex; flex-direction: column; gap: 12px; }
+        .cond-card.cond-1 { border-top-color: #3b82f6; }
+        .cond-card.cond-2 { border-top-color: #f59e0b; }
+        .cond-card.cond-3 { border-top-color: #10b981; }
+        .cond-num { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #38bdf8; }
+        .cond-card.cond-1 .cond-num { color: #60a5fa; }
+        .cond-card.cond-2 .cond-num { color: #fbbf24; }
+        .cond-card.cond-3 .cond-num { color: #34d399; }
+        .cond-title-head { font-size: 1.05rem; font-weight: 700; color: #ffffff; line-height: 1.3; }
+        .cond-body-text { font-size: 1rem !important; text-align: left !important; line-height: 1.6; color: #cbd5e1 !important; }
+
+        /* BARRAS */
+        .bar-fill { position: absolute; inset: 0; z-index: 2; border-radius: 12px; transform: translateX(-100%); transition: transform 0.8s cubic-bezier(0.7, 0, 0.3, 1); will-change: transform; background-repeat: no-repeat; background-position: right center; background-size: calc(var(--p) * 1%) 100%; }
+        .animaciones-activas.state-1 #slide-19 .bar-fill,
+        .animaciones-activas.state-3 #slide-21 .bar-fill,
+        .animaciones-activas.state-4 #slide-22 .bar-fill,
+        .animaciones-activas.state-5 #slide-23 .bar-fill {
+            transform: translateX(calc(-100% + var(--p) * 1%));
+            transition: transform 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.6s;
+        }
+
+        .bar-fill.mixto { --p: 51.4; background-image: linear-gradient(90deg, #1d4ed8, #3b82f6); box-shadow: 0 0 12px rgba(59, 130, 246, 0.4); }
+        .bar-fill.medio { --p: 40.5; background-image: linear-gradient(90deg, #0284c7, #38bdf8); box-shadow: 0 0 12px rgba(56, 189, 248, 0.4); }
+        .bar-fill.bajo  { --p: 8.1;  background-image: linear-gradient(90deg, #ca8a04, #eab308); box-shadow: 0 0 12px rgba(234, 179, 8, 0.4); }
+        .bar-fill.alto  { --p: 0.5;  background-image: linear-gradient(90deg, #475569, #64748b); opacity: 0.5; }
+        .bar-fill.s21-no    { --p: 71.2; background-image: linear-gradient(90deg, #1e40af, #3b82f6); }
+        .bar-fill.s21-si    { --p: 16.4; background-image: linear-gradient(90deg, #0284c7, #38bdf8); }
+        .bar-fill.s21-minor { --p: 4.0;  background-image: linear-gradient(90deg, #0d9488, #2dd4bf); }
+        .bar-fill.dim-a { --p: 96.6; background-image: linear-gradient(90deg, #0284c7, #38bdf8); }
+        .bar-fill.dim-b { --p: 97.0; background-image: linear-gradient(90deg, #2563eb, #60a5fa); }
+        .bar-fill.dim-c { --p: 97.6; background-image: linear-gradient(90deg, #0d9488, #34d399); }
+        .bar-fill.s23-dim-a { --p: 97.0; background-image: linear-gradient(90deg, #0284c7, #38bdf8); }
+        .bar-fill.s23-dim-b { --p: 96.4; background-image: linear-gradient(90deg, #d97706, #f59e0b); }
+        .bar-fill.s23-dim-c { --p: 97.2; background-image: linear-gradient(90deg, #059669, #10b981); }
+
+        /* LIGHT STREAK */
+        .light-streak { position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0; transform: translateX(-160px); background-image: linear-gradient(90deg, transparent 0%, var(--streak-color, #7dd3fc) 40%, rgba(255, 255, 255, 0.95) 70%, transparent 100%), linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--streak-color, #7dd3fc) 45%, transparent) 55%, transparent 100%); background-size: 80px 100%, 160px 100%; background-position: 0 0, -40px 0; background-repeat: no-repeat; }
+        .animaciones-activas.state-1 #slide-19 .light-streak,
+        .animaciones-activas.state-3 #slide-21 .light-streak,
+        .animaciones-activas.state-4 #slide-22 .light-streak,
+        .animaciones-activas.state-5 #slide-23 .light-streak { animation: streakGlow 3.2s ease-in-out var(--delay, 0s) infinite; }
+        @keyframes streakGlow { 0% { transform: translateX(-160px); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateX(calc(100% + 40px)); opacity: 0; } }
+
+        /* PIES Y TARJETAS */
+        .left-footer { display: flex; flex-direction: column; gap: 6px; }
+        .objective-card { background: rgba(255, 255, 255, 0.04); border-left: 3px solid #38bdf8; border-radius: 0 10px 10px 0; padding: 8px 12px; }
+        .objective-tag { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #38bdf8; margin-bottom: 3px; display: block; }
+        .objective-text { font-size: 0.78rem; color: #cbd5e1; line-height: 1.3; }
+        .source-text { font-size: 0.7rem; color: #94a3b8; font-style: italic; }
+
+        .info-card { flex: 1; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 22px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; }
+        .card-title { font-size: 1.05rem; font-weight: 700; color: #38bdf8; text-align: center; text-transform: uppercase; letter-spacing: 0.05em; }
+
+        /* SLIDE 20 */
+        #slide-20 { display: flex; flex-direction: column; justify-content: space-between; }
+        .slide-header-center { text-align: center; margin-bottom: 12px; }
+        .main-overbox-title { font-size: 1.35rem; font-weight: 700; color: #38bdf8; letter-spacing: -0.01em; text-transform: uppercase; }
+        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-bottom: 12px; position: relative; }
+        .comp-card { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 18px 22px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+        .comp-card.left-card { border-top: 4px solid #3b82f6; }
+        .comp-card.right-card { border-top: 4px solid #f59e0b; }
+        .comp-title { font-size: 1rem; font-weight: 700; text-align: center; }
+        .comp-title.left { color: #60a5fa; }
+        .comp-title.right { color: #fbbf24; }
+        .analysis-box { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 16px; padding: 16px 22px; display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .analysis-title { font-size: 0.95rem; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.05em; }
+.slide20-footer { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; }
+#slide-26 .slide20-footer { margin-top: 24px; }
+
+        /* UI */
+        #ui-layer { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.85); border: 1px solid rgba(255, 255, 255, 0.2); padding: 8px 22px; border-radius: 30px; color: #fff; display: flex; align-items: center; gap: 16px; z-index: 100; font-size: 0.85rem; }
+        .ui-btn { background: rgba(255, 255, 255, 0.15); border: none; color: #fff; padding: 5px 12px; border-radius: 12px; font-weight: 600; transition: background 0.2s; }
+        .ui-btn:hover { background: rgba(56, 189, 248, 0.5); }
+        .ui-key { background: #ffffff; color: #000000; padding: 2px 7px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; }
+
+        /* EFECTOS */
+        @property --ang { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+        .glass-container::before { content: ''; position: absolute; inset: -1px; border-radius: 25px; padding: 2px; pointer-events: none; opacity: 0; transition: opacity 0.6s ease 0.9s; background: conic-gradient(from var(--ang), transparent 0deg, transparent 240deg, rgba(56, 189, 248, 0.15) 265deg, #38bdf8 315deg, #ffffff 340deg, transparent 360deg); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); mask-composite: exclude; }
+        .animaciones-activas.state-1 #slide-19::before, .animaciones-activas.state-2 #slide-20::before, .animaciones-activas.state-3 #slide-21::before, .animaciones-activas.state-4 #slide-22::before, .animaciones-activas.state-5 #slide-23::before, .animaciones-activas.state-6 #slide-24::before, .animaciones-activas.state-7 #slide-25::before, .animaciones-activas.state-8 #slide-26::before { opacity: 1; animation: borderSpin 5s linear infinite; }
+        @keyframes borderSpin { to { --ang: 360deg; } }
+
+        @keyframes inLeft  { from { opacity: 0; transform: translateX(-80px); } }
+        @keyframes inRight { from { opacity: 0; transform: translateX(80px); } }
+        @keyframes inUp    { from { opacity: 0; transform: translateY(46px); } }
+        @keyframes inDown  { from { opacity: 0; transform: translateY(-46px); } }
+        @keyframes fadeIn  { from { opacity: 0; } }
+        @keyframes float   { from { transform: translateY(0); } to { transform: translateY(-6px); } }
+
+        /* SHIMMER DIAGONAL — 135deg, esquina sup-izq hacia inf-der y vuelta, ciclo 2.5s */
+        @keyframes shimmer {
+            0%   { background-position: 0% 0%; }
+            50%  { background-position: 100% 100%; }
+            100% { background-position: 0% 0%; }
+        }
+/* SHIMMER para textos que no tienen animación de entrada propia */
+.animaciones-activas .card-title,
+.animaciones-activas .comp-title,
+.animaciones-activas .cond-title-head,
+.animaciones-activas .cond-body-text,
+.animaciones-activas .text-outlined,
+.animaciones-activas .analysis-title,
+.animaciones-activas .matrix-crit,
+.animaciones-activas .matrix-evid,
+.animaciones-activas .doc-title,
+.animaciones-activas .doc-cell,
+.animaciones-activas .objective-tag,
+.animaciones-activas .objective-text {
+    animation: shimmer 2.5s linear 2.4s infinite;
+}
+
+        @keyframes popIn { 0% { opacity: 0; transform: scale(0.2) rotate(-90deg); } 60% { opacity: 1; transform: scale(1.18) rotate(8deg); } 100% { opacity: 1; transform: scale(1) rotate(0); } }
+        @keyframes ring  { 0% { opacity: 0.85; transform: scale(1); } 100% { opacity: 0; transform: scale(2.5); } }
+
+        .table-title, .main-overbox-title,
+.card-title, .comp-title, .cond-title-head,
+.cond-body-text, .text-outlined, .analysis-title,
+.matrix-crit, .matrix-evid, .doc-title, .doc-cell,
+.objective-tag, .objective-text {
+    background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 35%, #bae6fd 50%, #38bdf8 65%, #0ea5e9 100%);
+    background-size: 250% 250%;
+    background-position: 0% 0%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+        .animaciones-activas.state-1 #slide-19 .table-title, .animaciones-activas.state-3 #slide-21 .table-title, .animaciones-activas.state-4 #slide-22 .table-title, .animaciones-activas.state-5 #slide-23 .table-title, .animaciones-activas.state-6 #slide-24 .table-title, .animaciones-activas.state-7 #slide-25 .table-title, .animaciones-activas.state-8 #slide-26 .main-overbox-title { animation: inLeft 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both, shimmer 2.5s linear 2.4s infinite; }
+
+        .animaciones-activas.state-1 #slide-19 .bar-row, .animaciones-activas.state-3 #slide-21 .bar-row, .animaciones-activas.state-4 #slide-22 .bar-row, .animaciones-activas.state-5 #slide-23 .bar-row { animation: inLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+        .animaciones-activas.state-7 #slide-25 .matrix-row { animation: inLeft 0.85s cubic-bezier(0.16, 1, 0.3, 1) both; }
+        .animaciones-activas.state-7 #slide-25 .matrix-row:nth-child(1) { animation-delay: 0.50s; }
+        .animaciones-activas.state-7 #slide-25 .matrix-row:nth-child(2) { animation-delay: 0.60s; }
+        .animaciones-activas.state-7 #slide-25 .matrix-row:nth-child(3) { animation-delay: 0.70s; }
+        .animaciones-activas.state-7 #slide-25 .matrix-row:nth-child(4) { animation-delay: 0.80s; }
+        .animaciones-activas.state-7 #slide-25 .matrix-row:nth-child(5) { animation-delay: 0.90s; }
+        .animaciones-activas.state-7 #slide-25 .matrix-row:nth-child(6) { animation-delay: 1.00s; }
+        .animaciones-activas.state-7 #slide-25 .matrix-row:nth-child(7) { animation-delay: 1.10s; }
+
+        .animaciones-activas.state-8 #slide-26 .cond-card { animation: inUp 0.95s cubic-bezier(0.16, 1, 0.3, 1) both; }
+        .animaciones-activas.state-8 #slide-26 .cond-card.cond-1 { animation-delay: 0.6s; }
+        .animaciones-activas.state-8 #slide-26 .cond-card.cond-2 { animation-delay: 0.8s; }
+        .animaciones-activas.state-8 #slide-26 .cond-card.cond-3 { animation-delay: 1.0s; }
+
+        .animaciones-activas.state-1 #slide-19 .left-footer, .animaciones-activas.state-3 #slide-21 .left-footer, .animaciones-activas.state-4 #slide-22 .left-footer, .animaciones-activas.state-5 #slide-23 .left-footer, .animaciones-activas.state-6 #slide-24 .left-footer, .animaciones-activas.state-7 #slide-25 .left-footer, .animaciones-activas.state-8 #slide-26 .slide20-footer { animation: inUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1.2s both; }
+
+        .animaciones-activas.state-1 #slide-19 .info-card, .animaciones-activas.state-3 #slide-21 .info-card, .animaciones-activas.state-4 #slide-22 .info-card:nth-child(1), .animaciones-activas.state-5 #slide-23 .info-card, .animaciones-activas.state-6 #slide-24 .info-card, .animaciones-activas.state-7 #slide-25 .info-card { animation: inRight 1s cubic-bezier(0.16, 1, 0.3, 1) 0.8s both, float 7s ease-in-out 1.8s infinite alternate; }
+
+        .highlight-outlined { background-image: linear-gradient(90deg, #38bdf8, #bae6fd); background-repeat: no-repeat; background-position: 0 100%; background-size: 0% 1px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+        /* Reset de fill-color para elementos que deben conservar su color propio */
+.highlight-outlined { -webkit-text-fill-color: #ffffff !important; }
+.matrix-badge, .matrix-badge.obs, .badge-brecha { -webkit-text-fill-color: currentColor !important; }
+.ui-key, .vs-badge, .ui-btn { -webkit-text-fill-color: currentColor !important; }
+
+        .animaciones-activas.state-1 #slide-19 .highlight-outlined, .animaciones-activas.state-2 #slide-20 .highlight-outlined, .animaciones-activas.state-3 #slide-21 .highlight-outlined, .animaciones-activas.state-4 #slide-22 .highlight-outlined, .animaciones-activas.state-5 #slide-23 .highlight-outlined, .animaciones-activas.state-6 #slide-24 .highlight-outlined, .animaciones-activas.state-7 #slide-25 .highlight-outlined, .animaciones-activas.state-8 #slide-26 .highlight-outlined { animation: drawLine 0.9s cubic-bezier(0.16, 1, 0.3, 1) 2.1s both; }
+
+        @keyframes drawLine { from { background-size: 0% 1px; } to { background-size: 100% 1px; } }
+
+        .animaciones-activas.state-2 #slide-20 .slide-header-center { animation: inDown 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.8s both; }
+        .animaciones-activas.state-2 #slide-20 .main-overbox-title  { animation: shimmer 2.5s linear 2.6s infinite; }
+        .animaciones-activas.state-2 #slide-20 .comp-card.left-card  { animation: inLeft 1s cubic-bezier(0.16, 1, 0.3, 1) 1s both, float 7s ease-in-out 2.2s infinite alternate; }
+        .animaciones-activas.state-2 #slide-20 .comp-card.right-card { animation: inRight 1s cubic-bezier(0.16, 1, 0.3, 1) 1s both, float 8s ease-in-out 2.4s infinite alternate; }
+        .animaciones-activas.state-2 #slide-20 .analysis-box        { animation: inUp 1s cubic-bezier(0.16, 1, 0.3, 1) 1.8s both; }
+        .animaciones-activas.state-2 #slide-20 .slide20-footer      { animation: fadeIn 1s ease 2.2s both; }
+
+        .vs-badge { position: absolute; left: 50%; top: 50%; z-index: 5; width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 1rem; color: #fff; background: radial-gradient(circle at 30% 25%, #7dd3fc, #2563eb 58%, #1e3a8a); border: 2px solid rgba(255, 255, 255, 0.65); box-shadow: 0 0 26px rgba(56, 189, 248, 0.75); opacity: 0; }
+        .vs-badge::after { content: ''; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid #38bdf8; opacity: 0; }
+        .animaciones-activas.state-2 #slide-20 .vs-badge { animation: popIn 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) 1.6s both; }
+        .animaciones-activas.state-2 #slide-20 .vs-badge::after { animation: ring 2.4s ease-out 2.6s infinite; }
+
+        /* CURSOR */
+        html, body, #presentation-container, button, a, input, textarea, select { cursor: none; }
+        html.cursor-visible, html.cursor-visible body, html.cursor-visible #presentation-container, html.cursor-visible button, html.cursor-visible a, html.cursor-visible input, html.cursor-visible textarea, html.cursor-visible select { cursor: default; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .glass-container, .bar-fill { transition-duration: 0.01s !important; transition-delay: 0s !important; }
+            *, *::before, *::after { animation: none !important; }
+            .bg-parallax { transition: none; }
+            #entrada-fade { animation: none !important; opacity: 0; visibility: hidden; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="black-cover"></div>
+    <div id="entrada-fade"></div>
+
+    <div id="presentation-container">
+
+        <div class="bg-parallax">
+            <video class="bg-video" id="main-video" autoplay loop muted playsinline preload="auto">
+                <source src="videos1/datos1.webm" type="video/webm">
+                Tu navegador no soporta reproducción de video HTML5.
+            </video>
+        </div>
+
+        <!-- DIAPOSITIVA 19 -->
+        <main class="glass-container" id="slide-19">
+            <section class="left-column">
+                <header><h1 class="table-title">Tabla 22: Clasificación del perfil tecnológico de los respondientes según baremo (Alto / Medio / Bajo / Mixto).</h1></header>
+                <div class="chart-container">
+                    <article class="bar-row">
+                        <div class="bar-info"><span>Mixto (no clasificable con el baremo estricto)</span><span class="bar-metrics">fi: <strong data-count="38">38</strong> &nbsp;|&nbsp; <strong data-count="51.4" data-dec="1" data-suffix=" %">51,4 %</strong></span></div>
+                        <div class="bar-track"><div class="bar-fill mixto"></div><div class="light-streak" style="--streak-color: #60a5fa; --delay: 2.5s;"></div></div>
+                    </article>
+                    <article class="bar-row">
+                        <div class="bar-info"><span>Medio</span><span class="bar-metrics">fi: <strong data-count="30">30</strong> &nbsp;|&nbsp; <strong data-count="40.5" data-dec="1" data-suffix=" %">40,5 %</strong></span></div>
+                        <div class="bar-track"><div class="bar-fill medio"></div><div class="light-streak" style="--streak-color: #7dd3fc; --delay: 3.1s;"></div></div>
+                    </article>
+                    <article class="bar-row">
+                        <div class="bar-info"><span>Bajo</span><span class="bar-metrics">fi: <strong data-count="6">6</strong> &nbsp;|&nbsp; <strong data-count="8.1" data-dec="1" data-suffix=" %">8,1 %</strong></span></div>
+                        <div class="bar-track"><div class="bar-fill bajo"></div><div class="light-streak" style="--streak-color: #fde047; --delay: 3.7s;"></div></div>
+                    </article>
+                    <article class="bar-row">
+                        <div class="bar-info"><span>Alto</span><span class="bar-metrics">fi: <strong data-count="0">0</strong> &nbsp;|&nbsp; <strong data-count="0.0" data-dec="1" data-suffix=" %">0,0 %</strong></span></div>
+                        <div class="bar-track"><div class="bar-fill alto"></div><div class="light-streak" style="--streak-color: #e2e8f0; --delay: 4.3s;"></div></div>
+                    </article>
+                </div>
+                <footer class="left-footer">
+                    <div class="objective-card"><span class="objective-tag">Objetivo Específico 1</span><p class="objective-text">Diagnosticar el nivel actual de competencias tecnológicas y la disposición hacia el uso de simuladores tácticos que presentan los ciudadanos convocados al Servicio Militar Obligatorio.</p></div>
+                    <p class="source-text">Fuente: Elaboración propia del investigador en base a encuestados. (Total = 74 / 100,0 %)</p>
+                </footer>
+            </section>
+            <section class="right-column">
+                <article class="info-card"><h2 class="card-title">Descripción</h2><p class="text-outlined">El <span class="highlight-outlined">40.5%</span> de los convocados fue clasificado con un perfil tecnológico <span class="highlight-outlined">'Medio'</span>, el <span class="highlight-outlined">8.1%</span> con perfil <span class="highlight-outlined">'Bajo'</span>, y el <span class="highlight-outlined">51.4%</span> presentó un patrón de respuestas que no reúne de forma consistente los criterios de ninguna categoría del baremo estricto. Ningún caso alcanzó de manera simultánea la totalidad de condiciones definidas para el perfil <span class="highlight-outlined">'Alto'</span>.</p></article>
+                <article class="info-card"><h2 class="card-title">Análisis</h2><p class="text-outlined">La concentración de un <span class="highlight-outlined">0,0%</span> de registros en la categoría Alto indica que ningún participante cumplió simultáneamente de forma estricta la totalidad de los criterios exigidos por el baremo analítico de entrada. Este hallazgo descriptivo sugiere que el perfil de ingreso, aunque favorable en dimensiones aisladas como el uso frecuente de dispositivos, es marcadamente heterogéneo.</p></article>
+            </section>
+        </main>
+
+        <!-- DIAPOSITIVA 20 -->
+        <main class="glass-container" id="slide-20">
+            <header class="slide-header-center"><h1 class="main-overbox-title">Percepción experta vs. diagnóstico directo</h1></header>
+            <section class="comparison-grid">
+                <div class="vs-badge" aria-hidden="true">VS</div>
+                <article class="comp-card left-card"><h2 class="comp-title left">Percepción del personal militar</h2><p class="text-outlined">"Sobre el nivel de manejo de herramientas digitales de los ciudadanos que ingresan al SMO, el personal militar lo calificó mayoritariamente como <span class="highlight-outlined">'alto' (64 de 116, 55,2 %)</span> o <span class="highlight-outlined">'muy alto' (50 de 116, 43,1 %)</span>, y solo 2 casos (1,7 %) lo calificaron como 'medio'; ningún respondente lo calificó como 'bajo' o 'muy bajo'."</p></article>
+                <article class="comp-card right-card"><h2 class="comp-title right">Diagnóstico directo</h2><p class="text-outlined">"Ningún caso alcanzó de manera simultánea la totalidad de condiciones definidas para el perfil <span class="highlight-outlined">'Alto'</span>."</p></article>
+            </section>
+            <section class="analysis-box"><h2 class="analysis-title">Análisis de la Disonancia</h2><p class="text-outlined">"El personal de mandos tiende a incurrir en una generalización metodológica, confundiendo el uso intensivo, intuitivo y recreativo de dispositivos (como smartphones y redes sociales) por parte de los nativos digitales con el dominio de habilidades técnicas complejas. En la práctica, esta disonancia devela que los instructores sobreestiman la base de partida de los ingresantes."</p></section>
+            <footer class="slide20-footer">
+                <div class="objective-card" style="max-width: 60%;"><span class="objective-tag">Objetivo Específico 1</span><p class="objective-text">Diagnosticar el nivel actual de competencias tecnológicas y la disposición hacia el uso de simuladores tácticos que presentan los ciudadanos convocados al Servicio Militar Obligatorio.</p></div>
+                <p class="source-text">Fuente: Elaboración propia a partir del Instrumento N.º 4 (n = 116) y del Instrumento N.º 1 (n = 74).</p>
+            </footer>
+        </main>
+
+        <!-- DIAPOSITIVA 21 -->
+        <main class="glass-container" id="slide-21">
+            <section class="left-column">
+                <header><h1 class="table-title">Tabla 21: Distribución de frecuencias y porcentajes según el tipo de conocimientos previos y cursos declarados por los encuestados.</h1></header>
+                <div class="chart-container">
+                    <article class="bar-row"><div class="bar-info"><span class="bar-label">No</span><span class="bar-metrics">fi: <strong data-count="52">52</strong> &nbsp;|&nbsp; <strong data-count="71.2" data-dec="1" data-suffix=" %">71,2 %</strong></span></div><div class="bar-track"><div class="bar-fill s21-no" style="--p: 71.2;"></div><div class="light-streak" style="--streak-color: #60a5fa; --delay: 2.1s;"></div></div></article>
+                    <article class="bar-row"><div class="bar-info"><span class="bar-label">Sí (especifique en Otro), sin especificar</span><span class="bar-metrics">fi: <strong data-count="12">12</strong> &nbsp;|&nbsp; <strong data-count="16.4" data-dec="1" data-suffix=" %">16,4 %</strong></span></div><div class="bar-track"><div class="bar-fill s21-si" style="--p: 16.4;"></div><div class="light-streak" style="--streak-color: #7dd3fc; --delay: 2.5s;"></div></div></article>
+                    <article class="bar-row"><div class="bar-info"><span class="bar-label">Curso de paracaidismo</span><span class="bar-metrics">fi: <strong data-count="1">1</strong> &nbsp;|&nbsp; <strong data-count="1.4" data-dec="1" data-suffix=" %">1,4 %</strong></span></div><div class="bar-track"><div class="bar-fill s21-minor" style="--p: 4.0;"></div><div class="light-streak" style="--streak-color: #2dd4bf; --delay: 2.9s;"></div></div></article>
+                    <article class="bar-row"><div class="bar-info"><span class="bar-label">Conocimientos de Word, PowerPoint, Excel</span><span class="bar-metrics">fi: <strong data-count="1">1</strong> &nbsp;|&nbsp; <strong data-count="1.4" data-dec="1" data-suffix=" %">1,4 %</strong></span></div><div class="bar-track"><div class="bar-fill s21-minor" style="--p: 4.0;"></div><div class="light-streak" style="--streak-color: #2dd4bf; --delay: 3.3s;"></div></div></article>
+                    <article class="bar-row"><div class="bar-info"><span class="bar-label">Soy profesional en electrónica</span><span class="bar-metrics">fi: <strong data-count="1">1</strong> &nbsp;|&nbsp; <strong data-count="1.4" data-dec="1" data-suffix=" %">1,4 %</strong></span></div><div class="bar-track"><div class="bar-fill s21-minor" style="--p: 4.0;"></div><div class="light-streak" style="--streak-color: #2dd4bf; --delay: 3.7s;"></div></div></article>
+                    <article class="bar-row"><div class="bar-info"><span class="bar-label">Programación</span><span class="bar-metrics">fi: <strong data-count="1">1</strong> &nbsp;|&nbsp; <strong data-count="1.4" data-dec="1" data-suffix=" %">1,4 %</strong></span></div><div class="bar-track"><div class="bar-fill s21-minor" style="--p: 4.0;"></div><div class="light-streak" style="--streak-color: #2dd4bf; --delay: 4.1s;"></div></div></article>
+                    <article class="bar-row"><div class="bar-info"><span class="bar-label">Cursos de electrónica, op. informática, máquinas CNC</span><span class="bar-metrics">fi: <strong data-count="1">1</strong> &nbsp;|&nbsp; <strong data-count="1.4" data-dec="1" data-suffix=" %">1,4 %</strong></span></div><div class="bar-track"><div class="bar-fill s21-minor" style="--p: 4.0;"></div><div class="light-streak" style="--streak-color: #2dd4bf; --delay: 4.5s;"></div></div></article>
+                    <article class="bar-row"><div class="bar-info"><span class="bar-label">Conocimiento básico de electrónica y algo de informática</span><span class="bar-metrics">fi: <strong data-count="1">1</strong> &nbsp;|&nbsp; <strong data-count="1.4" data-dec="1" data-suffix=" %">1,4 %</strong></span></div><div class="bar-track"><div class="bar-fill s21-minor" style="--p: 4.0;"></div><div class="light-streak" style="--streak-color: #2dd4bf; --delay: 4.9s;"></div></div></article>
+                    <article class="bar-row"><div class="bar-info"><span class="bar-label">Conocimientos básicos de una computadora y mecánica</span><span class="bar-metrics">fi: <strong data-count="1">1</strong> &nbsp;|&nbsp; <strong data-count="1.4" data-dec="1" data-suffix=" %">1,4 %</strong></span></div><div class="bar-track"><div class="bar-fill s21-minor" style="--p: 4.0;"></div><div class="light-streak" style="--streak-color: #2dd4bf; --delay: 5.3s;"></div></div></article>
+                    <article class="bar-row"><div class="bar-info"><span class="bar-label">Técnico de celular, reparación A.A, inst. eléctricas</span><span class="bar-metrics">fi: <strong data-count="1">1</strong> &nbsp;|&nbsp; <strong data-count="1.4" data-dec="1" data-suffix=" %">1,4 %</strong></span></div><div class="bar-track"><div class="bar-fill s21-minor" style="--p: 4.0;"></div><div class="light-streak" style="--streak-color: #2dd4bf; --delay: 5.7s;"></div></div></article>
+                </div>
+                <footer class="left-footer">
+                    <div class="objective-card"><span class="objective-tag">Objetivo Específico 1</span><p class="objective-text">Diagnosticar el nivel actual de competencias tecnológicas y la disposición hacia el uso de simuladores tácticos que presentan los ciudadanos convocados al Servicio Militar Obligatorio.</p></div>
+                    <p class="source-text">Fuente: Elaboración propia del investigador en base a encuestados. Nota: Pregunta 16 del Instrumento N.º 1 (Total = 73 / 100,0 %)</p>
+                </footer>
+            </section>
+            <section class="right-column">
+                <article class="info-card" style="flex: 1.2;"><h2 class="card-title">Análisis de la Tabla 21</h2><p class="text-outlined">"El conocimiento formal en robótica, electrónica o informática es minoritario (<span class="highlight-outlined">cerca de tres de cada diez casos</span>, sumando quienes indicaron 'sí' y quienes detallaron un curso específico), lo que sugiere que el perfil de entrada de la mayoría de los convocados <span class="highlight-outlined">no incluye formación técnica especializada previa</span>, dato relevante para calibrar el nivel de exigencia inicial de los contenidos técnicos de la plataforma (<span class="highlight-outlined">OE2</span>)."</p></article>
+            </section>
+        </main>
+
+        <!-- DIAPOSITIVA 22 -->
+        <main class="glass-container" id="slide-22">
+            <section class="left-column">
+                <header><h1 class="table-title">Tabla 37: Promedios generales e interpretación por dimensiones del Instrumento N.° 2 (Fase I - Exploración actitudinal masiva).</h1></header>
+                <div class="chart-container">
+                    <article class="bar-row"><div class="bar-info"><span>A. Interés hacia los simuladores</span><span class="bar-metrics">Promedio: <strong data-count="4.83" data-dec="2">4,83</strong> / 5 &nbsp;|&nbsp; <em>Acuerdo muy alto</em></span></div><div class="bar-track"><div class="bar-fill dim-a" style="--p: 96.6;"></div><div class="light-streak" style="--streak-color: #7dd3fc; --delay: 2.2s;"></div></div></article>
+                    <article class="bar-row"><div class="bar-info"><span>B. Atractivo del juego</span><span class="bar-metrics">Promedio: <strong data-count="4.85" data-dec="2">4,85</strong> / 5 &nbsp;|&nbsp; <em>Acuerdo muy alto</em></span></div><div class="bar-track"><div class="bar-fill dim-b" style="--p: 97.0;"></div><div class="light-streak" style="--streak-color: #60a5fa; --delay: 2.7s;"></div></div></article>
+                    <article class="bar-row"><div class="bar-info"><span>C. Motivación para cumplir el SMO</span><span class="bar-metrics">Promedio: <strong data-count="4.88" data-dec="2">4,88</strong> / 5 &nbsp;|&nbsp; <em>Acuerdo muy alto</em></span></div><div class="bar-track"><div class="bar-fill dim-c" style="--p: 97.6;"></div><div class="light-streak" style="--streak-color: #34d399; --delay: 3.2s;"></div></div></article>
+                </div>
+                <footer class="left-footer">
+                    <div class="objective-card"><span class="objective-tag">Objetivo Específico 2</span><p class="objective-text">Identificar los requerimientos técnicos y pedagógicos que debe cumplir una plataforma de simulación para favorecer la transferencia de habilidades reales a los ciudadanos que prestan el servicio militar obligatorio.</p></div>
+                    <p class="source-text">Fuente: Elaboración propia del investigador en base a encuestados.</p>
+                </footer>
+            </section>
+            <section class="right-column">
+                <article class="info-card"><h2 class="card-title">Análisis de la Tabla 37</h2><p class="text-outlined">"Las tres dimensiones del Instrumento N.º 2 se ubican en el tramo de <span class="highlight-outlined">'muy alto'</span> del baremo de interpretación (promedios entre <span class="highlight-outlined">4.83 y 4.88</span> sobre 5), sin diferencias sustantivas entre ellas. Este resultado constituye evidencia descriptiva compatible con una <span class="highlight-outlined">disposición favorable generalizada</span> hacia la incorporación de simuladores y gamificación en el SMO."</p></article>
+                <article class="info-card" style="background: rgba(15, 23, 42, 0.7); border-color: rgba(56, 189, 248, 0.25);"><h2 class="card-title" style="color: #60a5fa; font-size: 0.95rem;">Contraste Inferencial Complementario</h2><p class="text-outlined" style="font-size: 0.98rem !important;">"En la totalidad de los 14 ítems, la distribución difiere significativamente de la uniforme (<span class="highlight-outlined">χ² entre 573,90 y 1102,63; p &lt; 0,001</span>). La proporción de respuestas 'De acuerdo' o 'Totalmente de acuerdo' es <span class="highlight-outlined">significativamente superior al 50 % (p &lt; 0,001)</span>, oscilando entre el <span class="highlight-outlined">97,3 % y 99,3 %</span> sobre 300 casos válidos."</p></article>
+            </section>
+        </main>
+
+        <!-- DIAPOSITIVA 23 -->
+        <main class="glass-container" id="slide-23">
+            <section class="left-column">
+                <header><h1 class="table-title">Tabla 49: Promedios generales e interpretación por dimensiones del Instrumento N.° 3 (Fase I - Exploración actitudinal masiva).</h1></header>
+                <div class="chart-container">
+                    <article class="bar-row"><div class="bar-info"><span>A. Competencias tecnológicas y drones</span><span class="bar-metrics">Promedio: <strong data-count="4.85" data-dec="2">4,85</strong> / 5 &nbsp;|&nbsp; <em>Acuerdo muy alto</em></span></div><div class="bar-track"><div class="bar-fill s23-dim-a" style="--p: 97.0;"></div><div class="light-streak" style="--streak-color: #38bdf8; --delay: 2.2s;"></div></div></article>
+                    <article class="bar-row"><div class="bar-info"><span>B. Cumplimiento del SMO</span><span class="bar-metrics">Promedio: <strong data-count="4.82" data-dec="2">4,82</strong> / 5 &nbsp;|&nbsp; <em>Acuerdo muy alto</em></span></div><div class="bar-track"><div class="bar-fill s23-dim-b" style="--p: 96.4;"></div><div class="light-streak" style="--streak-color: #f59e0b; --delay: 2.7s;"></div></div></article>
+                    <article class="bar-row"><div class="bar-info"><span>C. Reserva y retención de talento</span><span class="bar-metrics">Promedio: <strong data-count="4.86" data-dec="2">4,86</strong> / 5 &nbsp;|&nbsp; <em>Acuerdo muy alto</em></span></div><div class="bar-track"><div class="bar-fill s23-dim-c" style="--p: 97.2;"></div><div class="light-streak" style="--streak-color: #10b981; --delay: 3.2s;"></div></div></article>
+                </div>
+                <footer class="left-footer">
+                    <div class="objective-card"><span class="objective-tag">Objetivo Específico 3</span><p class="objective-text">Proyectar analíticamente el impacto potencial en la reducción de costos operativos y el incremento de la capacidad de la Armada mediante la adopción de este modelo.</p></div>
+                    <p class="source-text">Fuente: Elaboración propia del investigador en base a encuestados.</p>
+                </footer>
+            </section>
+            <section class="right-column">
+                <article class="info-card" style="flex: 1.2;"><h2 class="card-title">Análisis de la Tabla 49</h2><p class="text-outlined">"Las tres dimensiones se ubican en el tramo de <span class="highlight-outlined">acuerdo muy alto</span> del baremo, con la Dimensión B (cumplimiento del SMO, <span class="highlight-outlined">4.82</span>) levemente por debajo de las Dimensiones A (<span class="highlight-outlined">4.85</span>) y C (<span class="highlight-outlined">4.86</span>). Este patrón sugiere que, si bien los convocados proyectan un <span class="highlight-outlined">impacto institucional positivo</span> en materia de competencias y retención, la expectativa sobre su propia permanencia hasta el final del servicio es, en términos comparativos, la de <span class="highlight-outlined">menor intensidad</span>."</p></article>
+            </section>
+        </main>
+
+        <!-- DIAPOSITIVA 24 -->
+        <main class="glass-container" id="slide-24">
+            <section class="left-column">
+                <header><h1 class="table-title">Tabla 38: Matriz de diagnóstico doctrinal y operacional de las fichas de instrucción y manuales institucionales analizados.</h1></header>
+                <div class="doc-grid">
+                    <article class="doc-card brecha"><div class="doc-header"><span class="doc-title">Ficha 1</span><span class="doc-sub">Puntuación: 2.0</span></div><div class="doc-cell"><strong>Transferibles:</strong> Operaciones ribereñas de alta precisión replicables en mapas 3D</div><div class="doc-cell"><strong>Carga horaria:</strong> Régimen estándar (5–10 h/sem)</div><div><span class="badge-brecha">Brecha Crítica</span><p style="font-size: 0.68rem; color: #cbd5e1; margin-top: 3px;">Enfoque analógico sin nuevas tecnologías</p></div></article>
+                    <article class="doc-card brecha"><div class="doc-header"><span class="doc-title">Ficha 2</span><span class="doc-sub">Puntuación: 2.0</span></div><div class="doc-cell"><strong>Transferibles:</strong> Maniobras puramente terrestres o abstractas</div><div class="doc-cell"><strong>Carga horaria:</strong> Régimen bajo (&lt; 5 h/sem)</div><div><span class="badge-brecha">Brecha Crítica</span><p style="font-size: 0.68rem; color: #cbd5e1; margin-top: 3px;">Enfoque analógico sin nuevas tecnologías</p></div></article>
+                    <article class="doc-card brecha"><div class="doc-header"><span class="doc-title">Ficha 3</span><span class="doc-sub">Puntuación: 1.0</span></div><div class="doc-cell"><strong>Transferibles:</strong> Maniobras puramente terrestres o abstractas</div><div class="doc-cell"><strong>Carga horaria:</strong> Régimen estándar (5–10 h/sem)</div><div><span class="badge-brecha">Brecha Crítica</span><p style="font-size: 0.68rem; color: #cbd5e1; margin-top: 3px;">Enfoque analógico sin nuevas tecnologías</p></div></article>
+                    <article class="doc-card brecha"><div class="doc-header"><span class="doc-title">Ficha 4</span><span class="doc-sub">Puntuación: 1.0</span></div><div class="doc-cell"><strong>Transferibles:</strong> Maniobras puramente terrestres o abstractas</div><div class="doc-cell"><strong>Carga horaria:</strong> Régimen bajo (&lt; 5 h/sem)</div><div><span class="badge-brecha">Brecha Crítica</span><p style="font-size: 0.68rem; color: #cbd5e1; margin-top: 3px;">Enfoque analógico sin nuevas tecnologías</p></div></article>
+                </div>
+                <footer class="left-footer">
+                    <div class="objective-card"><span class="objective-tag">Objetivo Específico 2</span><p class="objective-text">Identificar los requerimientos técnicos y pedagógicos que debe cumplir una plataforma de simulación para favorecer la transferencia de habilidades reales a los ciudadanos que prestan el servicio militar obligatorio.</p></div>
+                    <p class="source-text">Fuente: Elaboración propia a partir del análisis documental de los manuales de instrucción básica y directivas educativas del acervo bibliográfico del CINAE.</p>
+                </footer>
+            </section>
+            <section class="right-column">
+                <article class="info-card" style="flex: 1.2;"><h2 class="card-title">Análisis Documental del CINAE</h2><p class="text-outlined">"El examen sistemático de las fuentes doctrinarias custodiadas en el CINAE (Fichas 1 a 4) evidencia de manera unánime una <span class="highlight-outlined">brecha documental</span> en la literatura militar de base. Los textos analizados mantienen una instrucción centrada en <span class="highlight-outlined">maniobras analógicas presenciales</span>, constatándose la <span class="highlight-outlined">ausencia de directrices</span> orientadas a la instrucción asistida por <span class="highlight-outlined">simulación digital</span> o al empleo operativo de aeronaves no tripuladas (<span class="highlight-outlined">UAV</span>)."</p></article>
+            </section>
+        </main>
+
+        <!-- DIAPOSITIVA 25 -->
+        <main class="glass-container" id="slide-25">
+            <section class="left-column">
+                <header><h1 class="table-title">Tabla 39: Matriz de criterios observados y evidencias registradas para el diagnóstico logístico, técnico e institucional (Estudio de caso - EPSOA).</h1></header>
+                <div class="matrix-grid">
+                    <article class="matrix-row"><div class="matrix-crit"><span class="matrix-badge">Opinión</span>Viabilidad técnica del modelo</div><div class="matrix-evid"><strong>Compleja:</strong> Rigidez de la rutina diaria requiere readecuación profunda de horarios.</div></article>
+                    <article class="matrix-row"><div class="matrix-crit"><span class="matrix-badge">Opinión</span>Factor crítico principal</div><div class="matrix-evid"><strong>Limitación de instructores:</strong> Inexistencia de personal orgánico con dedicación exclusiva a redes o simulación.</div></article>
+                    <article class="matrix-row"><div class="matrix-crit"><span class="matrix-badge">Opinión</span>Disposición institucional</div><div class="matrix-evid"><strong>Reactiva por inercia:</strong> Resistencia cultural basada en mantener métodos analógicos tradicionales.</div></article>
+                    <article class="matrix-row"><div class="matrix-crit"><span class="matrix-badge obs">Observación</span>Hardware disponible</div><div class="matrix-evid">Sala de informática operativa estándar; requiere migración técnica para soporte 3D offline/online.</div></article>
+                    <article class="matrix-row"><div class="matrix-crit"><span class="matrix-badge obs">Observación</span>Suministro eléctrico</div><div class="matrix-evid">Sistema con soporte base, protegido ante fluctuaciones de la red externa.</div></article>
+                    <article class="matrix-row"><div class="matrix-crit"><span class="matrix-badge obs">Observación</span>Red interna</div><div class="matrix-evid">Conectividad sectorizada (Plana Mayor), optimizable con tendido LAN local para aulas tácticas.</div></article>
+                    <article class="matrix-row"><div class="matrix-crit"><span class="matrix-badge obs">Observación</span>Espacio físico aulas</div><div class="matrix-evid">Infraestructura física adaptable; aulas que admiten montaje modular de estaciones de simulación.</div></article>
+                </div>
+                <footer class="left-footer">
+                    <div class="objective-card"><span class="objective-tag">Objetivo Específico 2</span><p class="objective-text">Identificar los requerimientos técnicos y pedagógicos que debe cumplir una plataforma de simulación para favorecer la transferencia de habilidades reales a los ciudadanos que prestan el servicio militar obligatorio.</p></div>
+                    <p class="source-text">Fuente: Elaboración propia a partir de la guía de observación de infraestructura y registros de opinión técnica aplicados en la EPSOA (2026).</p>
+                </footer>
+            </section>
+            <section class="right-column">
+                <article class="info-card" style="flex: 1.2;"><h2 class="card-title">Análisis de la Tabla 39</h2><p class="text-outlined">"La valoración de la opinión operativa recogida en el terreno muestra un <span class="highlight-outlined">perfil más cauteloso</span> que la evidencia derivada de la inspección física. Mientras las apreciaciones del personal enfatizan la <span class="highlight-outlined">rigidez de la rutina diaria</span>, la <span class="highlight-outlined">falta de instructores</span> y una disposición reactiva por inercia, el diagnóstico técnico describe un <span class="highlight-outlined">espacio físico adaptable y suministro eléctrico funcional</span>, optimizable en la red interna."</p></article>
+            </section>
+        </main>
+
+        <!-- DIAPOSITIVA 26 -->
+        <main class="glass-container" id="slide-26">
+            <header class="slide-header-center"><h1 class="main-overbox-title">Condiciones emergentes de viabilidad</h1></header>
+            <section class="slide26-grid">
+                <article class="cond-card cond-1"><span class="cond-num">Condición 1</span><h2 class="cond-title-head">Personal técnico dedicado</h2><p class="cond-body-text text-outlined"><strong>Evidencia:</strong> observación directa (N=1) registró <span class="highlight-outlined">'inexistencia de personal orgánico con dedicación exclusiva a redes o simulación'</span> como factor crítico; cuestionario a informantes clave (n=116) seleccionó <span class="highlight-outlined">'personal técnico permanente'</span> como requerimiento; análisis documental confirma que el manual no contempla esta figura.</p></article>
+                <article class="cond-card cond-2"><span class="cond-num">Condición 2</span><h2 class="cond-title-head">Nivelación inicial de competencias</h2><p class="cond-body-text text-outlined"><strong>Evidencia:</strong> baremo de perfil tecnológico (n=74) mostró <span class="highlight-outlined">40,5% medio, 8,1% bajo, 51,4% mixto, 0% alto</span>; respuestas abiertas (n=9) confirman minoría con formación previa; paradoja: <span class="highlight-outlined">'adaptación al nivel tecnológico de cada participante'</span> fue la característica pedagógica menos seleccionada (<span class="highlight-outlined">1,7%</span>) por los instructores.</p></article>
+                <article class="cond-card cond-3"><span class="cond-num">Condición 3</span><h2 class="cond-title-head">Superación de la inercia cultural</h2><p class="cond-body-text text-outlined"><strong>Evidencia:</strong> observación directa (N=1) registró <span class="highlight-outlined">'disposición institucional reactiva por inercia'</span>; análisis documental confirma enfoque analógico tradicional; cuestionario a informantes clave (n=116) muestra <span class="highlight-outlined">0% de selección</span> en opciones de simulación táctica avanzada.</p></article>
+            </section>
+            <footer class="slide20-footer">
+                <div class="objective-card" style="max-width: 65%;"><span class="objective-tag">Objetivo Específico 3</span><p class="objective-text">Proyectar analíticamente el impacto potencial en la reducción de costos operativos y el incremento de la capacidad de la Armada mediante la adopción de este modelo.</p></div>
+                <p class="source-text">Fuente: Elaboración propia a partir del análisis integrado de los Instrumentos N.º 1, N.º 4, observación directa y análisis documental.</p>
+            </footer>
+        </main>
+
+    </div>
+
+    <div id="ui-layer">
+        <button class="ui-btn" onclick="changeSlide(currentSlide - 1)">Anterior <span class="ui-key">P</span></button>
+        <span id="slide-indicator" style="font-weight: 600;">Diapositiva 1 / 8</span>
+        <button class="ui-btn" onclick="changeSlide(currentSlide + 1)">Siguiente <span class="ui-key">N</span></button>
+        <button class="ui-btn" onclick="toggleFullscreen()">Pantalla Completa <span class="ui-key">F</span></button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        let isTransitioning = false;
+        const totalSlides = 8;
+        const NEXT_FILE = 'presentación3.html';
+        const slideEls = [
+            document.getElementById('slide-19'),
+            document.getElementById('slide-20'),
+            document.getElementById('slide-21'),
+            document.getElementById('slide-22'),
+            document.getElementById('slide-23'),
+            document.getElementById('slide-24'),
+            document.getElementById('slide-25'),
+            document.getElementById('slide-26')
+        ];
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+        // CONTADORES ANIMADOS
+        let counterRAF = null, counterTimer = null;
+        function fmt(el, v) {
+            const d = +el.dataset.dec || 0;
+            el.textContent = v.toFixed(d).replace('.', ',') + (el.dataset.suffix || '');
+        }
+        function runCounters(slideEl, delay) {
+            cancelAnimationFrame(counterRAF);
+            clearTimeout(counterTimer);
+            const counterEls = [...slideEl.querySelectorAll('[data-count]')];
+            if (reducedMotion.matches) { counterEls.forEach(el => fmt(el, +el.dataset.count)); return; }
+            counterEls.forEach(el => fmt(el, 0));
+            counterTimer = setTimeout(() => {
+                const dur = 1400, t0 = performance.now();
+                const tick = (now) => {
+                    const t = Math.min(1, (now - t0) / dur);
+                    const e = 1 - Math.pow(1 - t, 4);
+                    counterEls.forEach(el => fmt(el, +el.dataset.count * e));
+                    if (t < 1) counterRAF = requestAnimationFrame(tick);
+                };
+                counterRAF = requestAnimationFrame(tick);
+            }, delay);
+        }
+
+        /* ARRANQUE REAL DE LA PRESENTACIÓN */
+        function arrancarPresentacion() {
+            const container = document.getElementById('presentation-container');
+            const entrada   = document.getElementById('entrada-fade');
+            const cover     = document.getElementById('black-cover');
+
+            // 1) Activar el contenedor con state-1, SIN animaciones todavía
+            container.classList.add('listo');
+            container.classList.add('state-1');
+
+            // 2) Arrancar el fade de la cortina
+            entrada.classList.add('arrancar');
+
+            // 3) Retrasar el arranque de las animaciones 0.3s
+            //    para que la cortina ya esté desvaneciéndose
+            setTimeout(() => {
+                container.classList.add('animaciones-activas');
+            }, 300);
+
+            // 4) Contadores a 0.5s (0.3s + 0.2s)
+            setTimeout(() => {
+                runCounters(slideEls[0], 200);
+            }, 500);
+
+            // 5) Escuchar el fin del fade para quitar la cortina negra
+            //    SIN { once: true } para no autoeliminar el listener antes de tiempo
+            function onFadeEnd(e) {
+                if (e.animationName !== 'entradaFade') return;
+                entrada.removeEventListener('animationend', onFadeEnd);
+                cover.classList.add('quitar');
+                setTimeout(() => { cover.remove(); }, 600);
+            }
+            entrada.addEventListener('animationend', onFadeEnd);
+
+            // Respaldo absoluto: si a los 2s la cortina sigue visible, quitarla igual
+            setTimeout(() => {
+                if (document.getElementById('black-cover')) {
+                    cover.classList.add('quitar');
+                    setTimeout(() => { if (cover.parentNode) cover.remove(); }, 600);
+                }
+            }, 2000);
+        }
+
+        /* DISPARADOR: cuando el video está listo (o timeout) */
+        window.addEventListener('load', () => {
+            const video = document.getElementById('main-video');
+            const esperarVideo = video
+                ? new Promise(resolve => {
+                    if (video.readyState >= 3) return resolve();
+                    const t = setTimeout(resolve, 900);
+                    video.addEventListener('canplay', () => { clearTimeout(t); resolve(); }, { once: true });
+                })
+                : Promise.resolve();
+
+            esperarVideo.then(() => {
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        arrancarPresentacion();
+                    });
+                });
+            });
+        });
+
+        // Respaldo absoluto: si a los 3s no arrancó, arrancar igual
+        setTimeout(() => {
+            const container = document.getElementById('presentation-container');
+            if (!container.classList.contains('listo')) {
+                arrancarPresentacion();
+            }
+        }, 3000);
+
+        /* NAVEGACIÓN */
+        function salirAlSiguiente() {
+    const salida = document.createElement('div');
+    salida.style.cssText = 'position:fixed;inset:0;background:#000;z-index:99999;opacity:0;pointer-events:none;transition:opacity 0.4s ease;';
+    document.body.appendChild(salida);
+    requestAnimationFrame(() => { salida.style.opacity = '1'; });
+    setTimeout(() => { window.location.href = NEXT_FILE; }, 450);
+}
+
+        function changeSlide(target) {
+            if (isTransitioning || target === currentSlide) return;
+            if (target < 1 || target > totalSlides) return;
+            isTransitioning = true;
+            currentSlide = target;
+            const container = document.getElementById('presentation-container');
+            container.className = `listo state-${target} animaciones-activas`;
+            runCounters(slideEls[target - 1], 600);
+            document.getElementById('slide-indicator').textContent = `Diapositiva ${target} / ${totalSlides}`;
+            setTimeout(() => { isTransitioning = false; }, reducedMotion.matches ? 50 : 1200);
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (key === 'n' || key === 'arrowright' || e.code === 'Space') {
+    e.preventDefault();
+    if (currentSlide === totalSlides) {
+        salirAlSiguiente();
+        return;
+    }
+    changeSlide(currentSlide + 1);
+} else if (key === 'p' || key === 'arrowleft' || key === 'backspace') {
+                e.preventDefault(); changeSlide(currentSlide - 1);
+            } else if (key === 'f') {
+                e.preventDefault(); toggleFullscreen();
+            }
+        });
+
+        document.addEventListener('click', () => {
+            const video = document.getElementById('main-video');
+            if (video && video.paused) video.play().catch(() => {});
+        });
+
+        function intentarFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            }
+        }
+        document.addEventListener('keydown', intentarFullscreen, { once: true });
+        document.addEventListener('click', intentarFullscreen, { once: true });
+        document.addEventListener('mousedown', intentarFullscreen, { once: true });
+
+        let cursorTimeout;
+        function mostrarCursorTemporalmente() {
+            document.documentElement.classList.add('cursor-visible');
+            clearTimeout(cursorTimeout);
+            cursorTimeout = setTimeout(() => {
+                document.documentElement.classList.remove('cursor-visible');
+            }, 2000);
+        }
+        document.addEventListener('mousemove', mostrarCursorTemporalmente);
+        document.addEventListener('mousedown', mostrarCursorTemporalmente);
+    </script>
+</body>
+</html>

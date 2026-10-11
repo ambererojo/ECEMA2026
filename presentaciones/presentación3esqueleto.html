@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es" style="background:#000">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- ANTI-CACHÉ -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <title>Presentación de Tesis - Sección 3</title>
+
+    <!-- ANTI-FLASH — primer byte -->
+    <style>
+        html { background: #000 !important; }
+        body { background: #000 !important; margin: 0; padding: 0; overflow: hidden; }
+        #black-cover {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 2147483647;
+            pointer-events: none;
+            opacity: 1;
+        }
+        #black-cover.quitar {
+            transition: opacity 0.5s ease;
+            opacity: 0;
+        }
+        #contenido { display: none; }
+        #contenido.listo { display: block; }
+    </style>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #050811;
+            font-family: 'Inter', sans-serif;
+            color: #f8fafc;
+        }
+
+        #contenido {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* CAPA NEGRA DE ENTRADA (0.8s total: 0.3s negro + 0.5s fade) */
+        #entrada-fade {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 1;
+            will-change: opacity;
+        }
+        #entrada-fade.arrancar {
+            animation: entradaFade 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+        }
+        @keyframes entradaFade {
+            0%   { opacity: 1; }
+            37.5% { opacity: 1; }
+            100% { opacity: 0; visibility: hidden; }
+        }
+
+        /* =====================================================
+           PLACEHOLDER — Este texto es solo para que veas que
+           la transición funciona. Cuando tengas el contenido
+           real, reemplazá todo este bloque.
+           ===================================================== */
+        .placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .placeholder h1 {
+            font-size: clamp(2rem, 6vw, 4rem);
+            font-weight: 800;
+            color: #38bdf8;
+            letter-spacing: -0.02em;
+        }
+        .placeholder p {
+            font-size: 1.2rem;
+            color: #94a3b8;
+        }
+
+        /* UI DE NAVEGACIÓN */
+        #ui-layer {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 22px;
+            border-radius: 30px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            z-index: 100;
+            font-size: 0.85rem;
+        }
+        .ui-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .ui-btn:hover { background: rgba(56, 189, 248, 0.5); }
+        .ui-key {
+            background: #ffffff;
+            color: #000000;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+
+        /* OCULTAMIENTO DEL PUNTERO */
+        html, body, button, a, input, textarea, select { cursor: none; }
+        html.cursor-visible,
+        html.cursor-visible body,
+        html.cursor-visible button,
+        html.cursor-visible a,
+        html.cursor-visible input,
+        html.cursor-visible textarea,
+        html.cursor-visible select { cursor: default; }
+
+        /* ACCESIBILIDAD */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; }
+            #entrada-fade { animation: none !important; opacity: 0; visibility: hidden; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CORTINA NEGRA IMPENETRABLE — PRIMER ELEMENTO DEL BODY -->
+    <div id="black-cover"></div>
+
+    <!-- CAPA NEGRA DE ENTRADA -->
+    <div id="entrada-fade"></div>
+
+    <!-- CONTENEDOR DE LA SECCIÓN -->
+    <div id="contenido">
+
+        <!-- PLACEHOLDER: reemplazar por el contenido real -->
+        <div class="placeholder">
+            <h1>Sección 3</h1>
+            <p>Aquí va el contenido del pitch / storytelling / lo que definas.</p>
+            <p style="font-size: 0.9rem; color: #64748b;">Presioná N para salir al siguiente archivo.</p>
+        </div>
+
+    </div>
+
+    <!-- UI FLOTANTE -->
+    <div id="ui-layer">
+        <button class="ui-btn" onclick="salirAlSiguiente()">Siguiente sección <span class="ui-key">N</span></button>
+        <button class="ui-btn" onclick="toggleFullscreen()">Pantalla Completa <span class="ui-key">F</span></button>
+    </div>
+
+    <script>
+        const NEXT_FILE = 'presentación4.html'; // Cambiar por el nombre real del que sigue
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+        /* ---------------------------------------------------------
+           ARRANQUE REAL DE LA SECCIÓN
+           --------------------------------------------------------- */
+        function arrancarSeccion() {
+            const contenido = document.getElementById('contenido');
+            const entrada   = document.getElementById('entrada-fade');
+            const cover     = document.getElementById('black-cover');
+
+            contenido.classList.add('listo');
+            entrada.classList.add('arrancar');
+
+            function onFadeEnd(e) {
+                if (e.animationName !== 'entradaFade') return;
+                entrada.removeEventListener('animationend', onFadeEnd);
+                cover.classList.add('quitar');
+                setTimeout(() => { if (cover.parentNode) cover.remove(); }, 600);
+            }
+            entrada.addEventListener('animationend', onFadeEnd);
+
+            setTimeout(() => {
+                if (document.getElementById('black-cover')) {
+                    cover.classList.add('quitar');
+                    setTimeout(() => { if (cover.parentNode) cover.remove(); }, 600);
+                }
+            }, 2000);
+        }
+
+        window.addEventListener('load', () => {
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    arrancarSeccion();
+                });
+            });
+        });
+
+        setTimeout(() => {
+            const contenido = document.getElementById('contenido');
+            if (!contenido.classList.contains('listo')) {
+                arrancarSeccion();
+            }
+        }, 3000);
+
+        /* ---------------------------------------------------------
+           SALIDA AL SIGUIENTE ARCHIVO CON FUNDIDO A NEGRO
+           --------------------------------------------------------- */
+        function salirAlSiguiente() {
+            const salida = document.createElement('div');
+            salida.style.cssText = 'position:fixed;inset:0;background:#000;z-index:99999;opacity:0;pointer-events:none;transition:opacity 0.4s ease;';
+            document.body.appendChild(salida);
+            requestAnimationFrame(() => { salida.style.opacity = '1'; });
+            setTimeout(() => { window.location.href = NEXT_FILE; }, 450);
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (key === 'n' || key === 'arrowright' || e.code === 'Space') {
+                e.preventDefault();
+                salirAlSiguiente();
+            } else if (key === 'f') {
+                e.preventDefault();
+                toggleFullscreen();
+            }
+        });
+
+        /* FULLSCREEN AL PRIMER INPUT */
+        function intentarFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            }
+        }
+        document.addEventListener('keydown', intentarFullscreen, { once: true });
+        document.addEventListener('click', intentarFullscreen, { once: true });
+        document.addEventListener('mousedown', intentarFullscreen, { once: true });
+
+        /* CURSOR OCULTO */
+        let cursorTimeout;
+        function mostrarCursorTemporalmente() {
+            document.documentElement.classList.add('cursor-visible');
+            clearTimeout(cursorTimeout);
+            cursorTimeout = setTimeout(() => {
+                document.documentElement.classList.remove('cursor-visible');
+            }, 2000);
+        }
+        document.addEventListener('mousemove', mostrarCursorTemporalmente);
+        document.addEventListener('mousedown', mostrarCursorTemporalmente);
+    </script>
+</body>
+</html>
