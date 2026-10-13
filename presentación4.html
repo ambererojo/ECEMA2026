@@ -2,7 +2,13 @@
 <html lang="es" style="background:#000">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+    <!-- Meta tags para modo app en iOS/Android -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
 
     <!-- ANTI-CACHÉ -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -36,6 +42,16 @@
             background-color: #050811;
             font-family: 'Inter', sans-serif;
             color: #f8fafc;
+        }
+
+        /* FIX MÓVIL: desactivar gestos del navegador */
+        html, body, #contenido {
+            touch-action: none;
+            overscroll-behavior: none;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         :root {
@@ -274,7 +290,9 @@
             flex-shrink: 0;
         }
 
-        /* UI DE NAVEGACIÓN */
+        /* =====================================================
+           UI DE NAVEGACIÓN — botones clicables en PC y móvil
+           ===================================================== */
         #ui-layer {
             position: absolute;
             bottom: 18px;
@@ -288,26 +306,35 @@
             display: flex;
             align-items: center;
             gap: 14px;
-            z-index: 100;
+            z-index: 1000;
             font-size: 0.82rem;
             font-family: 'JetBrains Mono', monospace;
             transition: opacity 0.3s ease;
+            pointer-events: auto;
         }
         #ui-layer.atenuada { opacity: 0.3; }
         #ui-layer:hover { opacity: 1 !important; }
 
         .ui-btn {
             background: rgba(255, 255, 255, 0.12);
-            border: none;
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: #fff;
-            padding: 5px 12px;
+            padding: 8px 14px;
             border-radius: 12px;
             font-weight: 600;
             transition: background 0.2s;
             font-family: inherit;
             font-size: 0.78rem;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            min-width: 44px;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
-        .ui-btn:hover { background: rgba(245, 158, 11, 0.5); }
+        .ui-btn:hover, .ui-btn:active { background: rgba(245, 158, 11, 0.5); }
         .ui-key {
             background: #ffffff;
             color: #000000;
@@ -320,6 +347,21 @@
             color: var(--ambar-suave);
             font-weight: 700;
             letter-spacing: 0.08em;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        /* Botones más grandes en pantalla táctil */
+        @media (hover: none) and (pointer: coarse) {
+            #ui-layer {
+                bottom: 12px;
+                padding: 6px 14px;
+                gap: 8px;
+            }
+            .ui-btn {
+                padding: 10px 12px;
+                font-size: 0.85rem;
+            }
         }
 
         /* OCULTAMIENTO DEL PUNTERO */
@@ -745,45 +787,78 @@
             setTimeout(() => { window.location.href = NEXT_FILE; }, 450);
         }
 
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(() => {});
-            } else {
-                if (document.exitFullscreen) document.exitFullscreen();
-            }
-        }
+        /* =========================================================
+           FULLSCREEN — auto en primera interacción + toggle con F
+           ========================================================= */
+        let primeraInteraccionHecha = false;
 
-        /* ---------------------------------------------------------
-           RECUPERACIÓN DE FULLSCREEN
-           Al navegar desde presentación3, el navegador sale de
-           fullscreen al cargar el nuevo documento. Reintentamos
-           en cada input hasta lograrlo.
-           --------------------------------------------------------- */
-        let fullscreenLogrado = false;
-        function intentarFullscreen() {
-            if (fullscreenLogrado) return;
-            if (document.fullscreenElement) {
-                fullscreenLogrado = true;
+        function solicitarFullscreen() {
+            if (document.fullscreenElement ||
+                document.webkitFullscreenElement ||
+                document.mozFullScreenElement ||
+                document.msFullscreenElement) {
                 return;
             }
-            const p = document.documentElement.requestFullscreen();
-            if (p && typeof p.then === 'function') {
-                p.then(() => { fullscreenLogrado = true; }).catch(() => {
-                    // falló: se reintentará en el próximo input
-                });
+
+            const el = document.documentElement;
+            const requestFn =
+                el.requestFullscreen ||
+                el.webkitRequestFullscreen ||
+                el.webkitRequestFullScreen ||
+                el.mozRequestFullScreen ||
+                el.msRequestFullscreen;
+
+            if (!requestFn) return;
+
+            try {
+                const p = requestFn.call(el);
+                if (p && typeof p.catch === 'function') p.catch(() => {});
+            } catch (e) { /* silencioso */ }
+        }
+
+        function toggleFullscreen() {
+            const enFullscreen =
+                document.fullscreenElement ||
+                document.webkitFullscreenElement ||
+                document.mozFullScreenElement ||
+                document.msFullscreenElement;
+
+            if (enFullscreen) {
+                const exitFn =
+                    document.exitFullscreen ||
+                    document.webkitExitFullscreen ||
+                    document.mozCancelFullScreen ||
+                    document.msExitFullscreen;
+                if (exitFn) {
+                    try {
+                        const p = exitFn.call(document);
+                        if (p && typeof p.catch === 'function') p.catch(() => {});
+                    } catch (e) { /* silencioso */ }
+                }
+            } else {
+                solicitarFullscreen();
             }
         }
-        document.addEventListener('keydown', intentarFullscreen);
-        document.addEventListener('click', intentarFullscreen);
-        document.addEventListener('mousedown', intentarFullscreen);
-        document.addEventListener('touchstart', intentarFullscreen, { passive: true });
 
+        function autoFullscreenPrimeraVez() {
+            if (primeraInteraccionHecha) return;
+            primeraInteraccionHecha = true;
+            solicitarFullscreen();
+        }
+
+        ['click', 'touchstart', 'pointerdown'].forEach(ev => {
+            document.addEventListener(ev, autoFullscreenPrimeraVez, { passive: true });
+        });
+
+        /* =========================================================
+           TECLADO (PC)
+           ========================================================= */
         document.addEventListener('keydown', (e) => {
             const key = e.key.toLowerCase();
-            if (key === 'n' || key === 'arrowright' || e.code === 'Space') {
+            if (key === 'n' || key === 'arrowright' || key === 'pagedown' || e.code === 'Space') {
                 e.preventDefault();
                 slideSiguiente();
-            } else if (key === 'p' || key === 'arrowleft' || key === 'backspace') {
+            } else if (key === 'p' || key === 'arrowleft' || key === 'pageup' || key === 'backspace') {
                 e.preventDefault();
                 slideAnterior();
             } else if (key === 'f') {
@@ -794,6 +869,35 @@
                 salirAlSiguiente();
             }
         });
+
+        /* =========================================================
+           TOUCH: swipe con umbral de tiempo y predominancia
+           ========================================================= */
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchStartT = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            const t = e.changedTouches[0];
+            touchStartX = t.screenX;
+            touchStartY = t.screenY;
+            touchStartT = Date.now();
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
+            const t = e.changedTouches[0];
+            const dx = t.screenX - touchStartX;
+            const dy = t.screenY - touchStartY;
+            const dt = Date.now() - touchStartT;
+
+            if (dt < 600 && Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+                if (dx < 0) {
+                    slideSiguiente();
+                } else {
+                    slideAnterior();
+                }
+            }
+        }, { passive: true });
 
         /* CURSOR OCULTO */
         let cursorTimeout;
