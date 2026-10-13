@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
-    <!-- ===== FIX MÓVIL: meta tags para modo app en iOS/Android ===== -->
+    <!-- Meta tags para modo app en iOS/Android -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -21,7 +21,6 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* ===== FIX MÓVIL: desactivar gestos del navegador ===== */
         html, body, #presentation-container {
             touch-action: none;
             overscroll-behavior: none;
@@ -434,31 +433,75 @@
             cursor: default;
         }
 
+        /* =========================================================
+           UI DE NAVEGACIÓN — botones clicables en PC y móvil
+           ========================================================= */
         #ui-layer {
             position: absolute;
-            bottom: 30px; left: 50%;
+            bottom: 24px; left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.7);
             border: 1px solid rgba(255,255,255,0.2);
-            padding: 10px 25px;
+            padding: 10px 22px;
             border-radius: 30px;
             color: #fff;
-            display: flex; align-items: center; gap: 20px;
+            display: flex; align-items: center; gap: 14px;
             z-index: 100;
             backdrop-filter: blur(5px);
             transition: opacity 0.6s ease;
             opacity: 1;
-            pointer-events: none;
-        }
-        .ui-key {
-            background: #fff; color: #000;
-            padding: 4px 10px; border-radius: 6px;
-            font-weight: bold; font-size: 0.85rem;
+            pointer-events: auto;
         }
 
-        /* En móvil, ocultar la UI de teclado porque no aplica */
-        @media (max-width: 900px) and (hover: none) {
-            #ui-layer { display: none; }
+        .ui-btn {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            min-width: 44px;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .ui-btn:hover,
+        .ui-btn:active {
+            background: rgba(255,255,255,0.35);
+        }
+
+        .ui-key {
+            background: #fff; color: #000;
+            padding: 3px 8px; border-radius: 5px;
+            font-weight: bold; font-size: 0.78rem;
+        }
+
+        #slide-indicator {
+            font-size: 0.82rem;
+            font-weight: 600;
+            min-width: 110px;
+            text-align: center;
+        }
+
+        /* Botones más grandes en pantalla táctil */
+        @media (hover: none) and (pointer: coarse) {
+            #ui-layer {
+                bottom: 16px;
+                padding: 8px 16px;
+                gap: 10px;
+            }
+            .ui-btn {
+                padding: 10px 14px;
+                font-size: 0.9rem;
+            }
         }
 
         #debug-layer {
@@ -598,10 +641,10 @@
     </div>
 
     <div id="ui-layer">
-        <span><span class="ui-key">P</span> Atrás</span>
+        <button class="ui-btn" onclick="irAnterior()">← <span class="ui-key">P</span></button>
         <span id="slide-indicator">Diapositiva 1 / 19</span>
-        <span>Adelante <span class="ui-key">N</span></span>
-        <span>Pantalla Completa <span class="ui-key">F</span></span>
+        <button class="ui-btn" onclick="irSiguiente()"><span class="ui-key">N</span> →</button>
+        <button class="ui-btn" onclick="toggleFullscreen()">⛶ <span class="ui-key">F</span></button>
     </div>
 
     <div id="debug-layer"></div>
@@ -807,22 +850,34 @@
         }
 
         /* =========================================================
-           FIX MÓVIL: Fullscreen compatible con iOS/Android + PC
+           Botones de la UI — misma lógica que el teclado
            ========================================================= */
-        let fullscreenLogrado = false;
+        function irAnterior() {
+            if (currentSlide > 1) changeSlide(currentSlide - 1);
+        }
 
-        function intentarFullscreen() {
-            if (fullscreenLogrado) return;
+        function irSiguiente() {
+            if (currentSlide === totalSlides) {
+                window.location.href = NEXT_FILE;
+                return;
+            }
+            changeSlide(currentSlide + 1);
+        }
 
-            const el = document.documentElement;
+        /* =========================================================
+           Fullscreen — auto en primera interacción + toggle con F
+           ========================================================= */
+        let primeraInteraccionHecha = false;
 
-            // Si ya estamos en fullscreen (por cualquier API), marcar y salir
-            if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
-                fullscreenLogrado = true;
+        function solicitarFullscreen() {
+            if (document.fullscreenElement ||
+                document.webkitFullscreenElement ||
+                document.mozFullScreenElement ||
+                document.msFullscreenElement) {
                 return;
             }
 
-            // Detectar la API disponible (con prefijos para iOS antiguo y navegadores legacy)
+            const el = document.documentElement;
             const requestFn =
                 el.requestFullscreen ||
                 el.webkitRequestFullscreen ||
@@ -830,39 +885,48 @@
                 el.mozRequestFullScreen ||
                 el.msRequestFullscreen;
 
-            if (!requestFn) {
-                // iOS Safari no expone la API sobre el documento: no se puede forzar.
-                // El usuario puede agregar el sitio a pantalla de inicio para modo app.
-                return;
-            }
+            if (!requestFn) return;
 
             try {
                 const p = requestFn.call(el);
-                if (p && typeof p.then === 'function') {
-                    p.then(() => { fullscreenLogrado = true; }).catch(() => {
-                        // Falló por falta de gesto o por política del navegador.
-                        // No marcamos fullscreenLogrado para reintentar en el próximo input.
-                    });
-                } else {
-                    fullscreenLogrado = true;
-                }
+                if (p && typeof p.catch === 'function') p.catch(() => {});
             } catch (e) { /* silencioso */ }
         }
 
-        // Se intenta en cualquier primer gesto del usuario, sea mouse o touch.
-        ['keydown', 'click', 'mousedown', 'touchstart', 'touchend', 'pointerdown'].forEach(ev => {
-            document.addEventListener(ev, intentarFullscreen, { passive: true });
-        });
-
         function toggleFullscreen() {
-            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-                intentarFullscreen();
+            const enFullscreen =
+                document.fullscreenElement ||
+                document.webkitFullscreenElement ||
+                document.mozFullScreenElement ||
+                document.msFullscreenElement;
+
+            if (enFullscreen) {
+                const exitFn =
+                    document.exitFullscreen ||
+                    document.webkitExitFullscreen ||
+                    document.mozCancelFullScreen ||
+                    document.msExitFullscreen;
+                if (exitFn) {
+                    try {
+                        const p = exitFn.call(document);
+                        if (p && typeof p.catch === 'function') p.catch(() => {});
+                    } catch (e) { /* silencioso */ }
+                }
             } else {
-                const exitFn = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
-                if (exitFn) exitFn.call(document);
-                fullscreenLogrado = false;
+                solicitarFullscreen();
             }
         }
+
+        /* Auto-fullscreen solo en la PRIMERA interacción del usuario. */
+        function autoFullscreenPrimeraVez() {
+            if (primeraInteraccionHecha) return;
+            primeraInteraccionHecha = true;
+            solicitarFullscreen();
+        }
+
+        ['click', 'touchstart', 'pointerdown'].forEach(ev => {
+            document.addEventListener(ev, autoFullscreenPrimeraVez, { passive: true });
+        });
 
         let uiTimeout;
         function showUI() {
@@ -912,23 +976,17 @@
 
             if (key === 'n' || key === 'arrowright' || e.code === 'Space') {
                 e.preventDefault();
-                if (currentSlide === totalSlides) {
-                    window.location.href = NEXT_FILE;
-                    return;
-                }
-                changeSlide(currentSlide + 1);
+                irSiguiente();
             } else if (key === 'p' || key === 'arrowleft' || key === 'backspace') {
                 e.preventDefault();
-                changeSlide(currentSlide - 1);
+                irAnterior();
             } else if (key === 'f') {
                 e.preventDefault();
                 toggleFullscreen();
             }
         });
 
-        /* =========================================================
-           FIX MÓVIL: Swipe con umbral de tiempo y predominancia
-           ========================================================= */
+        // ===== TOUCH: swipe con umbral de tiempo y predominancia =====
         let touchStartX = 0;
         let touchStartY = 0;
         let touchStartT = 0;
@@ -948,19 +1006,11 @@
             const dy = t.screenY - touchStartY;
             const dt = Date.now() - touchStartT;
 
-            // Swipe válido: rápido (<600ms), horizontal (>55px),
-            // y predominancia horizontal (1.5× vertical).
             if (dt < 600 && Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.5) {
                 if (dx < 0) {
-                    // Swipe izquierda → siguiente
-                    if (currentSlide === totalSlides) {
-                        window.location.href = NEXT_FILE;
-                        return;
-                    }
-                    changeSlide(currentSlide + 1);
+                    irSiguiente();
                 } else {
-                    // Swipe derecha → anterior
-                    changeSlide(currentSlide - 1);
+                    irAnterior();
                 }
             }
         }, { passive: true });
