@@ -2,7 +2,14 @@
 <html lang="es" style="background:#000">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+    <!-- Meta tags para modo app en iOS/Android -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -41,6 +48,15 @@
             background-color: #050811;
             font-family: 'Inter', sans-serif;
             color: #f8fafc;
+        }
+
+        html, body, #presentation-container {
+            touch-action: none;
+            overscroll-behavior: none;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         #presentation-container {
@@ -135,7 +151,7 @@
     line-height: 1.45;
     color: #ffffff !important;
     font-weight: 500;
-    filter: 
+    filter:
         drop-shadow(0 0 1.5px rgba(0, 0, 0, 1))
         drop-shadow(0 0 3px rgba(0, 0, 0, 0.95))
         drop-shadow(0 2px 6px rgba(0, 0, 0, 0.8));
@@ -143,8 +159,8 @@
     .highlight-outlined {
     color: #ffffff !important;
     font-weight: 700;
-    text-shadow: 
-        -0.5px -0.5px 0 rgba(0, 0, 0, 0.5), 
+    text-shadow:
+        -0.5px -0.5px 0 rgba(0, 0, 0, 0.5),
          0.5px -0.5px 0 rgba(0, 0, 0, 0.5),
         -0.5px  0.5px 0 rgba(0, 0, 0, 0.5),
          0.5px  0.5px 0 rgba(0, 0, 0, 0.5),
@@ -286,11 +302,82 @@
 .slide20-footer { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; }
 #slide-26 .slide20-footer { margin-top: 24px; }
 
-        /* UI */
-        #ui-layer { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.85); border: 1px solid rgba(255, 255, 255, 0.2); padding: 8px 22px; border-radius: 30px; color: #fff; display: flex; align-items: center; gap: 16px; z-index: 100; font-size: 0.85rem; }
-        .ui-btn { background: rgba(255, 255, 255, 0.15); border: none; color: #fff; padding: 5px 12px; border-radius: 12px; font-weight: 600; transition: background 0.2s; }
-        .ui-btn:hover { background: rgba(56, 189, 248, 0.5); }
-        .ui-key { background: #ffffff; color: #000000; padding: 2px 7px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; }
+        /* =========================================================
+           UI DE NAVEGACIÓN — botones clicables en PC y móvil
+           ========================================================= */
+        #ui-layer {
+            position: absolute;
+            bottom: 20px; left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 22px;
+            border-radius: 30px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            z-index: 1000;
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+            transition: opacity 0.6s ease;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .ui-btn {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            min-width: 44px;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .ui-btn:hover,
+        .ui-btn:active {
+            background: rgba(255,255,255,0.35);
+        }
+
+        .ui-key {
+            background: #ffffff;
+            color: #000000;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+
+        #slide-indicator {
+            font-size: 0.82rem;
+            font-weight: 600;
+            min-width: 110px;
+            text-align: center;
+        }
+
+        /* Botones más grandes en pantalla táctil */
+        @media (hover: none) and (pointer: coarse) {
+            #ui-layer {
+                bottom: 16px;
+                padding: 8px 16px;
+                gap: 10px;
+            }
+            .ui-btn {
+                padding: 10px 14px;
+                font-size: 0.9rem;
+            }
+        }
 
         /* EFECTOS */
         @property --ang { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
@@ -305,13 +392,11 @@
         @keyframes fadeIn  { from { opacity: 0; } }
         @keyframes float   { from { transform: translateY(0); } to { transform: translateY(-6px); } }
 
-        /* SHIMMER DIAGONAL — 135deg, esquina sup-izq hacia inf-der y vuelta, ciclo 2.5s */
         @keyframes shimmer {
             0%   { background-position: 0% 0%; }
             50%  { background-position: 100% 100%; }
             100% { background-position: 0% 0%; }
         }
-/* SHIMMER para textos que no tienen animación de entrada propia */
 .animaciones-activas .card-title,
 .animaciones-activas .comp-title,
 .animaciones-activas .cond-title-head,
@@ -366,7 +451,6 @@
         .animaciones-activas.state-1 #slide-19 .info-card, .animaciones-activas.state-3 #slide-21 .info-card, .animaciones-activas.state-4 #slide-22 .info-card:nth-child(1), .animaciones-activas.state-5 #slide-23 .info-card, .animaciones-activas.state-6 #slide-24 .info-card, .animaciones-activas.state-7 #slide-25 .info-card { animation: inRight 1s cubic-bezier(0.16, 1, 0.3, 1) 0.8s both, float 7s ease-in-out 1.8s infinite alternate; }
 
         .highlight-outlined { background-image: linear-gradient(90deg, #38bdf8, #bae6fd); background-repeat: no-repeat; background-position: 0 100%; background-size: 0% 1px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
-        /* Reset de fill-color para elementos que deben conservar su color propio */
 .highlight-outlined { -webkit-text-fill-color: #ffffff !important; }
 .matrix-badge, .matrix-badge.obs, .badge-brecha { -webkit-text-fill-color: currentColor !important; }
 .ui-key, .vs-badge, .ui-btn { -webkit-text-fill-color: currentColor !important; }
@@ -585,11 +669,14 @@
 
     </div>
 
+    <!-- =========================================================
+         UI DE NAVEGACIÓN — botones clicables en PC y móvil
+         ========================================================= -->
     <div id="ui-layer">
-        <button class="ui-btn" onclick="changeSlide(currentSlide - 1)">Anterior <span class="ui-key">P</span></button>
-        <span id="slide-indicator" style="font-weight: 600;">Diapositiva 1 / 8</span>
-        <button class="ui-btn" onclick="changeSlide(currentSlide + 1)">Siguiente <span class="ui-key">N</span></button>
-        <button class="ui-btn" onclick="toggleFullscreen()">Pantalla Completa <span class="ui-key">F</span></button>
+        <button class="ui-btn" onclick="irAnterior()">← <span class="ui-key">P</span></button>
+        <span id="slide-indicator">Diapositiva 1 / 8</span>
+        <button class="ui-btn" onclick="irSiguiente()"><span class="ui-key">N</span> →</button>
+        <button class="ui-btn" onclick="toggleFullscreen()">⛶ <span class="ui-key">F</span></button>
     </div>
 
     <script>
@@ -639,26 +726,18 @@
             const entrada   = document.getElementById('entrada-fade');
             const cover     = document.getElementById('black-cover');
 
-            // 1) Activar el contenedor con state-1, SIN animaciones todavía
             container.classList.add('listo');
             container.classList.add('state-1');
-
-            // 2) Arrancar el fade de la cortina
             entrada.classList.add('arrancar');
 
-            // 3) Retrasar el arranque de las animaciones 0.3s
-            //    para que la cortina ya esté desvaneciéndose
             setTimeout(() => {
                 container.classList.add('animaciones-activas');
             }, 300);
 
-            // 4) Contadores a 0.5s (0.3s + 0.2s)
             setTimeout(() => {
                 runCounters(slideEls[0], 200);
             }, 500);
 
-            // 5) Escuchar el fin del fade para quitar la cortina negra
-            //    SIN { once: true } para no autoeliminar el listener antes de tiempo
             function onFadeEnd(e) {
                 if (e.animationName !== 'entradaFade') return;
                 entrada.removeEventListener('animationend', onFadeEnd);
@@ -667,7 +746,6 @@
             }
             entrada.addEventListener('animationend', onFadeEnd);
 
-            // Respaldo absoluto: si a los 2s la cortina sigue visible, quitarla igual
             setTimeout(() => {
                 if (document.getElementById('black-cover')) {
                     cover.classList.add('quitar');
@@ -676,7 +754,6 @@
             }, 2000);
         }
 
-        /* DISPARADOR: cuando el video está listo (o timeout) */
         window.addEventListener('load', () => {
             const video = document.getElementById('main-video');
             const esperarVideo = video
@@ -696,7 +773,6 @@
             });
         });
 
-        // Respaldo absoluto: si a los 3s no arrancó, arrancar igual
         setTimeout(() => {
             const container = document.getElementById('presentation-container');
             if (!container.classList.contains('listo')) {
@@ -706,12 +782,12 @@
 
         /* NAVEGACIÓN */
         function salirAlSiguiente() {
-    const salida = document.createElement('div');
-    salida.style.cssText = 'position:fixed;inset:0;background:#000;z-index:99999;opacity:0;pointer-events:none;transition:opacity 0.4s ease;';
-    document.body.appendChild(salida);
-    requestAnimationFrame(() => { salida.style.opacity = '1'; });
-    setTimeout(() => { window.location.href = NEXT_FILE; }, 450);
-}
+            const salida = document.createElement('div');
+            salida.style.cssText = 'position:fixed;inset:0;background:#000;z-index:99999;opacity:0;pointer-events:none;transition:opacity 0.4s ease;';
+            document.body.appendChild(salida);
+            requestAnimationFrame(() => { salida.style.opacity = '1'; });
+            setTimeout(() => { window.location.href = NEXT_FILE; }, 450);
+        }
 
         function changeSlide(target) {
             if (isTransitioning || target === currentSlide) return;
@@ -725,43 +801,129 @@
             setTimeout(() => { isTransitioning = false; }, reducedMotion.matches ? 50 : 1200);
         }
 
+        /* Botones de la UI */
+        function irAnterior() {
+            if (currentSlide > 1) changeSlide(currentSlide - 1);
+        }
+
+        function irSiguiente() {
+            if (currentSlide === totalSlides) {
+                salirAlSiguiente();
+                return;
+            }
+            changeSlide(currentSlide + 1);
+        }
+
+        /* =========================================================
+           Fullscreen — auto en primera interacción + toggle con F
+           ========================================================= */
+        let primeraInteraccionHecha = false;
+
+        function solicitarFullscreen() {
+            if (document.fullscreenElement ||
+                document.webkitFullscreenElement ||
+                document.mozFullScreenElement ||
+                document.msFullscreenElement) {
+                return;
+            }
+
+            const el = document.documentElement;
+            const requestFn =
+                el.requestFullscreen ||
+                el.webkitRequestFullscreen ||
+                el.webkitRequestFullScreen ||
+                el.mozRequestFullScreen ||
+                el.msRequestFullscreen;
+
+            if (!requestFn) return;
+
+            try {
+                const p = requestFn.call(el);
+                if (p && typeof p.catch === 'function') p.catch(() => {});
+            } catch (e) { /* silencioso */ }
+        }
+
         function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(() => {});
+            const enFullscreen =
+                document.fullscreenElement ||
+                document.webkitFullscreenElement ||
+                document.mozFullScreenElement ||
+                document.msFullscreenElement;
+
+            if (enFullscreen) {
+                const exitFn =
+                    document.exitFullscreen ||
+                    document.webkitExitFullscreen ||
+                    document.mozCancelFullScreen ||
+                    document.msExitFullscreen;
+                if (exitFn) {
+                    try {
+                        const p = exitFn.call(document);
+                        if (p && typeof p.catch === 'function') p.catch(() => {});
+                    } catch (e) { /* silencioso */ }
+                }
             } else {
-                if (document.exitFullscreen) document.exitFullscreen();
+                solicitarFullscreen();
             }
         }
 
+        function autoFullscreenPrimeraVez() {
+            if (primeraInteraccionHecha) return;
+            primeraInteraccionHecha = true;
+            solicitarFullscreen();
+        }
+
+        ['click', 'touchstart', 'pointerdown'].forEach(ev => {
+            document.addEventListener(ev, autoFullscreenPrimeraVez, { passive: true });
+        });
+
+        // ===== TECLADO (PC) =====
         document.addEventListener('keydown', (e) => {
             const key = e.key.toLowerCase();
             if (key === 'n' || key === 'arrowright' || e.code === 'Space') {
-    e.preventDefault();
-    if (currentSlide === totalSlides) {
-        salirAlSiguiente();
-        return;
-    }
-    changeSlide(currentSlide + 1);
-} else if (key === 'p' || key === 'arrowleft' || key === 'backspace') {
-                e.preventDefault(); changeSlide(currentSlide - 1);
+                e.preventDefault();
+                irSiguiente();
+            } else if (key === 'p' || key === 'arrowleft' || key === 'backspace') {
+                e.preventDefault();
+                irAnterior();
             } else if (key === 'f') {
-                e.preventDefault(); toggleFullscreen();
+                e.preventDefault();
+                toggleFullscreen();
             }
         });
 
+        // ===== TOUCH: swipe con umbral de tiempo y predominancia =====
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchStartT = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            const t = e.changedTouches[0];
+            touchStartX = t.screenX;
+            touchStartY = t.screenY;
+            touchStartT = Date.now();
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
+            const t = e.changedTouches[0];
+            const dx = t.screenX - touchStartX;
+            const dy = t.screenY - touchStartY;
+            const dt = Date.now() - touchStartT;
+
+            if (dt < 600 && Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+                if (dx < 0) {
+                    irSiguiente();
+                } else {
+                    irAnterior();
+                }
+            }
+        }, { passive: true });
+
+        // Click / tap: reanuda el video de fondo si estuviera pausado
         document.addEventListener('click', () => {
             const video = document.getElementById('main-video');
             if (video && video.paused) video.play().catch(() => {});
         });
-
-        function intentarFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(() => {});
-            }
-        }
-        document.addEventListener('keydown', intentarFullscreen, { once: true });
-        document.addEventListener('click', intentarFullscreen, { once: true });
-        document.addEventListener('mousedown', intentarFullscreen, { once: true });
 
         let cursorTimeout;
         function mostrarCursorTemporalmente() {
