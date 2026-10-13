@@ -2,7 +2,13 @@
 <html lang="es" style="background:#000">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+    <!-- Meta tags para modo app en iOS/Android -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
 
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
@@ -35,6 +41,16 @@
             background-color: #050811;
             font-family: 'Inter', sans-serif;
             color: #f8fafc;
+        }
+
+        /* FIX MÓVIL: desactivar gestos del navegador */
+        html, body, #contenido {
+            touch-action: none;
+            overscroll-behavior: none;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         :root {
@@ -545,7 +561,7 @@
         }
 
         #sound, #palmer-sound, #wald-sound {
-            position: absolute; right: 18px; bottom: 16px; z-index: 50;
+            position: absolute; right: 18px; bottom: 60px; z-index: 50;
             padding: 8px 14px;
             font: 600 1rem 'Rajdhani', sans-serif;
             letter-spacing: .08em;
@@ -594,22 +610,31 @@
             font-size: 0.78rem;
             font-family: 'JetBrains Mono', monospace;
             transition: opacity 0.3s ease;
+            pointer-events: auto;
         }
         #ui-layer.atenuada { opacity: 0.25; }
         #ui-layer:hover { opacity: 1 !important; }
 
         .ui-btn {
             background: rgba(255, 255, 255, 0.12);
-            border: none;
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: #fff;
-            padding: 5px 11px;
+            padding: 8px 14px;
             border-radius: 12px;
             font-weight: 600;
             transition: background 0.2s;
             font-family: inherit;
-            font-size: 0.75rem;
+            font-size: 0.78rem;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            min-width: 44px;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
-        .ui-btn:hover { background: rgba(245, 158, 11, 0.5); }
+        .ui-btn:hover, .ui-btn:active { background: rgba(245, 158, 11, 0.5); }
         .ui-key {
             background: #ffffff;
             color: #000000;
@@ -622,6 +647,21 @@
             color: var(--ambar-suave);
             font-weight: 700;
             letter-spacing: 0.08em;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        /* Botones más grandes en pantalla táctil */
+        @media (hover: none) and (pointer: coarse) {
+            #ui-layer {
+                bottom: 12px;
+                padding: 6px 14px;
+                gap: 8px;
+            }
+            .ui-btn {
+                padding: 10px 12px;
+                font-size: 0.85rem;
+            }
         }
 
         html, body, button, a, input, textarea, select { cursor: none; }
@@ -846,7 +886,6 @@
 
         /* ============================================================
            HUD EXTENDIDO — mismo formato Musk para toda la presentación
-           (los cuadros se alargan o se acortan según el texto)
            ============================================================ */
         .hud-azul {
             --edge: linear-gradient(135deg, #b4e8ff, #2f86c4 55%, #8fdcff);
@@ -981,6 +1020,7 @@
                 class="video-fullscreen"
                 src="videos1/temporizador1.mp4"
                 autoplay
+                muted
                 playsinline
                 preload="auto"></video>
 
@@ -1484,6 +1524,9 @@
 
     </div>
 
+    <!-- =========================================================
+         UI DE NAVEGACIÓN — botones clicables en PC y móvil
+         ========================================================= -->
     <div id="ui-layer">
         <button class="ui-btn" onclick="slideAnterior()">← <span class="ui-key">P</span></button>
         <span id="slide-indicador">01 / 05</span>
@@ -1890,7 +1933,7 @@
 
 
         /* =========================================================
-           SLIDE 4 — WALD: SECUENCIA (avión limpio → impactos → verde/ámbar)
+           SLIDE 4 — WALD
            ========================================================= */
         function crearSecuenciaWald() {
             const NS_SVG = 'http://www.w3.org/2000/svg';
@@ -1901,12 +1944,6 @@
             const flashG = svgEl.querySelector('#flashes');
             const WALD_ZOOM = [[0, 1.30], [1, 1.20], [2, 1.14], [3, 1.10]];
             const SLIDE_IDX = 3;
-
-            /* Pasos (con comandos siguiente / anterior):
-               0 avión limpio + títulos
-               1 impactos + cuadro azul (izquierda): blindaje en la IIGM
-               2 cuadro ámbar (izquierda): los ingenieros querían blindar los agujeros visibles
-               3 zonas a blindar + cuadro verde (abajo): el matemático                       */
 
             const hits = Array.from(svgEl.querySelectorAll('#hits .hit')).map(el => ({
                 el, x: +el.getAttribute('cx'), y: +el.getAttribute('cy'), t: 0, shown: false, wing: el.classList.contains('wing')
@@ -1919,10 +1956,6 @@
             let hitStart = null, hitEnd = 0;
             let flashAmp = 0, lastNow = 0;
 
-            // Dinámica del avión (resortes amortiguados)
-            //  roll  : balanceo de alas — más suave y más rápido que antes
-            //  heave : pequeño temblor vertical
-            //  pos   : retroceso por el "frenazo" de los impactos; vuelve lento a su lugar
             const CX = 221.49;
             const ROLL_K = 56,  ROLL_C = 2.8,  ROLL_MAX = 8;
             const HEAVE_K = 60, HEAVE_C = 4.5, HEAVE_MAX = 1.2;
@@ -1967,7 +2000,7 @@
                 } else {
                     heaveV -= 1.2;
                 }
-                posV += 0.07;                       // cada impacto frena un poco al avión
+                posV += 0.07;
                 flashAmp = Math.min(0.35, flashAmp + 0.05);
             }
 
@@ -2043,7 +2076,6 @@
                 requestAnimationFrame(render);
             }
 
-            // Vuelve al estado inicial (al regresar a este slide)
             function reiniciar() {
                 clearTimeout(titleTimer);
                 clearTimeout(boxTimer);
@@ -2066,14 +2098,13 @@
             function goTo(n) {
                 n = clamp(n, 0, 3);
                 if (n === target || anim) return;
-                if (n === 2 && target === 1 && impactosPendientes()) return;   // espera a que termine la ráfaga
+                if (n === 2 && target === 1 && impactosPendientes()) return;
                 const prev = target;
                 clearTimeout(titleTimer);
                 target = n;
                 anim = { from: s, to: n, t0: performance.now() };
 
                 if (n === 0) {
-                    // retroceso al inicio: avión limpio y títulos de nuevo
                     hitStart = null; nextWobble = Infinity;
                     hits.forEach(resetHit);
                     while (flashG.firstChild) flashG.removeChild(flashG.firstChild);
@@ -2135,7 +2166,6 @@
                     if (tt >= 0) for (const h of hits) if (!h.shown && tt >= h.t) revelar(h);
                 }
 
-                // Balanceo ocasional: el avión quedó dañado
                 if (target >= 1 && !impactosPendientes() && hits.every(h => h.shown)) {
                     if (nextWobble === Infinity) nextWobble = now + 2200;
                     else if (now >= nextWobble) {
@@ -2169,7 +2199,6 @@
                     const vy = -msy * 4 + Math.cos(t * 0.17) * 0.3;
                     wrapEl.style.transform = `translate3d(${vx.toFixed(3)}%, ${vy.toFixed(3)}%, 0) scale(${vz.toFixed(4)})`;
 
-                    // el frenazo también baja la velocidad del video de fondo
                     const rate = clamp(1 - pos * 0.14, 0.5, 1);
                     if (Math.abs(videoEl.playbackRate - rate) > 0.02) videoEl.playbackRate = rate;
 
@@ -2198,8 +2227,10 @@
             };
         }
 
+        const waldSeq = crearSecuenciaWald();
+
         /* =========================================================
-           SLIDE 5 — CIERRE: frase → título de la tesis → hiperespacio
+           SLIDE 5 — CIERRE
            ========================================================= */
         function crearSecuenciaFinal() {
             const SLIDE_IDX = 4;
@@ -2329,8 +2360,6 @@
 
         const finalSeq = crearSecuenciaFinal();
 
-        const waldSeq = crearSecuenciaWald();
-
         soundBtnMusk.addEventListener('click', (e) => {
             e.stopPropagation();
             starship.muted = false;
@@ -2365,7 +2394,7 @@
                     if (videoFadeOut) videoFadeOut.classList.remove('activar');
                     try {
                         video.currentTime = 0;
-                        if (!video.muted || !video.paused) video.play().catch(() => {});
+                        video.play().catch(() => {});
                     } catch (e) {}
                 } else {
                     video.pause();
@@ -2436,7 +2465,7 @@
             }
 
             if (slideActual === 4) {
-                finalSeq.goTo(finalSeq.getTarget() + 1);   // 0→1 frase · 1→2 propuesta + título · 2→hiperespacio
+                finalSeq.goTo(finalSeq.getTarget() + 1);
                 return;
             }
 
@@ -2445,7 +2474,6 @@
         }
 
         function slideAnterior() {
-            // Dentro de una secuencia: retrocede un paso. Al inicio de la secuencia: slide anterior (reiniciado).
             if (slideActual === 1 && muskSeq.getTarget() > 0)   { muskSeq.goTo(muskSeq.getTarget() - 1); return; }
             if (slideActual === 2 && palmerSeq.getTarget() > 0) { palmerSeq.goTo(palmerSeq.getTarget() - 1); return; }
             if (slideActual === 3 && waldSeq.getTarget() > 0)   { waldSeq.goTo(waldSeq.getTarget() - 1); return; }
@@ -2502,11 +2530,72 @@
             setTimeout(() => { window.location.href = NEXT_FILE; }, 450);
         }
 
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
-            else if (document.exitFullscreen) document.exitFullscreen();
+        /* =========================================================
+           FULLSCREEN — auto en primera interacción + toggle con F
+           ========================================================= */
+        let primeraInteraccionHecha = false;
+
+        function solicitarFullscreen() {
+            if (document.fullscreenElement ||
+                document.webkitFullscreenElement ||
+                document.mozFullScreenElement ||
+                document.msFullscreenElement) {
+                return;
+            }
+
+            const el = document.documentElement;
+            const requestFn =
+                el.requestFullscreen ||
+                el.webkitRequestFullscreen ||
+                el.webkitRequestFullScreen ||
+                el.mozRequestFullScreen ||
+                el.msRequestFullscreen;
+
+            if (!requestFn) return;
+
+            try {
+                const p = requestFn.call(el);
+                if (p && typeof p.catch === 'function') p.catch(() => {});
+            } catch (e) { /* silencioso */ }
         }
 
+        function toggleFullscreen() {
+            const enFullscreen =
+                document.fullscreenElement ||
+                document.webkitFullscreenElement ||
+                document.mozFullScreenElement ||
+                document.msFullscreenElement;
+
+            if (enFullscreen) {
+                const exitFn =
+                    document.exitFullscreen ||
+                    document.webkitExitFullscreen ||
+                    document.mozCancelFullScreen ||
+                    document.msExitFullscreen;
+                if (exitFn) {
+                    try {
+                        const p = exitFn.call(document);
+                        if (p && typeof p.catch === 'function') p.catch(() => {});
+                    } catch (e) { /* silencioso */ }
+                }
+            } else {
+                solicitarFullscreen();
+            }
+        }
+
+        function autoFullscreenPrimeraVez() {
+            if (primeraInteraccionHecha) return;
+            primeraInteraccionHecha = true;
+            solicitarFullscreen();
+        }
+
+        ['click', 'touchstart', 'pointerdown'].forEach(ev => {
+            document.addEventListener(ev, autoFullscreenPrimeraVez, { passive: true });
+        });
+
+        /* =========================================================
+           TECLADO (PC)
+           ========================================================= */
         document.addEventListener('keydown', (e) => {
             const key = e.key.toLowerCase();
             if (key === 'n' || key === 'arrowright' || key === 'pagedown' || e.code === 'Space') { e.preventDefault(); slideSiguiente(); }
@@ -2515,6 +2604,9 @@
             else if (key === 'escape') { e.preventDefault(); salirAlSiguiente(); }
         });
 
+        /* =========================================================
+           CLICK — desbloqueo de audio / avance dentro de slides cine
+           ========================================================= */
         document.addEventListener('click', (e) => {
             if (e.target.closest('#ui-layer')) return;
 
@@ -2545,12 +2637,34 @@
             }
         });
 
-        function intentarFullscreen() {
-            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
-        }
-        document.addEventListener('keydown', intentarFullscreen, { once: true });
-        document.addEventListener('click', intentarFullscreen, { once: true });
-        document.addEventListener('mousedown', intentarFullscreen, { once: true });
+        /* =========================================================
+           TOUCH: swipe con umbral de tiempo y predominancia
+           ========================================================= */
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchStartT = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            const t = e.changedTouches[0];
+            touchStartX = t.screenX;
+            touchStartY = t.screenY;
+            touchStartT = Date.now();
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
+            const t = e.changedTouches[0];
+            const dx = t.screenX - touchStartX;
+            const dy = t.screenY - touchStartY;
+            const dt = Date.now() - touchStartT;
+
+            if (dt < 600 && Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+                if (dx < 0) {
+                    slideSiguiente();
+                } else {
+                    slideAnterior();
+                }
+            }
+        }, { passive: true });
 
         let cursorTimeout;
         function mostrarCursorTemporalmente() {
