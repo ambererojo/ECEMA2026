@@ -2,7 +2,14 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+    <!-- ===== FIX MÓVIL: meta tags para modo app en iOS/Android ===== -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+
     <title>Presentación de Tesis - Composición Audiovisual</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -14,6 +21,16 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
+        /* ===== FIX MÓVIL: desactivar gestos del navegador ===== */
+        html, body, #presentation-container {
+            touch-action: none;
+            overscroll-behavior: none;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         #presentation-container {
             position: relative;
             width: 100vw; height: 100vh;
@@ -21,14 +38,12 @@
             overflow: hidden;
         }
 
-        /* CAPAS: CLIP -> TRANSLATE -> CROP -> MEDIA */
         .clip-wrapper, .translate-wrapper, .crop-wrapper {
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
         }
 
-        /* CAPA DE IMAGEN PREVIA (DIAPOSITIVA 1) */
         #img-intro {
             position: absolute;
             top: 0; left: 0;
@@ -44,35 +59,23 @@
             display: block;
         }
 
-        /* CAPAS DE VIDEO - JERARQUÍA Z-INDEX */
         .clip-wrapper {
             transition: clip-path 1.5s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.5s ease;
             will-change: clip-path, opacity;
         }
-        
-        /* Secuencia 1: Sujetos */
+
         #clip-s1 { z-index: 8; }
         #clip-s2 { z-index: 7; }
         #clip-s3 { z-index: 6; }
-        
-        /* Transición: Cohetero 1 */
         #clip-c1 { z-index: 5; }
-
-        /* Secuencia 2: Peloteros */
         #clip-p1 { z-index: 4; }
         #clip-p2 { z-index: 3; }
         #clip-p3 { z-index: 2; }
-
-        /* Secuencia 3: Colectivo (diapositivas 9-13) */
-        #clip-col1 { 
-            z-index: 1; 
+        #clip-col1 {
+            z-index: 1;
             transition: clip-path 1.5s cubic-bezier(0.65, 0, 0.35, 1), opacity 2.5s ease-in-out;
         }
-
-        /* Secuencia 4: Bandera de Paraguay (diapositivas 14-16) */
         #clip-bandera { z-index: 0; }
-
-        /* Secuencia 5: Juramento (diapositiva 17) */
         #clip-juramento { z-index: 55; }
 
         .translate-wrapper {
@@ -89,35 +92,25 @@
             background: #000;
         }
 
-        /* ---------------------------------------------------------
-           ESTADOS DE DIAPOSITIVA (1 A 19)
-           --------------------------------------------------------- */
-
-        /* Configuración base de cohetero y peloteros */
         #clip-c1 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; }
         #trans-c1 { transform: translateX(100%); }
 
         #clip-p1, #clip-p2, #clip-p3 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; }
         #trans-p1, #trans-p2, #trans-p3 { transform: translateX(0%); }
 
-        /* Configuración base del colectivo */
         #clip-col1 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; }
         #trans-col1 { transform: translateX(0%); }
 
-        /* Configuración base de la bandera */
         #clip-bandera { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; }
         #trans-bandera { transform: translateX(0%); }
 
-        /* Configuración base del juramento (oculto por defecto) */
         #clip-juramento { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 0; }
         #trans-juramento { transform: translateX(0%); }
 
-        /* Diapositiva 1 — Portada */
         .state-1 #img-intro { opacity: 1; pointer-events: auto; }
         .state-1 #clip-s1, .state-1 #clip-s2, .state-1 #clip-s3 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
         .state-1 #trans-s1, .state-1 #trans-s2, .state-1 #trans-s3 { transform: translateX(0%); }
 
-        /* Ocultar capa de imagen en diapositivas 2 a 19 */
         .state-2 #img-intro, .state-3 #img-intro, .state-4 #img-intro,
         .state-5 #img-intro, .state-6 #img-intro, .state-7 #img-intro,
         .state-8 #img-intro, .state-9 #img-intro, .state-10 #img-intro,
@@ -125,17 +118,14 @@
         .state-14 #img-intro, .state-15 #img-intro, .state-16 #img-intro,
         .state-17 #img-intro, .state-18 #img-intro, .state-19 #img-intro { opacity: 0; pointer-events: none; }
 
-        /* Diapositiva 2 — Sujeto 1 a pantalla completa */
         .state-2 #clip-s1, .state-2 #clip-s2, .state-2 #clip-s3 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
         .state-2 #trans-s1, .state-2 #trans-s2, .state-2 #trans-s3 { transform: translateX(0%); }
 
-        /* Diapositiva 3 — s1 izquierda, s2 derecha */
         .state-3 #clip-s1 { clip-path: polygon(0 0, 56.5% 0, 46.5% 100%, 0 100%); }
         .state-3 #clip-s2, .state-3 #clip-s3 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
         .state-3 #trans-s1 { transform: translateX(-25%); }
         .state-3 #trans-s2, .state-3 #trans-s3 { transform: translateX(0%); }
 
-        /* Diapositiva 4 — composición final de sujetos */
         .state-4 #clip-s1 { clip-path: polygon(0 0, 36.5% 0, 26.5% 100%, 0 100%); }
         .state-4 #clip-s2 { clip-path: polygon(0 0, 70.5% 0, 60.5% 100%, 0 100%); }
         .state-4 #clip-s3 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
@@ -143,13 +133,11 @@
         .state-4 #trans-s2 { transform: translateX(-20%); }
         .state-4 #trans-s3 { transform: translateX(25%); }
 
-        /* Diapositiva 5 — sujetos salen, cohetero entra */
         .state-5 #clip-s1, .state-5 #clip-s2, .state-5 #clip-s3 { clip-path: polygon(-100% 0, 0% 0, -10% 100%, -100% 100%); }
         .state-5 #trans-s1, .state-5 #trans-s2, .state-5 #trans-s3 { transform: translateX(-100%); }
         .state-5 #clip-c1 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; }
         .state-5 #trans-c1 { transform: translateX(0%); }
 
-        /* Ocultar sujetos en 6 a 19 */
         .state-6 #clip-s1, .state-7 #clip-s1, .state-8 #clip-s1, .state-9 #clip-s1,
         .state-10 #clip-s1, .state-11 #clip-s1, .state-12 #clip-s1, .state-13 #clip-s1,
         .state-14 #clip-s1, .state-15 #clip-s1, .state-16 #clip-s1, .state-17 #clip-s1,
@@ -168,20 +156,17 @@
         .state-14 #clip-c1, .state-15 #clip-c1, .state-16 #clip-c1,
         .state-17 #clip-c1, .state-18 #clip-c1, .state-19 #clip-c1 { opacity: 0; pointer-events: none; }
 
-        /* Diapositiva 6 — pelotero1 a pantalla completa */
         .state-6 #clip-p1, .state-6 #clip-p2, .state-6 #clip-p3 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
         .state-6 #trans-p1 { transform: translateX(0%); }
         .state-6 #trans-p2 { transform: translateX(33%); }
         .state-6 #trans-p3 { transform: translateX(0%); }
 
-        /* Diapositiva 7 — p1 izquierda, p2 aparece en el tercio derecho */
         .state-7 #clip-p1 { clip-path: polygon(0 0, 56.5% 0, 46.5% 100%, 0 100%); }
         .state-7 #clip-p2, .state-7 #clip-p3 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
         .state-7 #trans-p1 { transform: translateX(-25%); }
         .state-7 #trans-p2 { transform: translateX(33%); }
         .state-7 #trans-p3 { transform: translateX(0%); }
 
-        /* Diapositiva 8 — composición final peloteros */
         .state-8 #clip-p1 { clip-path: polygon(0 0, 36.5% 0, 26.5% 100%, 0 100%); }
         .state-8 #clip-p2 { clip-path: polygon(0 0, 70.5% 0, 60.5% 100%, 0 100%); }
         .state-8 #clip-p3 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
@@ -189,7 +174,6 @@
         .state-8 #trans-p2 { transform: translateX(0%); }
         .state-8 #trans-p3 { transform: translateX(0%); }
 
-        /* Ocultar peloteros en diapositivas 9 a 19 */
         .state-9 #clip-p1, .state-9 #clip-p2, .state-9 #clip-p3,
         .state-10 #clip-p1, .state-10 #clip-p2, .state-10 #clip-p3,
         .state-11 #clip-p1, .state-11 #clip-p2, .state-11 #clip-p3,
@@ -202,30 +186,25 @@
         .state-18 #clip-p1, .state-18 #clip-p2, .state-18 #clip-p3,
         .state-19 #clip-p1, .state-19 #clip-p2, .state-19 #clip-p3 { opacity: 0; pointer-events: none; }
 
-        /* Diapositiva 9 — Colectivo a pantalla completa */
         .state-9 #clip-col1 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; }
         .state-9 #trans-col1 { transform: translateX(0%); }
 
-        /* Diapositivas 10 a 13 — Colectivo visible de fondo con frases */
         .state-10 #clip-col1, .state-11 #clip-col1, .state-12 #clip-col1,
         .state-13 #clip-col1 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; }
 
-        /* Diapositivas 14 a 19 — Colectivo fade-out */
         .state-14 #clip-col1, .state-15 #clip-col1, .state-16 #clip-col1,
         .state-17 #clip-col1, .state-18 #clip-col1, .state-19 #clip-col1 { opacity: 0; pointer-events: none; }
-        
-        .state-14 #clip-bandera, .state-15 #clip-bandera, .state-16 #clip-bandera { 
-            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; 
+
+        .state-14 #clip-bandera, .state-15 #clip-bandera, .state-16 #clip-bandera {
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1;
         }
-        .state-14 #trans-bandera, .state-15 #trans-bandera, .state-16 #trans-bandera { 
-            transform: translateX(0%); 
+        .state-14 #trans-bandera, .state-15 #trans-bandera, .state-16 #trans-bandera {
+            transform: translateX(0%);
         }
 
-        /* Diapositiva 17 — bandera se oculta, juramento entra */
         .state-17 #clip-bandera, .state-18 #clip-bandera, .state-19 #clip-bandera { opacity: 0; pointer-events: none; }
         .state-17 #clip-juramento { opacity: 1; }
 
-        /* Materialización del juramento desde el centro con escala */
         #juramento-video-wrap {
             transform-origin: center center;
             transition: transform 1.8s cubic-bezier(0.22, 1, 0.36, 1),
@@ -243,7 +222,6 @@
             filter: blur(0px);
         }
 
-        /* Efecto desenfoque del colectivo en diapositiva 13 */
         .state-13 #colectivo1 {
             filter: blur(8px);
             transform: scale(1.05);
@@ -255,16 +233,12 @@
             transition: filter 2s cubic-bezier(0.65, 0, 0.35, 1), transform 2s cubic-bezier(0.65, 0, 0.35, 1);
         }
 
-        /* Desenfoque final del colectivo */
         .state-14 #colectivo1, .state-15 #colectivo1, .state-16 #colectivo1,
         .state-17 #colectivo1, .state-18 #colectivo1, .state-19 #colectivo1 {
             filter: blur(20px);
             transform: scale(1.1);
         }
 
-        /* ---------------------------------------------------------
-           FRASES SOBRE EL VIDEO (DIAPOSITIVAS 10 A 16)
-           --------------------------------------------------------- */
         #frases-layer {
             position: absolute;
             top: 0; left: 0;
@@ -283,8 +257,8 @@
             transform: translate(-50%, -50%);
             opacity: 0;
             text-align: center;
-            font-size: clamp(1.8rem, 5.25vw, 4.8rem); 
-            white-space: nowrap; 
+            font-size: clamp(1.8rem, 5.25vw, 4.8rem);
+            white-space: nowrap;
             font-weight: 800;
             letter-spacing: 0.02em;
             line-height: 1.1;
@@ -300,31 +274,25 @@
             will-change: opacity, transform;
         }
 
-        /* Frases visibles según diapositiva (10 a 13 al centro) */
         .state-10 #frase-12 { opacity: 1; transform: translate(-50%, -50%); }
         .state-11 #frase-13 { opacity: 1; transform: translate(-50%, -50%); }
         .state-12 #frase-14 { opacity: 1; transform: translate(-50%, -50%); }
         .state-13 #frase-15 { opacity: 1; transform: translate(-50%, -50%); }
 
-        /* Diapositiva 14 — "En Paraguay" centrada */
         .state-14 #frase-16 { opacity: 1; transform: translate(-50%, -50%); }
 
-        /* Diapositiva 15 — Línea 1 sube, Línea 2 centrada */
         .state-15 #frase-16 { opacity: 1; transform: translate(-50%, -180%); }
         .state-15 #frase-17 { opacity: 1; transform: translate(-50%, -50%); }
 
-        /* Diapositiva 16 — Línea 1 arriba, Línea 2 abajo, SMO centrada */
         .state-16 #frase-16 { opacity: 1; transform: translate(-50%, -180%); }
         .state-16 #frase-17 { opacity: 1; transform: translate(-50%, 80%); }
         .state-16 #frase-18 { opacity: 1; transform: translate(-50%, -50%); }
 
-        /* Diapositiva 17 — todas las frases anteriores desaparecen */
         .state-17 #frase-16, .state-17 #frase-17, .state-17 #frase-18 {
             opacity: 0;
             transform: translate(-50%, -50%);
         }
 
-        /* Estilo especial para SMO */
         #frase-18 {
             color: #e30613;
             -webkit-text-stroke: 2px rgba(0,0,0,0.85);
@@ -333,9 +301,6 @@
                 0 0 4px rgba(0,0,0,1);
         }
 
-        /* ---------------------------------------------------------
-           TEXTO ESTILO CRÉDITOS DE PELÍCULA (DIAPOSITIVA 17)
-           --------------------------------------------------------- */
         #creditos-layer {
             position: absolute;
             top: 0; left: 0;
@@ -362,7 +327,7 @@
             text-align: center;
             letter-spacing: 0.05em;
             -webkit-text-stroke: 2.5px #000000;
-            text-shadow: 
+            text-shadow:
                 0 5px 15px rgba(0, 0, 0, 1),
                 0 0 10px rgba(0, 0, 0, 1);
             padding: 0 2vw;
@@ -378,7 +343,6 @@
             100% { bottom: 110%; opacity: 0; }
         }
 
-        /* Oscurecimiento final de la diapositiva 17 */
         #fadeout-negro {
             position: absolute;
             top: 0; left: 0;
@@ -391,9 +355,6 @@
         }
         .state-17.fade-final #fadeout-negro { opacity: 1; }
 
-        /* ---------------------------------------------------------
-           BISAGRA — DIAPOSITIVAS 18 y 19 (PUENTE AL ARCHIVO DE DATOS)
-           --------------------------------------------------------- */
         #bisagra-layer {
             position: absolute;
             top: 0; left: 0;
@@ -464,9 +425,6 @@
             transform: translate(-50%, -50%) translateY(18vh);
         }
 
-        /* ---------------------------------------------------------
-           OCULTAMIENTO DEL PUNTERO DEL MOUSE
-           --------------------------------------------------------- */
         html, body, #presentation-container {
             cursor: none;
         }
@@ -476,7 +434,6 @@
             cursor: default;
         }
 
-        /* UI CONTROLES */
         #ui-layer {
             position: absolute;
             bottom: 30px; left: 50%;
@@ -499,7 +456,11 @@
             font-weight: bold; font-size: 0.85rem;
         }
 
-        /* DIAGNÓSTICO */
+        /* En móvil, ocultar la UI de teclado porque no aplica */
+        @media (max-width: 900px) and (hover: none) {
+            #ui-layer { display: none; }
+        }
+
         #debug-layer {
             position: absolute;
             top: 12px; left: 12px;
@@ -521,12 +482,10 @@
 
     <div id="presentation-container" class="state-1">
 
-        <!-- DIAPOSITIVA 1: IMAGEN INICIAL -->
         <div id="img-intro">
             <img id="img-sujeto1" src="sujeto1.png" alt="Sujeto 1 Imagen Portada">
         </div>
 
-        <!-- SECUENCIA 1: VIDEOS SUJETO -->
         <div class="clip-wrapper" id="clip-s1">
             <div class="translate-wrapper" id="trans-s1">
                 <div class="crop-wrapper" id="crop-s1">
@@ -551,7 +510,6 @@
             </div>
         </div>
 
-        <!-- TRANSICIÓN: COHETERO 1 -->
         <div class="clip-wrapper" id="clip-c1">
             <div class="translate-wrapper" id="trans-c1">
                 <div class="crop-wrapper" id="crop-c1">
@@ -560,7 +518,6 @@
             </div>
         </div>
 
-        <!-- SECUENCIA 2: VIDEOS PELOTERO -->
         <div class="clip-wrapper" id="clip-p1">
             <div class="translate-wrapper" id="trans-p1">
                 <div class="crop-wrapper" id="crop-p1">
@@ -585,7 +542,6 @@
             </div>
         </div>
 
-        <!-- SECUENCIA 3: VIDEO COLECTIVO (DIAPOSITIVAS 9-13) -->
         <div class="clip-wrapper" id="clip-col1">
             <div class="translate-wrapper" id="trans-col1">
                 <div class="crop-wrapper" id="crop-col1">
@@ -594,7 +550,6 @@
             </div>
         </div>
 
-        <!-- SECUENCIA 4: VIDEO BANDERA DE PARAGUAY (DIAPOSITIVAS 14-16) -->
         <div class="clip-wrapper" id="clip-bandera">
             <div class="translate-wrapper" id="trans-bandera">
                 <div class="crop-wrapper" id="crop-bandera">
@@ -603,7 +558,6 @@
             </div>
         </div>
 
-        <!-- SECUENCIA 5: VIDEO JURAMENTO CON AUDIO (DIAPOSITIVA 17) -->
         <div class="clip-wrapper" id="clip-juramento">
             <div class="translate-wrapper" id="trans-juramento">
                 <div class="crop-wrapper" id="crop-juramento">
@@ -614,7 +568,6 @@
             </div>
         </div>
 
-        <!-- CAPA DE FRASES (DIAPOSITIVAS 10-16) -->
         <div id="frases-layer">
             <div class="frase" id="frase-12">¿Qué tienen en común?</div>
             <div class="frase" id="frase-13">Distintos talentos</div>
@@ -625,17 +578,14 @@
             <div class="frase" id="frase-18">SMO</div>
         </div>
 
-        <!-- CRÉDITOS ESTILO STAR WARS (DIAPOSITIVA 17) -->
         <div id="creditos-layer">
             <div id="creditos-texto">
                 Servicio Militar Obligatorio. Todo ciudadano paraguayo tiene la obligación constitucional de prepararse y de prestar su concurso para la defensa armada de la Patria. Bajo el amparo del Artículo 129 de la Constitución Nacional, se establece este deber para ser cumplido en las Fuerzas Armadas de la Nación por el término y en las condiciones que fije la ley. Asimismo, la normativa reconoce el derecho fundamental a la objeción de conciencia, permitiendo a quienes lo declaren realizar un servicio civil alternativo en beneficio de la población, bajo jurisdicción civil y sin carácter punitivo, quedando finalmente todos los ciudadanos en situación de reserva.
             </div>
         </div>
 
-        <!-- CAPA DE OSCURECIMIENTO FINAL (DIAPOSITIVA 17) -->
         <div id="fadeout-negro"></div>
 
-        <!-- BISAGRA — DIAPOSITIVAS 18 Y 19 (PUENTE AL ARCHIVO DE DATOS) -->
         <div id="bisagra-layer">
             <div class="bisagra-texto-arriba">
                 Lo que acaban de ver no es una metáfora. Es el problema.
@@ -668,7 +618,7 @@
             pelotero2: 'videos1/pelotero2.mp4',
             pelotero3: 'videos1/pelotero3.mp4',
             colectivo1: 'videos1/colectivo1.mp4',
-            bandera: 'videos1/bandera de paraguay.mp4',
+            bandera: 'videos1/bandera%20de%20paraguay.mp4',
             juramento: 'videos1/juramento1.mp4'
         };
 
@@ -766,7 +716,6 @@
                 videoEl.load();
             });
 
-            // Manejo específico del juramento
             const vJuramento = videosState.juramento.element;
             vJuramento.addEventListener('timeupdate', () => {
                 if (!vJuramento.duration) return;
@@ -795,7 +744,6 @@
             if (isTransitioning) return;
             if (target < 1) return;
 
-            // Salto automático al archivo siguiente cuando se avanza desde la 19
             if (target > totalSlides) {
                 window.location.href = NEXT_FILE;
                 return;
@@ -806,7 +754,8 @@
 
             const cont = document.getElementById('presentation-container');
             cont.className = `state-${target}`;
-            document.getElementById('slide-indicator').textContent = `Diapositiva ${target} / ${totalSlides}`;
+            const ind = document.getElementById('slide-indicator');
+            if (ind) ind.textContent = `Diapositiva ${target} / ${totalSlides}`;
 
             if (target !== 17 && target !== 18 && target !== 19) {
                 document.getElementById('fadeout-negro').style.opacity = '0';
@@ -852,28 +801,73 @@
             } else if (target === 18) {
                 const v = videosState.juramento.element;
                 if (v && !v.paused) { v.pause(); }
-            } else if (target === 19) {
-                // Bisagra 2 — texto arriba se mantiene y texto abajo aparece en cursiva
             }
 
             setTimeout(() => { isTransitioning = false; }, 1500);
         }
 
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.warn("No se pudo activar pantalla completa:", err);
-                });
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
+        /* =========================================================
+           FIX MÓVIL: Fullscreen compatible con iOS/Android + PC
+           ========================================================= */
+        let fullscreenLogrado = false;
+
+        function intentarFullscreen() {
+            if (fullscreenLogrado) return;
+
+            const el = document.documentElement;
+
+            // Si ya estamos en fullscreen (por cualquier API), marcar y salir
+            if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
+                fullscreenLogrado = true;
+                return;
+            }
+
+            // Detectar la API disponible (con prefijos para iOS antiguo y navegadores legacy)
+            const requestFn =
+                el.requestFullscreen ||
+                el.webkitRequestFullscreen ||
+                el.webkitRequestFullScreen ||
+                el.mozRequestFullScreen ||
+                el.msRequestFullscreen;
+
+            if (!requestFn) {
+                // iOS Safari no expone la API sobre el documento: no se puede forzar.
+                // El usuario puede agregar el sitio a pantalla de inicio para modo app.
+                return;
+            }
+
+            try {
+                const p = requestFn.call(el);
+                if (p && typeof p.then === 'function') {
+                    p.then(() => { fullscreenLogrado = true; }).catch(() => {
+                        // Falló por falta de gesto o por política del navegador.
+                        // No marcamos fullscreenLogrado para reintentar en el próximo input.
+                    });
+                } else {
+                    fullscreenLogrado = true;
                 }
+            } catch (e) { /* silencioso */ }
+        }
+
+        // Se intenta en cualquier primer gesto del usuario, sea mouse o touch.
+        ['keydown', 'click', 'mousedown', 'touchstart', 'touchend', 'pointerdown'].forEach(ev => {
+            document.addEventListener(ev, intentarFullscreen, { passive: true });
+        });
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                intentarFullscreen();
+            } else {
+                const exitFn = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+                if (exitFn) exitFn.call(document);
+                fullscreenLogrado = false;
             }
         }
 
         let uiTimeout;
         function showUI() {
             const ui = document.getElementById('ui-layer');
+            if (!ui) return;
             ui.style.opacity = '1';
             clearTimeout(uiTimeout);
             uiTimeout = setTimeout(() => { ui.style.opacity = '0'; }, 3500);
@@ -910,6 +904,7 @@
             }
         }
 
+        // ===== TECLADO (PC) =====
         document.addEventListener('keydown', (e) => {
             showUI();
             kickVideos();
@@ -917,7 +912,6 @@
 
             if (key === 'n' || key === 'arrowright' || e.code === 'Space') {
                 e.preventDefault();
-                // Si estamos en la 19, salta al archivo siguiente
                 if (currentSlide === totalSlides) {
                     window.location.href = NEXT_FILE;
                     return;
@@ -932,14 +926,51 @@
             }
         });
 
+        /* =========================================================
+           FIX MÓVIL: Swipe con umbral de tiempo y predominancia
+           ========================================================= */
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchStartT = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            const t = e.changedTouches[0];
+            touchStartX = t.screenX;
+            touchStartY = t.screenY;
+            touchStartT = Date.now();
+            showUI();
+            kickVideos();
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
+            const t = e.changedTouches[0];
+            const dx = t.screenX - touchStartX;
+            const dy = t.screenY - touchStartY;
+            const dt = Date.now() - touchStartT;
+
+            // Swipe válido: rápido (<600ms), horizontal (>55px),
+            // y predominancia horizontal (1.5× vertical).
+            if (dt < 600 && Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+                if (dx < 0) {
+                    // Swipe izquierda → siguiente
+                    if (currentSlide === totalSlides) {
+                        window.location.href = NEXT_FILE;
+                        return;
+                    }
+                    changeSlide(currentSlide + 1);
+                } else {
+                    // Swipe derecha → anterior
+                    changeSlide(currentSlide - 1);
+                }
+            }
+        }, { passive: true });
+
+        // Click / tap: solo muestra UI y reanuda videos. No navega.
         document.addEventListener('click', () => {
             showUI();
             kickVideos();
         });
 
-        /* ---------------------------------------------------------
-           OCULTAMIENTO DEL PUNTERO DEL MOUSE
-           --------------------------------------------------------- */
         let cursorTimeout;
         function mostrarCursorTemporalmente() {
             document.documentElement.classList.add('cursor-visible');
