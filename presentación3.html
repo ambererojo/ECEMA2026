@@ -843,6 +843,126 @@
             font: 400 calc(var(--u) * .95) 'Inter', sans-serif;
             color: rgba(255, 255, 255, .45);
         }
+
+        /* ============================================================
+           HUD EXTENDIDO — mismo formato Musk para toda la presentación
+           (los cuadros se alargan o se acortan según el texto)
+           ============================================================ */
+        .hud-azul {
+            --edge: linear-gradient(135deg, #b4e8ff, #2f86c4 55%, #8fdcff);
+            --fill: repeating-linear-gradient(to bottom, rgba(130,205,255,.06) 0 1px, transparent 1px 4px),
+                    linear-gradient(160deg, rgba(6,22,42,.9), rgba(3,10,22,.92));
+            --glow: rgba(80,180,255,.6);
+            --ink: #eaf6ff;
+        }
+        .hud-ambar {
+            --edge: linear-gradient(135deg, #fff0c4, #ff9a1f 50%, #ffd27a);
+            --fill: radial-gradient(ellipse 110% 140% at -8% -25%, rgba(255,195,80,.65), rgba(255,120,20,.22) 50%, transparent 80%),
+                    linear-gradient(160deg, rgba(48,20,6,.92), rgba(14,7,3,.94));
+            --glow: rgba(255,160,40,.7);
+            --ink: #fff3d6;
+            animation: hudFlame .16s infinite alternate steps(2, end);
+        }
+        .hud-verde {
+            --edge: linear-gradient(135deg, #c9ffe8, #18b07a 55%, #9af5cc);
+            --fill: repeating-linear-gradient(to bottom, rgba(120,255,200,.06) 0 1px, transparent 1px 4px),
+                    radial-gradient(ellipse 110% 140% at -8% -25%, rgba(70,235,160,.4), transparent 75%),
+                    linear-gradient(160deg, rgba(4,34,24,.93), rgba(2,14,10,.95));
+            --glow: rgba(60,230,160,.65);
+            --ink: #eafff4;
+        }
+        .hud.show, .hud.visible { opacity: 1; transform: none; }
+        .hud.show .hud-tag, .hud.visible .hud-tag { opacity: 1; }
+
+        /* Versión compacta (menos alto, misma inclinación) */
+        .hud-compacto { --k: calc(var(--u) * 1.85); }
+        .hud-compacto .hud-frame,
+        .hud-compacto .hud-text { min-height: calc(var(--u) * 8.5); }
+
+        /* Cuadros del slide 1 (temporizador): fluyen dentro de .texto-wrap */
+        .hud.hud-flow { position: relative; transform: none; transition: opacity .7s ease; }
+
+        /* Cuadros laterales / inferior del slide Wald */
+        .hud-lado {
+            left: calc(50% - var(--u) * 49.2);
+            top: calc(50% - var(--u) * 13);
+            width: calc(var(--u) * 28);
+            transform: translateX(calc(var(--u) * -3));
+        }
+        .hud-lado .hud-text {
+            padding: calc(var(--u) * 2) calc(var(--k) + var(--u) * 1.6);
+            font-size: calc(var(--u) * 1.35);
+        }
+        .hud-bajo {
+            left: calc(50% - var(--u) * 41);
+            bottom: calc(var(--u) * 3.2);
+            width: calc(var(--u) * 82);
+            transform: translateY(calc(var(--u) * 2));
+        }
+        .hud-bajo .hud-text { font-size: calc(var(--u) * 1.6); }
+
+        #wald-legend { bottom: auto; top: calc(var(--u) * 1.8); }
+        #wald-stage.eng #wald-svg #hits-body,
+        #wald-stage.eng #wald-svg #hits-wing {
+            filter: drop-shadow(0 0 2px rgba(251,191,36,1)) drop-shadow(0 0 7px rgba(251,191,36,.85));
+        }
+
+        /* ============================================================
+           SLIDE 05 — CIERRE (frase, título de la tesis, hiperespacio)
+           ============================================================ */
+        .slide.slide-final { padding: 0; overflow: hidden; background: radial-gradient(ellipse 85% 75% at 50% 52%, rgba(26,84,160,.5) 0%, rgba(8,30,76,.55) 38%, #02050f 76%, #000 100%); transition: opacity 1.8s ease; user-select: none; }
+        #final-stars { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; }
+        #final-flash { position: absolute; inset: 0; z-index: 20; background: #fff; opacity: 0; pointer-events: none; }
+        .hud-lado.hud-der {
+            left: calc(50% + var(--u) * 21.2);
+            top: calc(50% - var(--u) * 9);
+            transform: translateX(calc(var(--u) * 3));
+        }
+        .hud-lado.hud-der.show { transform: none; }
+
+        /* Cierre: solo colores, tipografía y ambiente azulado del formato Musk (sin marcos) */
+        .final-wrap {
+            position: absolute; inset: 0; z-index: 3;
+            display: grid; place-items: center;
+            padding: 0 6vw; pointer-events: none;
+        }
+        .final-blk {
+            grid-area: 1 / 1;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: calc(var(--u) * 3.6);
+            width: calc(var(--u) * 86); max-width: 100%;
+            text-align: center;
+        }
+        #final-boxA, #final-boxB, #final-boxT {
+            opacity: 0; transform: translateY(calc(var(--u) * 2));
+            transition: opacity .9s ease, transform 1s cubic-bezier(.16,.8,.2,1);
+        }
+        #final-boxA.show, #final-boxB.show, #final-boxT.show { opacity: 1; transform: none; }
+        .ftxt {
+            --c0: #9aa3ad; --c1: #f0f2f5; --c2: #fffde6; --glow: rgba(130,200,255,.5);
+            margin: 0; display: block; width: 100%;
+            font-family: 'Inter', sans-serif; font-style: italic; font-weight: 600;
+            line-height: 1.4; letter-spacing: .01em; text-align: center;
+            background-image: linear-gradient(108deg, var(--c0) 0%, var(--c0) 30%, var(--c1) 42%, #ffffff 46%, var(--c2) 51%, #ffffff 56%, var(--c1) 60%, var(--c0) 72%, var(--c0) 100%);
+            background-size: 350% 100%; background-position: 100% 0; background-repeat: no-repeat;
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent; color: transparent;
+            filter: drop-shadow(0 0 1px rgba(0,0,0,1)) drop-shadow(0 0 4px rgba(0,0,0,.85)) drop-shadow(0 0 calc(var(--u) * 1.6) var(--glow));
+            animation: shineSweep 2.5s ease-in-out infinite;
+        }
+        .ftxt.azul  { --c0: #7fbbee; --c1: #d4ecff; --c2: #ffffff; --glow: rgba(80,180,255,.6); }
+        .ftxt.ambar { --c0: #e8a93a; --c1: #ffe3a0; --c2: #fffbe6; --glow: rgba(255,160,40,.55); }
+        .ftxt.plata { --c0: #9aa3ad; --c1: #f0f2f5; --c2: #fffde6; --glow: rgba(110,190,255,.55); }
+        .ftxt.f-a { font-size: calc(var(--u) * 3.6); }
+        .ftxt.f-b { font-size: calc(var(--u) * 2.7); }
+        .ftxt.f-t { font-size: calc(var(--u) * 3.1); font-weight: 800; text-transform: uppercase; letter-spacing: .03em; line-height: 1.3; }
+        .hud.hiper, .final-blk.hiper { animation: hudHiper .9s cubic-bezier(.55, 0, .9, .4) forwards; }
+        @keyframes hudHiper {
+            0%   { opacity: 1; transform: scale(1); filter: blur(0); }
+            100% { opacity: 0; transform: scale(2.6); filter: blur(12px); }
+        }
+        #final-boxA { left: calc(50% - var(--u) * 32); width: calc(var(--u) * 64); }
+        #final-boxA.show, #final-boxB.show, #final-boxT.show { transform: none; }
     </style>
 </head>
 <body>
@@ -867,20 +987,20 @@
             <div class="video-fade-out" id="video-fade-out"></div>
 
             <div class="texto-wrap pos-abajo">
-                <div class="texto-box mover-izquierda" id="texto1">
-                    En marzo de 2025, el frente ucraniano registró un promedio de 700 ataques FPV por día. Uno cada dos minutos
+                <div class="hud hud-flow hud-compacto hud-azul" id="texto1" style="width:calc(var(--u) * 62);">
+                    <div class="hud-frame"><div class="hud-text"><span class="txt">En marzo de 2025, el frente ucraniano registró un promedio de 700 ataques FPV por día. Uno cada dos minutos</span></div></div>
                 </div>
             </div>
 
             <div class="texto-wrap pos-arriba">
-                <div class="texto-box mover-derecha" id="texto2">
-                    Un dron de ataque cuesta lo que un teléfono de gama media
+                <div class="hud hud-flow hud-compacto hud-ambar" id="texto2" style="width:calc(var(--u) * 50);">
+                    <div class="hud-frame"><div class="hud-text"><span class="txt">Un dron de ataque cuesta lo que un teléfono de gama media</span></div></div>
                 </div>
             </div>
 
             <div class="texto-wrap pos-abajo">
-                <div class="texto-box mover-derecha" id="texto3">
-                    Una vez que el operador ve el objetivo, tiene veinte segundos para destruirlo.
+                <div class="hud hud-flow hud-compacto hud-azul" id="texto3" style="width:calc(var(--u) * 58);">
+                    <div class="hud-frame"><div class="hud-text"><span class="txt">Una vez que el operador ve el objetivo, tiene veinte segundos para destruirlo.</span></div></div>
                 </div>
             </div>
 
@@ -1333,15 +1453,40 @@
                 <div id="wald-credit">Ilustración: Wikimedia Commons (Survivorship-bias.svg)</div>
             </div>
 
+            <div id="wald-boxL1" class="hud hud-lado hud-azul">
+                <div class="hud-frame"><div class="hud-text"><span class="txt">En la Segunda Guerra Mundial, los bombarderos debían ser blindados para sobrevivir a los impactos.</span></div></div>
+            </div>
+            <div id="wald-boxL2" class="hud hud-lado hud-der hud-ambar">
+                <div class="hud-frame"><div class="hud-text"><span class="txt">Los ingenieros querían blindar los agujeros que estaban a la vista.</span></div></div>
+            </div>
+            <div id="wald-boxV" class="hud hud-bajo hud-compacto hud-verde">
+                <div class="hud-frame"><div class="hud-text"><span class="txt">Un matemático, Abraham Wald, alertó: hay que blindar las partes que no tienen agujeros.</span></div></div>
+            </div>
+
             <div id="wald-sound"></div>
 
+        </div>
+
+        <!-- ===== SLIDE 05 — CIERRE: FRASE, TÍTULO Y SALTO AL HIPERESPACIO ===== -->
+        <div class="slide slide-final" data-slide="5">
+            <canvas id="final-stars"></canvas>
+            <div class="final-wrap">
+                <div id="final-boxA" class="final-blk">
+                    <p class="ftxt azul f-a">Este trabajo no propone comprar drones.</p>
+                </div>
+                <div id="final-bt" class="final-blk">
+                    <p id="final-boxB" class="ftxt ambar f-b">Propone construir el mecanismo institucional para que la Armada capture a esos jóvenes antes de perderlos.</p>
+                    <p id="final-boxT" class="ftxt plata f-t">Simulación para competencias STEAM en el Servicio Militar Obligatorio de la Armada Paraguaya (2026–2028)</p>
+                </div>
+            </div>
+            <div id="final-flash"></div>
         </div>
 
     </div>
 
     <div id="ui-layer">
         <button class="ui-btn" onclick="slideAnterior()">← <span class="ui-key">P</span></button>
-        <span id="slide-indicador">01 / 04</span>
+        <span id="slide-indicador">01 / 05</span>
         <button class="ui-btn" onclick="slideSiguiente()"><span class="ui-key">N</span> →</button>
         <button class="ui-btn" onclick="salirAlSiguiente()">Salir <span class="ui-key">ESC</span></button>
         <button class="ui-btn" onclick="toggleFullscreen()">⛶ <span class="ui-key">F</span></button>
@@ -1669,8 +1814,32 @@
                 requestAnimationFrame(render);
             }
 
+            function reiniciar() {
+                clearTimeout(textTimer);
+                box1El.classList.remove('show');
+                box2El.classList.remove('show');
+                anim = null; s = 0; target = 0;
+                driftStart[0] = driftStart[1] = null;
+                tStart = performance.now();
+                titleWrapEl.classList.remove('enter');
+                void titleWrapEl.offsetWidth;
+                titleWrapEl.classList.add('enter');
+                if (!started) return;
+                videoEl.currentTime = 0;
+                videoEl.muted = false;
+                videoEl.volume = 0;
+                const p = videoEl.play();
+                if (p && typeof p.then === 'function') {
+                    p.then(() => fadeInAudio()).catch(() => {
+                        videoEl.muted = true;
+                        videoEl.play().catch(() => {});
+                        showSoundNote('🔇 Click para activar el sonido');
+                    });
+                } else { fadeInAudio(); }
+            }
+
             return {
-                iniciar, goTo, hideBoxes, unmute,
+                iniciar, reiniciar, goTo, hideBoxes, unmute,
                 getTarget: () => target,
                 isStarted: () => started,
                 pause: () => { if (videoEl && !videoEl.paused) videoEl.pause(); },
@@ -1728,9 +1897,16 @@
             const videoEl = waldVideo, wrapEl = waldVideoWrap, soundBtn = soundBtnWald;
             const stage = $('wald-stage'), plane = $('wald-plane'), svgEl = $('wald-svg');
             const topEl = $('wald-top'), bottomEl = $('wald-bottom'), flashEl = $('wald-flash');
+            const boxL1 = $('wald-boxL1'), boxL2 = $('wald-boxL2'), boxV = $('wald-boxV');
             const flashG = svgEl.querySelector('#flashes');
-            const WALD_ZOOM = [[0, 1.30], [1, 1.20], [2, 1.14]];
+            const WALD_ZOOM = [[0, 1.30], [1, 1.20], [2, 1.14], [3, 1.10]];
             const SLIDE_IDX = 3;
+
+            /* Pasos (con comandos siguiente / anterior):
+               0 avión limpio + títulos
+               1 impactos + cuadro azul (izquierda): blindaje en la IIGM
+               2 cuadro ámbar (izquierda): los ingenieros querían blindar los agujeros visibles
+               3 zonas a blindar + cuadro verde (abajo): el matemático                       */
 
             const hits = Array.from(svgEl.querySelectorAll('#hits .hit')).map(el => ({
                 el, x: +el.getAttribute('cx'), y: +el.getAttribute('cy'), t: 0, shown: false, wing: el.classList.contains('wing')
@@ -1739,12 +1915,20 @@
             const yMax = Math.max(...hits.map(h => h.y));
 
             let s = 0, target = 0, anim = null;
-            let started = false, tStart = 0, planeT0 = 0, titleTimer = null;
+            let started = false, tStart = 0, planeT0 = 0, titleTimer = null, boxTimer = null;
             let hitStart = null, hitEnd = 0;
             let flashAmp = 0, lastNow = 0;
-            // Dinámica del avión: balanceo de alas (roll) y subida/bajada (heave), con resortes amortiguados
-            const CX = 221.49;            // eje del fuselaje (coordenadas del SVG)
-            let roll = 0, rollV = 0, heave = 0, heaveV = 0;
+
+            // Dinámica del avión (resortes amortiguados)
+            //  roll  : balanceo de alas — más suave y más rápido que antes
+            //  heave : pequeño temblor vertical
+            //  pos   : retroceso por el "frenazo" de los impactos; vuelve lento a su lugar
+            const CX = 221.49;
+            const ROLL_K = 56,  ROLL_C = 2.8,  ROLL_MAX = 8;
+            const HEAVE_K = 60, HEAVE_C = 4.5, HEAVE_MAX = 1.2;
+            const POS_K = 1.6,  POS_C = 2.5,   POS_MAX = 3.4;
+            let roll = 0, rollV = 0, heave = 0, heaveV = 0, pos = 0, posV = 0;
+            let nextWobble = Infinity;
             let msx = 0, msy = 0;
 
             function planearImpactos() {
@@ -1778,14 +1962,19 @@
                 flashG.appendChild(r);
                 r.addEventListener('animationend', () => r.remove());
                 if (h.wing) {
-                    // impacto en ala: esa ala se hunde y el avión se balancea
                     const dx = h.x - CX;
-                    rollV += Math.sign(dx) * 5 * Math.min(1.4, 0.5 + Math.abs(dx) / 60);
+                    rollV += Math.sign(dx) * 2.6 * Math.min(1.3, 0.5 + Math.abs(dx) / 70);
                 } else {
-                    // impacto en el centro: el avión sube y luego baja
-                    heaveV -= 5.5;
+                    heaveV -= 1.2;
                 }
+                posV += 0.07;                       // cada impacto frena un poco al avión
                 flashAmp = Math.min(0.35, flashAmp + 0.05);
+            }
+
+            function resetHit(h) {
+                h.shown = false;
+                h.el.classList.remove('on');
+                h.el.style.transitionDelay = '';
             }
 
             function impactosPendientes() {
@@ -1806,12 +1995,7 @@
             function showSoundNote(msg) { soundBtn.textContent = msg; soundBtn.classList.add('show'); }
             function unmute() { soundBtn.classList.remove('show'); fadeInAudio(); }
 
-            function iniciar() {
-                if (started) return;
-                started = true;
-                tStart = performance.now();
-                planeT0 = tStart + 700;
-
+            function playConAudio() {
                 videoEl.currentTime = 0;
                 videoEl.muted = false;
                 videoEl.volume = 0;
@@ -1825,39 +2009,114 @@
                 } else {
                     fadeInAudio();
                 }
+            }
 
-                wrapEl.classList.add('on');
+            function entradaTitulos(delay) {
+                clearTimeout(titleTimer);
+                topEl.classList.remove('enter', 'fuera');
+                bottomEl.classList.remove('enter', 'fuera');
+                void topEl.offsetWidth;
                 titleTimer = setTimeout(() => {
                     topEl.classList.add('enter');
                     bottomEl.classList.add('enter');
-                }, 2600);
+                }, delay);
+            }
+
+            function setBoxes(n, prev) {
+                clearTimeout(boxTimer);
+                boxL1.classList.remove('show');
+                boxL2.classList.remove('show');
+                boxV.classList.remove('show');
+                if (n === 1) boxTimer = setTimeout(() => boxL1.classList.add('show'), prev === 0 ? 2000 : 500);
+                if (n === 2) boxTimer = setTimeout(() => boxL2.classList.add('show'), 500);
+                if (n === 3) boxTimer = setTimeout(() => boxV.classList.add('show'), 2600);
+            }
+
+            function iniciar() {
+                if (started) return;
+                started = true;
+                tStart = performance.now();
+                planeT0 = tStart + 700;
+                playConAudio();
+                wrapEl.classList.add('on');
+                entradaTitulos(2600);
                 requestAnimationFrame(render);
             }
 
+            // Vuelve al estado inicial (al regresar a este slide)
+            function reiniciar() {
+                clearTimeout(titleTimer);
+                clearTimeout(boxTimer);
+                anim = null; s = 0; target = 0;
+                hitStart = null; hitEnd = 0;
+                hits.forEach(resetHit);
+                while (flashG.firstChild) flashG.removeChild(flashG.firstChild);
+                stage.classList.remove('ok', 'eng');
+                plane.classList.remove('scan');
+                roll = rollV = heave = heaveV = pos = posV = 0;
+                flashAmp = 0; nextWobble = Infinity;
+                setBoxes(0, 0);
+                tStart = performance.now();
+                planeT0 = tStart + 700;
+                try { videoEl.playbackRate = 1; } catch (e) {}
+                playConAudio();
+                entradaTitulos(2600);
+            }
+
             function goTo(n) {
-                n = clamp(n, 0, 2);
+                n = clamp(n, 0, 3);
                 if (n === target || anim) return;
-                if (n === 2 && impactosPendientes()) return;   // espera a que termine la ráfaga
+                if (n === 2 && target === 1 && impactosPendientes()) return;   // espera a que termine la ráfaga
+                const prev = target;
                 clearTimeout(titleTimer);
                 target = n;
                 anim = { from: s, to: n, t0: performance.now() };
 
+                if (n === 0) {
+                    // retroceso al inicio: avión limpio y títulos de nuevo
+                    hitStart = null; nextWobble = Infinity;
+                    hits.forEach(resetHit);
+                    while (flashG.firstChild) flashG.removeChild(flashG.firstChild);
+                    stage.classList.remove('ok', 'eng');
+                    plane.classList.remove('scan');
+                    entradaTitulos(600);
+                }
                 if (n === 1) {
-                    topEl.classList.add('fuera');
-                    bottomEl.classList.add('fuera');
-                    planearImpactos();
-                    hitStart = performance.now() + 600;
+                    stage.classList.remove('ok', 'eng');
+                    plane.classList.remove('scan');
+                    hits.forEach(h => { h.el.style.transitionDelay = ''; });
+                    if (prev === 0) {
+                        topEl.classList.remove('enter');
+                        topEl.classList.add('fuera');
+                        bottomEl.classList.remove('enter');
+                        bottomEl.classList.add('fuera');
+                        planearImpactos();
+                        hitStart = performance.now() + 600;
+                    }
                 }
                 if (n === 2) {
+                    stage.classList.remove('ok');
+                    stage.classList.add('eng');
+                    plane.classList.remove('scan');
+                    hits.forEach(h => {
+                        if (!h.shown) { h.shown = true; h.el.classList.add('on'); }
+                        h.el.style.transitionDelay = '';
+                    });
+                }
+                if (n === 3) {
                     hits.forEach(h => {
                         if (!h.shown) { h.shown = true; h.el.classList.add('on'); }
                         const k = (h.y - yMin) / (yMax - yMin);
                         h.el.style.transitionDelay = (k * 1.2).toFixed(2) + 's';
                     });
                     hitStart = null;
+                    stage.classList.remove('eng');
+                    plane.classList.remove('scan');
+                    void plane.offsetWidth;
                     plane.classList.add('scan');
                     stage.classList.add('ok');
                 }
+                setBoxes(n, prev);
             }
 
             function render(now) {
@@ -1875,13 +2134,26 @@
                     const tt = (now - hitStart) / 1000;
                     if (tt >= 0) for (const h of hits) if (!h.shown && tt >= h.t) revelar(h);
                 }
+
+                // Balanceo ocasional: el avión quedó dañado
+                if (target >= 1 && !impactosPendientes() && hits.every(h => h.shown)) {
+                    if (nextWobble === Infinity) nextWobble = now + 2200;
+                    else if (now >= nextWobble) {
+                        rollV += (Math.random() < 0.5 ? -1 : 1) * (16 + Math.random() * 6);
+                        heaveV -= 0.8;
+                        nextWobble = now + 3200 + Math.random() * 2800;
+                    }
+                }
+
                 for (let i = 0; i < 2; i++) {
                     const hdt = dt / 2;
-                    rollV  += (-38 * roll  - 3.2 * rollV)  * hdt;  roll  += rollV  * hdt;
-                    heaveV += (-60 * heave - 4.5 * heaveV) * hdt;  heave += heaveV * hdt;
+                    rollV  += (-ROLL_K  * roll  - ROLL_C  * rollV)  * hdt;  roll  += rollV  * hdt;
+                    heaveV += (-HEAVE_K * heave - HEAVE_C * heaveV) * hdt;  heave += heaveV * hdt;
+                    posV   += (-POS_K   * pos   - POS_C   * posV)   * hdt;  pos   += posV   * hdt;
                 }
-                roll = clamp(roll, -16, 16);
-                heave = clamp(heave, -2.4, 2.4);
+                roll = clamp(roll, -ROLL_MAX, ROLL_MAX);
+                heave = clamp(heave, -HEAVE_MAX, HEAVE_MAX);
+                pos = clamp(pos, 0, POS_MAX);
                 flashAmp *= Math.exp(-dt * 7);
 
                 if (slideActual === SLIDE_IDX) {
@@ -1892,10 +2164,14 @@
                     const since = (now - tStart) / 1000;
                     const intro = CINE_VIDEO_INTRO * Math.pow(2, -5.5 * since / 4);
                     const slow = 0.03 * (1 - 1 / (1 + since / 25));
-                    const vz = lerpTable(WALD_ZOOM, s) + intro - slow;
+                    const vz = lerpTable(WALD_ZOOM, s) + intro - slow - pos * 0.012;
                     const vx = -msx * 5 + Math.sin(t * 0.23) * 0.4;
                     const vy = -msy * 4 + Math.cos(t * 0.17) * 0.3;
                     wrapEl.style.transform = `translate3d(${vx.toFixed(3)}%, ${vy.toFixed(3)}%, 0) scale(${vz.toFixed(4)})`;
+
+                    // el frenazo también baja la velocidad del video de fondo
+                    const rate = clamp(1 - pos * 0.14, 0.5, 1);
+                    if (Math.abs(videoEl.playbackRate - rate) > 0.02) videoEl.playbackRate = rate;
 
                     const pIn = clamp((now - planeT0) / 1700, 0, 1);
                     const e = 1 - Math.pow(1 - pIn, 3);
@@ -1903,9 +2179,9 @@
                     const idleR = Math.sin(t * 0.5) * 0.35;
                     plane.style.opacity = e.toFixed(3);
                     plane.style.transform =
-                        `translate(-50%, -50%) translate(0, calc(var(--u) * ${(heave + idleY).toFixed(3)})) ` +
+                        `translate(-50%, -50%) translate(0, calc(var(--u) * ${(heave + idleY + pos).toFixed(3)})) ` +
                         `perspective(650px) rotateY(${roll.toFixed(3)}deg) rotateZ(${(roll * 0.12 + idleR).toFixed(3)}deg) ` +
-                        `scale(${(0.93 + 0.07 * e).toFixed(4)})`;
+                        `scale(${((0.93 + 0.07 * e) * (1 - pos * 0.012)).toFixed(4)})`;
                     flashEl.style.opacity = flashAmp.toFixed(3);
                 }
 
@@ -1913,7 +2189,7 @@
             }
 
             return {
-                iniciar, goTo, unmute,
+                iniciar, reiniciar, goTo, unmute,
                 getTarget: () => target,
                 isStarted: () => started,
                 pause: () => { if (videoEl && !videoEl.paused) videoEl.pause(); },
@@ -1921,6 +2197,137 @@
                 isMuted: () => videoEl.muted
             };
         }
+
+        /* =========================================================
+           SLIDE 5 — CIERRE: frase → título de la tesis → hiperespacio
+           ========================================================= */
+        function crearSecuenciaFinal() {
+            const SLIDE_IDX = 4;
+            const cv = $('final-stars'), ctx = cv.getContext('2d');
+            const boxA = $('final-boxA'), boxB = $('final-boxB'), boxT = $('final-boxT');
+            const flash = $('final-flash');
+            const boxes = [boxA, $('final-bt')];
+
+            const N = 520;
+            const stars = [];
+            let W = 1, H = 1, started = false, target = 0;
+            let hyper = null, leaving = false, timer = null, lastNow = 0;
+            const IDLE_V = 0.035, HYPER_V = 7.5, HYPER_RAMP = 2.0, HYPER_FLASH_AT = 1.7, HYPER_EXIT_AT = 2.55;
+
+            const rnd = (a, b) => a + Math.random() * (b - a);
+            function seed(st, z) {
+                st.x = rnd(-1, 1); st.y = rnd(-1, 1);
+                st.z = z === undefined ? rnd(0.04, 1) : z;
+                st.h = Math.random();
+            }
+            for (let i = 0; i < N; i++) { const st = {}; seed(st); stars.push(st); }
+
+            function resize() {
+                W = cv.width = Math.max(1, innerWidth);
+                H = cv.height = Math.max(1, innerHeight);
+            }
+            addEventListener('resize', resize);
+            resize();
+
+            function frame(now) {
+                requestAnimationFrame(frame);
+                if (!started || slideActual !== SLIDE_IDX) { lastNow = now; return; }
+                const dt = Math.min(0.05, (now - (lastNow || now)) / 1000);
+                lastNow = now;
+
+                let v = IDLE_V, tH = 0;
+                if (hyper) {
+                    tH = (now - hyper.t0) / 1000;
+                    const k = clamp(tH / HYPER_RAMP, 0, 1);
+                    v = IDLE_V + HYPER_V * k * k * k;
+                    flash.style.opacity = clamp((tH - HYPER_FLASH_AT) / (HYPER_EXIT_AT - HYPER_FLASH_AT - 0.1), 0, 1).toFixed(3);
+                    if (tH >= HYPER_EXIT_AT && !leaving) { leaving = true; salirAlSiguiente(); }
+                }
+
+                ctx.globalCompositeOperation = 'source-over';
+                if (hyper) { ctx.fillStyle = 'rgba(2,8,22,0.30)'; ctx.fillRect(0, 0, W, H); }
+                else ctx.clearRect(0, 0, W, H);
+
+                const cx = W / 2, cy = H / 2, f = Math.max(W, H) * 0.5;
+                const trail = hyper ? 0.05 + 0.02 * Math.min(tH, 2) : 0.02;
+                ctx.lineCap = 'round';
+                for (const st of stars) {
+                    const z0 = st.z;
+                    st.z -= v * dt;
+                    if (st.z <= 0.02) { seed(st, 1); continue; }
+                    const zt = st.z + v * trail + 0.004;
+                    const x1 = cx + (st.x / st.z) * f * 0.5, y1 = cy + (st.y / st.z) * f * 0.5;
+                    const x0 = cx + (st.x / zt) * f * 0.5,  y0 = cy + (st.y / zt) * f * 0.5;
+                    if (x1 < -50 || x1 > W + 50 || y1 < -50 || y1 > H + 50) { seed(st, 1); continue; }
+                    const depth = 1 - st.z;
+                    const a = Math.min(1, depth * 1.3 + 0.12);
+                    const bl = 200 + Math.floor(st.h * 55);
+                    ctx.strokeStyle = hyper
+                        ? `rgba(${170 + Math.floor(st.h * 60)},${200 + Math.floor(st.h * 40)},255,${a.toFixed(3)})`
+                        : `rgba(${170 + Math.floor(st.h * 50)},${205 + Math.floor(st.h * 35)},255,${(a * 0.9).toFixed(3)})`;
+                    ctx.lineWidth = 0.4 + depth * (hyper ? 2.6 : 1.8);
+                    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+                }
+
+                if (hyper && tH > 0.8) {
+                    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * 0.55);
+                    const ga = clamp((tH - 0.8) / 1.6, 0, 1) * 0.55;
+                    g.addColorStop(0, `rgba(210,230,255,${ga.toFixed(3)})`);
+                    g.addColorStop(1, 'rgba(120,160,255,0)');
+                    ctx.globalCompositeOperation = 'lighter';
+                    ctx.fillStyle = g;
+                    ctx.fillRect(0, 0, W, H);
+                }
+            }
+
+            function mostrar(n) {
+                clearTimeout(timer);
+                boxA.classList.toggle('show', n === 1);
+                boxB.classList.toggle('show', n === 2);
+                boxT.classList.remove('show');
+                if (n === 2) timer = setTimeout(() => { if (target === 2 && !hyper) boxT.classList.add('show'); }, 550);
+            }
+
+            function iniciar() {
+                if (started) return;
+                started = true;
+                requestAnimationFrame(frame);
+            }
+
+            function reiniciar() {
+                clearTimeout(timer);
+                hyper = null; leaving = false; target = 0;
+                flash.style.opacity = 0;
+                boxes.forEach(b => { b.classList.remove('show', 'hiper'); });
+                boxB.classList.remove('show'); boxT.classList.remove('show');
+                stars.forEach(st => seed(st));
+                ctx.clearRect(0, 0, W, H);
+            }
+
+            function hiperespacio() {
+                clearTimeout(timer);
+                hyper = { t0: performance.now() };
+                boxes.forEach(b => { b.classList.add('hiper'); });
+            }
+
+            function goTo(n) {
+                if (hyper) return;
+                n = clamp(n, 0, 3);
+                if (n === target && n !== 3) return;
+                if (n === 3) { hiperespacio(); return; }
+                target = n;
+                mostrar(n);
+            }
+
+            return {
+                iniciar, reiniciar, goTo,
+                getTarget: () => target,
+                isStarted: () => started,
+                isHyper: () => !!hyper
+            };
+        }
+
+        const finalSeq = crearSecuenciaFinal();
 
         const waldSeq = crearSecuenciaWald();
 
@@ -1968,7 +2375,7 @@
             if (starship) {
                 if (idx === 1) {
                     if (!muskSeq.isStarted()) muskSeq.iniciar();
-                    else muskSeq.resume();
+                    else muskSeq.reiniciar();
                 } else {
                     muskSeq.pause();
                 }
@@ -1977,7 +2384,7 @@
             if (palmerVideo) {
                 if (idx === 2) {
                     if (!palmerSeq.isStarted()) palmerSeq.iniciar();
-                    else palmerSeq.resume();
+                    else palmerSeq.reiniciar();
                 } else {
                     palmerSeq.pause();
                 }
@@ -1986,10 +2393,15 @@
             if (waldVideo) {
                 if (idx === 3) {
                     if (!waldSeq.isStarted()) waldSeq.iniciar();
-                    else waldSeq.resume();
+                    else waldSeq.reiniciar();
                 } else {
                     waldSeq.pause();
                 }
+            }
+
+            if (idx === 4) {
+                if (!finalSeq.isStarted()) finalSeq.iniciar();
+                else finalSeq.reiniciar();
             }
 
             actualizarOverlays();
@@ -2018,8 +2430,13 @@
             }
 
             if (slideActual === 3) {
-                if (waldSeq.getTarget() < 2) waldSeq.goTo(waldSeq.getTarget() + 1);
-                else salirAlSiguiente();
+                if (waldSeq.getTarget() < 3) waldSeq.goTo(waldSeq.getTarget() + 1);
+                else mostrarSlide(4);
+                return;
+            }
+
+            if (slideActual === 4) {
+                finalSeq.goTo(finalSeq.getTarget() + 1);   // 0→1 frase · 1→2 propuesta + título · 2→hiperespacio
                 return;
             }
 
@@ -2028,6 +2445,14 @@
         }
 
         function slideAnterior() {
+            // Dentro de una secuencia: retrocede un paso. Al inicio de la secuencia: slide anterior (reiniciado).
+            if (slideActual === 1 && muskSeq.getTarget() > 0)   { muskSeq.goTo(muskSeq.getTarget() - 1); return; }
+            if (slideActual === 2 && palmerSeq.getTarget() > 0) { palmerSeq.goTo(palmerSeq.getTarget() - 1); return; }
+            if (slideActual === 3 && waldSeq.getTarget() > 0)   { waldSeq.goTo(waldSeq.getTarget() - 1); return; }
+            if (slideActual === 4) {
+                if (finalSeq.isHyper()) return;
+                if (finalSeq.getTarget() > 0) { finalSeq.goTo(finalSeq.getTarget() - 1); return; }
+            }
             if (slideActual > 0) mostrarSlide(slideActual - 1);
         }
 
@@ -2084,8 +2509,8 @@
 
         document.addEventListener('keydown', (e) => {
             const key = e.key.toLowerCase();
-            if (key === 'n' || key === 'arrowright' || e.code === 'Space') { e.preventDefault(); slideSiguiente(); }
-            else if (key === 'p' || key === 'arrowleft' || key === 'backspace') { e.preventDefault(); slideAnterior(); }
+            if (key === 'n' || key === 'arrowright' || key === 'pagedown' || e.code === 'Space') { e.preventDefault(); slideSiguiente(); }
+            else if (key === 'p' || key === 'arrowleft' || key === 'pageup' || key === 'backspace') { e.preventDefault(); slideAnterior(); }
             else if (key === 'f') { e.preventDefault(); toggleFullscreen(); }
             else if (key === 'escape') { e.preventDefault(); salirAlSiguiente(); }
         });
@@ -2110,6 +2535,11 @@
             if (slideActual === 3) {
                 if (!waldSeq.isStarted()) return;
                 if (waldSeq.isMuted() || waldVideo.volume === 0) { waldVideo.muted = false; waldSeq.unmute(); return; }
+                slideSiguiente();
+                return;
+            }
+
+            if (slideActual === 4) {
                 slideSiguiente();
                 return;
             }
