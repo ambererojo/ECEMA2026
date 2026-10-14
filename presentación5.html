@@ -130,7 +130,8 @@
 
         /* ESTADOS ACTIVOS */
         .state-1 #slide-01, .state-2 #slide-02,
-        .state-3 #slide-03, .state-4 #slide-04 {
+        .state-3 #slide-03, .state-4 #slide-04,
+        .state-5 #slide-05 {                       /* NUEVO */
             opacity: 1;
             transform: translateY(0) scale(1);
             pointer-events: auto;
@@ -358,6 +359,83 @@
             max-width: 780px;
         }
 
+        /* ==================================================
+           SLIDE 05 — GRACIAS / PREGUNTAS   (NUEVO)
+           ================================================== */
+        .gracias-wrap {
+            position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+            z-index: 3;
+        }
+        .gracias-video {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            display: block;
+            filter: grayscale(100%) contrast(1.15) brightness(0.55);
+            animation: graciasZoom 32s ease-in-out infinite alternate;
+            will-change: transform;
+        }
+        @keyframes graciasZoom {
+            from { transform: scale(1); }
+            to   { transform: scale(1.09); }
+        }
+        .gracias-overlay {
+            position: absolute; inset: 0;
+            z-index: 2;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse at center, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.75) 75%, rgba(0,0,0,0.92) 100%),
+                linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.15) 45%, rgba(0,0,0,0.55) 100%);
+        }
+        .gracias-texto {
+            position: relative;
+            z-index: 3;
+            text-align: center;
+            padding: 0 5vw;
+            width: 100%;
+        }
+        .gracias-titulo {
+            font-size: clamp(4rem, 15vw, 13rem);
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            line-height: 0.95;
+            color: #ffffff;
+            text-transform: uppercase;
+            -webkit-text-stroke: 3px rgba(0, 0, 0, 0.9);
+            paint-order: stroke fill;
+            text-shadow:
+                0 0 18px rgba(0, 0, 0, 0.95),
+                0 10px 42px rgba(0, 0, 0, 1),
+                0 0 90px rgba(56, 189, 248, 0.28);
+            opacity: 0;
+            transform: translateY(24px) scale(0.98);
+        }
+        .gracias-pregunta {
+            margin-top: clamp(10px, 2vh, 26px);
+            font-size: clamp(1.8rem, 5.5vw, 4.6rem);
+            font-weight: 700;
+            font-style: italic;
+            letter-spacing: 0.02em;
+            line-height: 1.1;
+            color: #ffffff;
+            -webkit-text-stroke: 2px rgba(0, 0, 0, 0.9);
+            paint-order: stroke fill;
+            text-shadow:
+                0 0 16px rgba(0, 0, 0, 0.95),
+                0 8px 34px rgba(0, 0, 0, 1),
+                0 0 70px rgba(56, 189, 248, 0.22);
+            opacity: 0;
+            transform: translateY(24px) scale(0.98);
+        }
+        @keyframes graciasIn {
+            from { opacity: 0; transform: translateY(28px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .state-5 .gracias-titulo   { animation: graciasIn 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.45s forwards; }
+        .state-5 .gracias-pregunta { animation: graciasIn 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.85s forwards; }
+
         /* UI */
         #ui-layer {
             position: absolute;
@@ -542,11 +620,27 @@
             </div>
         </main>
 
+        <!-- ==================================================
+             SLIDE 05 — GRACIAS / PREGUNTAS   (NUEVO)
+             ================================================== -->
+        <main class="glass-container fullscreen" id="slide-05">
+            <div class="gracias-wrap">
+                <video class="gracias-video" id="gracias-video" muted loop playsinline preload="auto">
+                    <source src="videos1/unitree1.mp4" type="video/mp4">
+                </video>
+                <div class="gracias-overlay"></div>
+                <div class="gracias-texto">
+                    <h2 class="gracias-titulo">Gracias</h2>
+                    <p class="gracias-pregunta">¿Preguntas?</p>
+                </div>
+            </div>
+        </main>
+
     </div>
 
     <div id="ui-layer">
         <button class="ui-btn" onclick="irAnterior()">← <span class="ui-key">P</span></button>
-        <span id="slide-indicator">Diapositiva 1 / 4</span>
+        <span id="slide-indicator">Diapositiva 1 / 5</span>
         <button class="ui-btn" onclick="irSiguiente()"><span class="ui-key">N</span> →</button>
         <button class="ui-btn" onclick="toggleFullscreen()">⛶ <span class="ui-key">F</span></button>
     </div>
@@ -554,7 +648,7 @@
     <script>
         let currentSlide = 1;
         let isTransitioning = false;
-        const totalSlides = 4;
+        const totalSlides = 5;                       /* NUEVO */
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
         const VIDEO_RETORNO = {
@@ -640,6 +734,17 @@
                 });
             }
 
+            /* NUEVO — Play/pausa del video del slide de cierre */
+            const graciasVideo = document.getElementById('gracias-video');
+            if (graciasVideo) {
+                if (target === 5) {
+                    graciasVideo.currentTime = 0;
+                    graciasVideo.play().catch(() => {});
+                } else if (!graciasVideo.paused) {
+                    graciasVideo.pause();
+                }
+            }
+
             setTimeout(() => { isTransitioning = false; }, reducedMotion.matches ? 50 : 1200);
         }
 
@@ -670,6 +775,8 @@
                 }
                 const video = document.getElementById('main-video');
                 if (video && video.paused) video.play().catch(() => {});
+                const gv = document.getElementById('gracias-video');
+                if (gv && currentSlide === 5 && gv.paused) gv.play().catch(() => {});
             }, { passive: true });
         });
 
