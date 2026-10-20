@@ -1,940 +1,1406 @@
 <!DOCTYPE html>
 <html lang="es" style="background:#000">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="yes" name="mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="#000000" name="theme-color"/>
+<meta content="no-cache, no-store, must-revalidate" http-equiv="Cache-Control"/>
+<meta content="no-cache" http-equiv="Pragma"/>
+<meta content="0" http-equiv="Expires"/>
+<title>Presentación - Tablas y Paradoja</title>
+<style>
+    html { background: #000 !important; }
+    body { background: #000 !important; margin: 0; padding: 0; overflow: hidden; }
+    #black-cover {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        z-index: 2147483647;
+        pointer-events: none;
+        opacity: 1;
+    }
+    #black-cover.quitar {
+        transition: opacity 0.5s ease;
+        opacity: 0;
+    }
+    #presentation-container { display: none; }
+    #presentation-container.listo { display: block; }
+</style>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    <!-- Meta tags para modo app en iOS/Android -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#000000">
+    html, body {
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        background-color: #050811;
+        font-family: 'Inter', sans-serif;
+        color: #f8fafc;
+    }
 
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <title>Presentación - Tablas y Paradoja</title>
+    html, body, #presentation-container {
+        touch-action: none;
+        overscroll-behavior: none;
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+        -webkit-tap-highlight-color: transparent;
+    }
 
-    <style>
-        html { background: #000 !important; }
-        body { background: #000 !important; margin: 0; padding: 0; overflow: hidden; }
-        #black-cover {
-            position: fixed;
-            inset: 0;
-            background: #000;
-            z-index: 2147483647;
-            pointer-events: none;
-            opacity: 1;
-        }
-        #black-cover.quitar {
-            transition: opacity 0.5s ease;
-            opacity: 0;
-        }
-        #presentation-container { display: none; }
-        #presentation-container.listo { display: block; }
-    </style>
+    #presentation-container {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+    }
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    #entrada-fade {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        z-index: 9999;
+        pointer-events: none;
+        opacity: 1;
+        will-change: opacity;
+    }
+    #entrada-fade.arrancar {
+        animation: entradaFade 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+    }
+    @keyframes entradaFade {
+        0%   { opacity: 1; }
+        37.5% { opacity: 1; }
+        100% { opacity: 0; visibility: hidden; }
+    }
 
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+    .bg-parallax {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        overflow: hidden;
+        transform: scale(1.06);
+        transition: transform 1.8s cubic-bezier(0.7, 0, 0.3, 1);
+        will-change: transform;
+    }
+    .bg-parallax::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        pointer-events: none;
+        background: radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.75) 100%);
+    }
+    .bg-video {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        object-fit: cover;
+        filter: grayscale(100%) contrast(1.15) brightness(0.45);
+        animation: bgDrift 40s ease-in-out infinite alternate;
+        will-change: transform;
+    }
+    .state-1 .bg-parallax { transform: scale(1.06) translateX(0); }
+    .state-2 .bg-parallax { transform: scale(1.14) translateX(-3%); }
+    .state-3 .bg-parallax { transform: scale(1.22) translateX(-6%); }
+    .state-4 .bg-parallax { transform: scale(1.12) translateX(3%); }
+    .state-5 .bg-parallax { transform: scale(1.05) translateX(7%); }
+    .state-6 .bg-parallax { transform: scale(1.02) translateX(10%); }
+    .state-7 .bg-parallax { transform: scale(1.22) translateX(-4%); }
+    .state-8 .bg-parallax { transform: scale(1.30) translateX(-8%); }
+    @keyframes bgDrift { from { transform: scale(1); } to { transform: scale(1.07); } }
 
-        html, body {
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            background-color: #050811;
-            font-family: 'Inter', sans-serif;
-            color: #f8fafc;
-        }
+    .glass-container {
+        position: absolute;
+        top: 5vh; left: 4vw;
+        z-index: 2;
+        width: 92vw; height: 90vh;
+        background: rgba(15, 23, 42, 0.86);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 24px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+        padding: 3.4vh 38px max(14px, calc(92px - 5vh));
+        visibility: hidden;
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+        pointer-events: none;
+        transition: transform 0.9s cubic-bezier(0.7, 0, 0.3, 1),
+                    opacity 0.7s cubic-bezier(0.7, 0, 0.3, 1),
+                    visibility 0s linear 0.9s;
+        will-change: transform, opacity;
+        backface-visibility: hidden;
+    }
 
-        html, body, #presentation-container {
-            touch-action: none;
-            overscroll-behavior: none;
-            -webkit-user-select: none;
-            user-select: none;
-            -webkit-touch-callout: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        #presentation-container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* CAPA NEGRA DE ENTRADA — 0.8s total (0.3s negro + 0.5s fade) */
-        #entrada-fade {
-            position: fixed;
-            inset: 0;
-            background: #000;
-            z-index: 9999;
-            pointer-events: none;
-            opacity: 1;
-            will-change: opacity;
-        }
-        #entrada-fade.arrancar {
-            animation: entradaFade 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards;
-        }
-        @keyframes entradaFade {
-            0%   { opacity: 1; }
-            37.5% { opacity: 1; }
-            100% { opacity: 0; visibility: hidden; }
-        }
-
-        /* VIDEO DE FONDO */
-        .bg-parallax {
-            position: absolute;
-            inset: 0;
-            z-index: 1;
-            overflow: hidden;
-            transform: scale(1.06);
-            transition: transform 1.8s cubic-bezier(0.7, 0, 0.3, 1);
-            will-change: transform;
-        }
-        .bg-parallax::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            z-index: 2;
-            pointer-events: none;
-            background: radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.75) 100%);
-        }
-        .bg-video {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            object-fit: cover;
-            filter: grayscale(100%) contrast(1.15) brightness(0.45);
-            animation: bgDrift 40s ease-in-out infinite alternate;
-            will-change: transform;
-        }
-        .state-1 .bg-parallax { transform: scale(1.06) translateX(0); }
-        .state-2 .bg-parallax { transform: scale(1.14) translateX(-3%); }
-        .state-3 .bg-parallax { transform: scale(1.22) translateX(-6%); }
-        .state-4 .bg-parallax { transform: scale(1.12) translateX(3%); }
-        .state-5 .bg-parallax { transform: scale(1.05) translateX(7%); }
-        .state-6 .bg-parallax { transform: scale(1.02) translateX(10%); }
-        .state-7 .bg-parallax { transform: scale(1.22) translateX(-4%); }
-        .state-8 .bg-parallax { transform: scale(1.30) translateX(-8%); }
-        @keyframes bgDrift { from { transform: scale(1); } to { transform: scale(1.07); } }
-
-        /* GLASSMORPHISM */
-        .glass-container {
-            position: absolute;
-            top: 6vh; left: 4vw;
-            z-index: 2;
-            width: 92vw; height: 88vh;
-            background: rgba(15, 23, 42, 0.86);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 24px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-            padding: 32px 38px;
-            visibility: hidden;
-            opacity: 0;
-            transform: translateY(20px) scale(0.98);
-            pointer-events: none;
-            transition: transform 0.9s cubic-bezier(0.7, 0, 0.3, 1),
-                        opacity 0.7s cubic-bezier(0.7, 0, 0.3, 1),
-                        visibility 0s linear 0.9s;
-            will-change: transform, opacity;
-            backface-visibility: hidden;
-        }
-
-        /* TEXTO CON CONTORNO */
-     .text-outlined {
-    text-align: center !important;
-    font-size: 1rem !important;
-    line-height: 1.45;
-    color: #ffffff !important;
-    font-weight: 500;
-    filter:
-        drop-shadow(0 0 1.5px rgba(0, 0, 0, 1))
-        drop-shadow(0 0 3px rgba(0, 0, 0, 0.95))
-        drop-shadow(0 2px 6px rgba(0, 0, 0, 0.8));
-}
+    .text-outlined {
+        text-align: center !important;
+        font-size: clamp(1.02rem, 2.3vh, 1.4rem) !important;
+        line-height: 1.5;
+        color: #ffffff !important;
+        font-weight: 500;
+        filter:
+            drop-shadow(0 0 1.5px rgba(0, 0, 0, 1))
+            drop-shadow(0 0 3px rgba(0, 0, 0, 0.95))
+            drop-shadow(0 2px 6px rgba(0, 0, 0, 0.8));
+    }
     .highlight-outlined {
-    color: #ffffff !important;
-    font-weight: 700;
-    text-shadow:
-        -0.5px -0.5px 0 rgba(0, 0, 0, 0.5),
-         0.5px -0.5px 0 rgba(0, 0, 0, 0.5),
-        -0.5px  0.5px 0 rgba(0, 0, 0, 0.5),
-         0.5px  0.5px 0 rgba(0, 0, 0, 0.5),
-         0px    0px   3px rgba(0, 0, 0, 0.45);
-    -webkit-text-stroke: 0.3px rgba(0, 0, 0, 0.5);
-}
+        color: #ffffff !important;
+        font-weight: 700;
+        text-shadow:
+            -0.5px -0.5px 0 rgba(0, 0, 0, 0.5),
+             0.5px -0.5px 0 rgba(0, 0, 0, 0.5),
+            -0.5px  0.5px 0 rgba(0, 0, 0, 0.5),
+             0.5px  0.5px 0 rgba(0, 0, 0, 0.5),
+             0px    0px   3px rgba(0, 0, 0, 0.45);
+        -webkit-text-stroke: 0.3px rgba(0, 0, 0, 0.5);
+    }
 
-        /* ESTADOS ACTIVOS */
-        .state-1 #slide-19, .state-2 #slide-20, .state-3 #slide-21,
-        .state-4 #slide-22, .state-5 #slide-23, .state-6 #slide-24,
-        .state-7 #slide-25, .state-8 #slide-26 {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-            pointer-events: auto;
-            visibility: visible;
-            transition-delay: 0.3s;
-        }
+    .state-1 #slide-19, .state-2 #slide-20, .state-3 #slide-21,
+    .state-4 #slide-22, .state-5 #slide-23, .state-6 #slide-24,
+    .state-7 #slide-25, .state-8 #slide-26 {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+        visibility: visible;
+        transition-delay: 0.3s;
+    }
 
-        /* GRID COMÚN */
-        #slide-19, #slide-21, #slide-22, #slide-23, #slide-24, #slide-25 {
-            display: grid;
-            grid-template-columns: 1.35fr 1fr;
-            gap: 28px;
-        }
-        .left-column { display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
-        .right-column { display: flex; flex-direction: column; gap: 16px; height: 100%; }
-        .table-title { font-size: 1.1rem; font-weight: 600; color: #38bdf8; line-height: 1.35; }
+    #slide-19, #slide-21, #slide-22, #slide-23, #slide-24, #slide-25 {
+        display: grid;
+        grid-template-columns: 1.35fr 1fr;
+        gap: 28px;
+    }
+    .left-column {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+        gap: 1.4vh;
+        min-height: 0;
+    }
+    .right-column {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        height: 100%;
+        justify-content: center;
+        min-height: 0;
+    }
 
-        /* BARRAS SLIDE 19 */
-        #slide-19 .chart-container { display: flex; flex-direction: column; gap: 16px; margin: auto 0; padding: 10px 0; }
-        #slide-19 .bar-row { display: flex; flex-direction: column; gap: 6px; }
-        #slide-19 .bar-track { position: relative; width: 100%; height: 22px; background: rgba(255, 255, 255, 0.06); border-radius: 12px; overflow: hidden; contain: layout paint; border: 1px solid rgba(255, 255, 255, 0.08); }
+    /* Texto un poco más abajo en slides con espacio (19, 21, 22, 23) */
+    #slide-19 .left-column,
+    #slide-21 .left-column,
+    #slide-22 .left-column,
+    #slide-23 .left-column {
+        padding-top: 2vh;
+    }
 
-        /* BARRAS SLIDE 21 */
-        #slide-21 .chart-container { display: flex; flex-direction: column; gap: 5px; margin: auto 0; padding: 4px 0; }
-        #slide-21 .bar-row { display: flex; flex-direction: column; gap: 2px; }
-        #slide-21 .bar-info { display: flex; justify-content: space-between; font-size: 0.74rem; font-weight: 500; color: #e2e8f0; }
-        #slide-21 .bar-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 72%; }
-        #slide-21 .bar-metrics { font-size: 0.74rem; color: #94a3b8; }
-        #slide-21 .bar-metrics strong { color: #ffffff; }
-        #slide-21 .bar-track { position: relative; width: 100%; height: 12px; background: rgba(255, 255, 255, 0.06); border-radius: 8px; overflow: hidden; contain: layout paint; border: 1px solid rgba(255, 255, 255, 0.08); }
+    /* TÍTULO DE TABLA +20 % */
+    .table-title {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: clamp(1.37rem, 3.12vh, 1.87rem);
+        font-weight: 700;
+        color: #38bdf8;
+        line-height: 1.35;
+        text-align: center;
+        letter-spacing: 0.04em;
+        margin-top: 1.2vh;
+        margin-bottom: 1vh;
+    }
 
-        /* BARRAS SLIDE 22 Y 23 */
-        #slide-22 .chart-container, #slide-23 .chart-container { display: flex; flex-direction: column; gap: 22px; margin: auto 0; padding: 12px 0; }
-        #slide-22 .bar-row, #slide-23 .bar-row { display: flex; flex-direction: column; gap: 8px; }
-        #slide-22 .bar-info, #slide-23 .bar-info { display: flex; justify-content: space-between; align-items: center; font-size: 0.92rem; font-weight: 600; color: #e2e8f0; }
-        #slide-22 .bar-metrics, #slide-23 .bar-metrics { font-size: 0.9rem; color: #38bdf8; font-weight: 700; }
-        #slide-22 .bar-metrics strong, #slide-23 .bar-metrics strong { color: #ffffff; font-size: 1.05rem; }
-        #slide-22 .bar-track, #slide-23 .bar-track { position: relative; width: 100%; height: 26px; background: rgba(255, 255, 255, 0.06); border-radius: 14px; overflow: hidden; contain: layout paint; border: 1px solid rgba(255, 255, 255, 0.1); }
+    #slide-19 .chart-container {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        margin: auto 0;
+        padding: 10px 0;
+        justify-content: center;
+    }
+    #slide-19 .bar-row { display: flex; flex-direction: column; gap: 6px; }
+    #slide-19 .bar-track {
+        position: relative;
+        width: 100%;
+        height: 26px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        overflow: hidden;
+        contain: layout paint;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    #slide-19 .bar-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: clamp(.92rem, 2vh, 1.2rem);
+        font-weight: 600;
+        color: #e2e8f0;
+    }
+    #slide-19 .bar-metrics strong { color: #ffffff; font-size: clamp(1rem, 2.2vh, 1.3rem); }
 
-        /* SLIDE 24 */
-        #slide-24 .doc-grid { display: flex; flex-direction: column; gap: 10px; margin: auto 0; padding: 6px 0; }
-        .doc-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-left: 4px solid #38bdf8; border-radius: 12px; padding: 10px 14px; display: grid; grid-template-columns: 0.8fr 1.8fr 1.2fr 1.4fr; gap: 12px; align-items: center; }
-        .doc-card.brecha { border-left-color: #ef4444; background: rgba(239, 68, 68, 0.04); }
-        .doc-header { display: flex; flex-direction: column; gap: 2px; }
-        .doc-title { font-size: 0.92rem; font-weight: 700; color: #38bdf8; }
-        .doc-sub { font-size: 0.72rem; color: #94a3b8; }
-        .doc-cell { font-size: 0.78rem; color: #e2e8f0; line-height: 1.35; }
-        .doc-cell strong { color: #ffffff; }
-        .badge-brecha { display: inline-block; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #fca5a5; font-size: 0.68rem; font-weight: 700; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.03em; }
+    #slide-21 .chart-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin: auto 0;
+        padding: 4px 0;
+        justify-content: center;
+    }
+    #slide-21 .bar-row { display: flex; flex-direction: column; gap: 4px; }
+    #slide-21 .bar-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: clamp(.9rem, 2vh, 1.2rem);
+        font-weight: 500;
+        color: #e2e8f0;
+        gap: 12px;
+    }
+    #slide-21 .bar-label {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 70%;
+    }
+    #slide-21 .bar-metrics {
+        font-size: clamp(.85rem, 1.9vh, 1.1rem);
+        color: #94a3b8;
+        white-space: nowrap;
+    }
+    #slide-21 .bar-metrics strong { color: #ffffff; }
+    #slide-21 .bar-track {
+        position: relative;
+        width: 100%;
+        height: 16px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+        overflow: hidden;
+        contain: layout paint;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
 
-        /* SLIDE 25 */
-        #slide-25 .matrix-grid { display: flex; flex-direction: column; gap: 6px; margin: auto 0; padding: 4px 0; max-height: 52vh; overflow-y: auto; }
-        .matrix-row { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 8px 12px; display: grid; grid-template-columns: 1.2fr 2fr; gap: 12px; align-items: center; }
-        .matrix-crit { font-size: 0.78rem; font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 6px; }
-        .matrix-badge { font-size: 0.62rem; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; font-weight: 700; background: rgba(56, 189, 248, 0.15); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.3); white-space: nowrap; }
-        .matrix-badge.obs { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.3); }
-        .matrix-evid { font-size: 0.75rem; color: #e2e8f0; line-height: 1.3; }
+    #slide-22 .chart-container, #slide-23 .chart-container {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        margin: auto 0;
+        padding: 12px 0;
+        justify-content: center;
+    }
+    #slide-22 .bar-row, #slide-23 .bar-row { display: flex; flex-direction: column; gap: 8px; }
+    #slide-22 .bar-info, #slide-23 .bar-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: clamp(1rem, 2.2vh, 1.3rem);
+        font-weight: 600;
+        color: #e2e8f0;
+        gap: 12px;
+    }
+    #slide-22 .bar-metrics, #slide-23 .bar-metrics {
+        font-size: clamp(1rem, 2.2vh, 1.3rem);
+        color: #38bdf8;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+    #slide-22 .bar-metrics strong, #slide-23 .bar-metrics strong {
+        color: #ffffff;
+        font-size: clamp(1.1rem, 2.4vh, 1.45rem);
+    }
+    #slide-22 .bar-track, #slide-23 .bar-track {
+        position: relative;
+        width: 100%;
+        height: 30px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        overflow: hidden;
+        contain: layout paint;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
 
-        /* SLIDE 26 */
-        #slide-26 { display: flex; flex-direction: column; justify-content: space-between; }
-        .slide26-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin: auto 0; height: 64vh; }
-        .cond-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-top: 4px solid #38bdf8; border-radius: 18px; padding: 22px 18px; display: flex; flex-direction: column; gap: 12px; }
-        .cond-card.cond-1 { border-top-color: #3b82f6; }
-        .cond-card.cond-2 { border-top-color: #f59e0b; }
-        .cond-card.cond-3 { border-top-color: #10b981; }
-        .cond-num { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #38bdf8; }
-        .cond-card.cond-1 .cond-num { color: #60a5fa; }
-        .cond-card.cond-2 .cond-num { color: #fbbf24; }
-        .cond-card.cond-3 .cond-num { color: #34d399; }
-        .cond-title-head { font-size: 1.05rem; font-weight: 700; color: #ffffff; line-height: 1.3; }
-        .cond-body-text { font-size: 1rem !important; text-align: left !important; line-height: 1.6; color: #cbd5e1 !important; }
+    #slide-24 .doc-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin: auto 0;
+        padding: 6px 0;
+        overflow-y: auto;
+        max-height: 62vh;
+    }
+    .doc-card {
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(56, 189, 248, 0.28);
+        border-left: 4px solid #38bdf8;
+        border-radius: 12px;
+        padding: 12px 16px;
+        display: grid;
+        grid-template-columns: 0.9fr 1.8fr 1.2fr 1.4fr;
+        gap: 14px;
+        align-items: center;
+    }
+    .doc-card.brecha {
+        border-left-color: #ef4444;
+        border-color: rgba(239, 68, 68, 0.3);
+        background: rgba(239, 68, 68, 0.06);
+    }
+    .doc-header { display: flex; flex-direction: column; gap: 2px; }
+    .doc-title {
+        font-size: clamp(1rem, 2.2vh, 1.3rem);
+        font-weight: 700;
+        color: #38bdf8;
+    }
+    .doc-sub {
+        font-size: clamp(.85rem, 1.9vh, 1.1rem);
+        color: #94a3b8;
+    }
+    .doc-cell {
+        font-size: clamp(.9rem, 2vh, 1.2rem);
+        color: #e2e8f0;
+        line-height: 1.4;
+    }
+    .doc-cell strong { color: #ffffff; }
+    .badge-brecha {
+        display: inline-block;
+        background: rgba(239, 68, 68, 0.2);
+        border: 1px solid rgba(239, 68, 68, 0.5);
+        color: #fca5a5;
+        font-size: clamp(.75rem, 1.7vh, 1rem);
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
 
-        /* BARRAS */
-        .bar-fill { position: absolute; inset: 0; z-index: 2; border-radius: 12px; transform: translateX(-100%); transition: transform 0.8s cubic-bezier(0.7, 0, 0.3, 1); will-change: transform; background-repeat: no-repeat; background-position: right center; background-size: calc(var(--p) * 1%) 100%; }
-        .animaciones-activas.state-1 #slide-19 .bar-fill,
-        .animaciones-activas.state-3 #slide-21 .bar-fill,
-        .animaciones-activas.state-4 #slide-22 .bar-fill,
-        .animaciones-activas.state-5 #slide-23 .bar-fill {
-            transform: translateX(calc(-100% + var(--p) * 1%));
-            transition: transform 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.6s;
-        }
+    #slide-25 .left-column {
+        justify-content: flex-start;
+    }
+    #slide-25 .matrix-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin: 0;
+        padding: 4px 0;
+        flex: 1;
+        min-height: 0;
+    }
+    #slide-25 .right-column {
+        justify-content: space-between;
+    }
+    #slide-25 .right-column .left-footer {
+        flex-shrink: 0;
+    }
+    .matrix-row {
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(56, 189, 248, 0.22);
+        border-radius: 10px;
+        padding: 10px 14px;
+        display: grid;
+        grid-template-columns: 1.2fr 2fr;
+        gap: 12px;
+        align-items: center;
+    }
+    .matrix-crit {
+        font-size: clamp(.9rem, 2vh, 1.2rem);
+        font-weight: 700;
+        color: #38bdf8;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .matrix-badge {
+        font-size: clamp(.72rem, 1.6vh, .95rem);
+        padding: 3px 7px;
+        border-radius: 4px;
+        text-transform: uppercase;
+        font-weight: 700;
+        background: rgba(56, 189, 248, 0.15);
+        color: #7dd3fc;
+        border: 1px solid rgba(56, 189, 248, 0.3);
+        white-space: nowrap;
+    }
+    .matrix-badge.obs {
+        background: rgba(16, 185, 129, 0.15);
+        color: #6ee7b7;
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+    .matrix-evid {
+        font-size: clamp(.9rem, 2vh, 1.2rem);
+        color: #e2e8f0;
+        line-height: 1.4;
+    }
 
-        .bar-fill.mixto { --p: 51.4; background-image: linear-gradient(90deg, #1d4ed8, #3b82f6); box-shadow: 0 0 12px rgba(59, 130, 246, 0.4); }
-        .bar-fill.medio { --p: 40.5; background-image: linear-gradient(90deg, #0284c7, #38bdf8); box-shadow: 0 0 12px rgba(56, 189, 248, 0.4); }
-        .bar-fill.bajo  { --p: 8.1;  background-image: linear-gradient(90deg, #ca8a04, #eab308); box-shadow: 0 0 12px rgba(234, 179, 8, 0.4); }
-        .bar-fill.alto  { --p: 0.5;  background-image: linear-gradient(90deg, #475569, #64748b); opacity: 0.5; }
-        .bar-fill.s21-no    { --p: 71.2; background-image: linear-gradient(90deg, #1e40af, #3b82f6); }
-        .bar-fill.s21-si    { --p: 16.4; background-image: linear-gradient(90deg, #0284c7, #38bdf8); }
-        .bar-fill.s21-minor { --p: 4.0;  background-image: linear-gradient(90deg, #0d9488, #2dd4bf); }
-        .bar-fill.dim-a { --p: 96.6; background-image: linear-gradient(90deg, #0284c7, #38bdf8); }
-        .bar-fill.dim-b { --p: 97.0; background-image: linear-gradient(90deg, #2563eb, #60a5fa); }
-        .bar-fill.dim-c { --p: 97.6; background-image: linear-gradient(90deg, #0d9488, #34d399); }
-        .bar-fill.s23-dim-a { --p: 97.0; background-image: linear-gradient(90deg, #0284c7, #38bdf8); }
-        .bar-fill.s23-dim-b { --p: 96.4; background-image: linear-gradient(90deg, #d97706, #f59e0b); }
-        .bar-fill.s23-dim-c { --p: 97.2; background-image: linear-gradient(90deg, #059669, #10b981); }
+    /* SLIDE 26 sin scroll para evitar la barra fea durante la animación */
+    #slide-26 { display: flex; flex-direction: column; justify-content: center; }
+    .slide26-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 22px;
+        margin: auto 0;
+        padding: 6px 0;
+        overflow: visible;
+    }
+    .cond-card {
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(56, 189, 248, 0.28);
+        border-top: 4px solid #38bdf8;
+        border-radius: 18px;
+        padding: 24px 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        overflow: hidden;
+        contain: layout;
+    }
+    .cond-card.cond-1 { border-top-color: #3b82f6; }
+    .cond-card.cond-2 { border-top-color: #f59e0b; }
+    .cond-card.cond-3 { border-top-color: #10b981; }
+    .cond-num {
+        font-size: clamp(.85rem, 1.9vh, 1.1rem);
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #38bdf8;
+    }
+    .cond-card.cond-1 .cond-num { color: #60a5fa; }
+    .cond-card.cond-2 .cond-num { color: #fbbf24; }
+    .cond-card.cond-3 .cond-num { color: #34d399; }
+    .cond-title-head {
+        font-size: clamp(1.14rem, 2.6vh, 1.56rem);
+        font-weight: 700;
+        color: #ffffff;
+        line-height: 1.3;
+        text-align: center;
+    }
+    .cond-body-text {
+        font-size: clamp(1.02rem, 2.3vh, 1.4rem) !important;
+        text-align: left !important;
+        line-height: 1.6;
+        color: #cbd5e1 !important;
+    }
 
-        /* LIGHT STREAK */
-        .light-streak { position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0; transform: translateX(-160px); background-image: linear-gradient(90deg, transparent 0%, var(--streak-color, #7dd3fc) 40%, rgba(255, 255, 255, 0.95) 70%, transparent 100%), linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--streak-color, #7dd3fc) 45%, transparent) 55%, transparent 100%); background-size: 80px 100%, 160px 100%; background-position: 0 0, -40px 0; background-repeat: no-repeat; }
-        .animaciones-activas.state-1 #slide-19 .light-streak,
-        .animaciones-activas.state-3 #slide-21 .light-streak,
-        .animaciones-activas.state-4 #slide-22 .light-streak,
-        .animaciones-activas.state-5 #slide-23 .light-streak { animation: streakGlow 3.2s ease-in-out var(--delay, 0s) infinite; }
-        @keyframes streakGlow { 0% { transform: translateX(-160px); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateX(calc(100% + 40px)); opacity: 0; } }
+    .bar-fill {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        border-radius: 14px;
+        transform: translateX(-100%);
+        transition: transform 0.8s cubic-bezier(0.7, 0, 0.3, 1);
+        will-change: transform;
+        background-repeat: no-repeat;
+        background-position: right center;
+        background-size: calc(var(--p) * 1%) 100%;
+    }
+    .animaciones-activas.state-1 #slide-19 .bar-fill,
+    .animaciones-activas.state-3 #slide-21 .bar-fill,
+    .animaciones-activas.state-4 #slide-22 .bar-fill,
+    .animaciones-activas.state-5 #slide-23 .bar-fill {
+        transform: translateX(calc(-100% + var(--p) * 1%));
+        transition: transform 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.6s;
+    }
 
-        /* PIES Y TARJETAS */
-        .left-footer { display: flex; flex-direction: column; gap: 6px; }
-        .objective-card { background: rgba(255, 255, 255, 0.04); border-left: 3px solid #38bdf8; border-radius: 0 10px 10px 0; padding: 8px 12px; }
-        .objective-tag { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #38bdf8; margin-bottom: 3px; display: block; }
-        .objective-text { font-size: 0.78rem; color: #cbd5e1; line-height: 1.3; }
-        .source-text { font-size: 0.7rem; color: #94a3b8; font-style: italic; }
+    .bar-fill.mixto { --p: 51.4; background-image: linear-gradient(90deg, #1d4ed8, #3b82f6); box-shadow: 0 0 12px rgba(59, 130, 246, 0.4); }
+    .bar-fill.medio { --p: 40.5; background-image: linear-gradient(90deg, #0284c7, #38bdf8); box-shadow: 0 0 12px rgba(56, 189, 248, 0.4); }
+    .bar-fill.bajo  { --p: 8.1;  background-image: linear-gradient(90deg, #ca8a04, #eab308); box-shadow: 0 0 12px rgba(234, 179, 8, 0.4); }
+    .bar-fill.alto  { --p: 0.5;  background-image: linear-gradient(90deg, #475569, #64748b); opacity: 0.5; }
+    .bar-fill.s21-no    { --p: 71.2; background-image: linear-gradient(90deg, #1e40af, #3b82f6); }
+    .bar-fill.s21-si    { --p: 16.4; background-image: linear-gradient(90deg, #0284c7, #38bdf8); }
+    .bar-fill.s21-minor { --p: 12.3; background-image: linear-gradient(90deg, #0d9488, #2dd4bf); }
+    .bar-fill.dim-a { --p: 96.6; background-image: linear-gradient(90deg, #0284c7, #38bdf8); }
+    .bar-fill.dim-b { --p: 97.0; background-image: linear-gradient(90deg, #2563eb, #60a5fa); }
+    .bar-fill.dim-c { --p: 97.6; background-image: linear-gradient(90deg, #0d9488, #34d399); }
+    .bar-fill.s23-dim-a { --p: 97.0; background-image: linear-gradient(90deg, #0284c7, #38bdf8); }
+    .bar-fill.s23-dim-b { --p: 96.4; background-image: linear-gradient(90deg, #d97706, #f59e0b); }
+    .bar-fill.s23-dim-c { --p: 97.2; background-image: linear-gradient(90deg, #059669, #10b981); }
 
-        .info-card { flex: 1; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 22px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; }
-        .card-title { font-size: 1.05rem; font-weight: 700; color: #38bdf8; text-align: center; text-transform: uppercase; letter-spacing: 0.05em; }
+    .light-streak {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        pointer-events: none;
+        opacity: 0;
+        transform: translateX(-160px);
+        background-image: linear-gradient(90deg, transparent 0%, var(--streak-color, #7dd3fc) 40%, rgba(255, 255, 255, 0.95) 70%, transparent 100%),
+                          linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--streak-color, #7dd3fc) 45%, transparent) 55%, transparent 100%);
+        background-size: 80px 100%, 160px 100%;
+        background-position: 0 0, -40px 0;
+        background-repeat: no-repeat;
+    }
+    .animaciones-activas.state-1 #slide-19 .light-streak,
+    .animaciones-activas.state-3 #slide-21 .light-streak,
+    .animaciones-activas.state-4 #slide-22 .light-streak,
+    .animaciones-activas.state-5 #slide-23 .light-streak {
+        animation: streakGlow 3.2s ease-in-out var(--delay, 0s) infinite;
+    }
+    @keyframes streakGlow {
+        0% { transform: translateX(-160px); opacity: 0; }
+        15% { opacity: 1; }
+        85% { opacity: 1; }
+        100% { transform: translateX(calc(100% + 40px)); opacity: 0; }
+    }
 
-        /* SLIDE 20 */
-        #slide-20 { display: flex; flex-direction: column; justify-content: space-between; }
-        .slide-header-center { text-align: center; margin-bottom: 12px; }
-        .main-overbox-title { font-size: 1.35rem; font-weight: 700; color: #38bdf8; letter-spacing: -0.01em; text-transform: uppercase; }
-        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-bottom: 12px; position: relative; }
-        .comp-card { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 18px 22px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
-        .comp-card.left-card { border-top: 4px solid #3b82f6; }
-        .comp-card.right-card { border-top: 4px solid #f59e0b; }
-        .comp-title { font-size: 1rem; font-weight: 700; text-align: center; }
-        .comp-title.left { color: #60a5fa; }
-        .comp-title.right { color: #fbbf24; }
-        .analysis-box { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 16px; padding: 16px 22px; display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 10px; }
-        .analysis-title { font-size: 0.95rem; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.05em; }
-.slide20-footer { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; }
-#slide-26 .slide20-footer { margin-top: 24px; }
+    .left-footer { display: flex; flex-direction: column; gap: 8px; }
+    .objective-card {
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(56, 189, 248, 0.28);
+        border-left: 3px solid #38bdf8;
+        border-radius: 0 10px 10px 0;
+        padding: 10px 14px;
+    }
+    .objective-tag {
+        font-size: clamp(.85rem, 1.9vh, 1.1rem);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #38bdf8;
+        margin-bottom: 4px;
+        display: block;
+    }
+    .objective-text {
+        font-size: clamp(1rem, 2.2vh, 1.3rem);
+        color: #cbd5e1;
+        line-height: 1.4;
+    }
+    .source-text {
+        font-size: clamp(.8rem, 1.75vh, 1.04rem);
+        color: #94a3b8;
+        font-style: italic;
+        text-align: center;
+    }
 
-        /* =========================================================
-           UI DE NAVEGACIÓN — botones clicables en PC y móvil
-           ========================================================= */
+    .info-card {
+        flex: 1;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(56, 189, 248, 0.28);
+        border-radius: 16px;
+        padding: 24px 26px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 14px;
+    }
+    .card-title {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: clamp(1.14rem, 2.6vh, 1.56rem);
+        font-weight: 700;
+        color: #38bdf8;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    #slide-25 .info-card {
+        flex: 1;
+        padding: 18px 22px;
+    }
+    #slide-25 .info-card .text-outlined {
+        font-size: clamp(.95rem, 2.1vh, 1.28rem) !important;
+        line-height: 1.45;
+    }
+
+    #slide-20 { display: flex; flex-direction: column; justify-content: center; }
+    .slide-header-center { text-align: center; margin-bottom: 1.4vh; }
+    .main-overbox-title {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: clamp(1.43rem, 3.9vh, 2.08rem);
+        font-weight: 700;
+        color: #38bdf8;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        text-align: center;
+    }
+    .comparison-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin-bottom: 14px;
+        position: relative;
+    }
+    .comp-card {
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(56, 189, 248, 0.28);
+        border-radius: 16px;
+        padding: 20px 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+    .comp-card.left-card { border-top: 4px solid #3b82f6; }
+    .comp-card.right-card { border-top: 4px solid #f59e0b; }
+    .comp-title {
+        font-size: clamp(1.14rem, 2.6vh, 1.56rem);
+        font-weight: 700;
+        text-align: center;
+    }
+    .comp-title.left { color: #60a5fa; }
+    .comp-title.right { color: #fbbf24; }
+    .analysis-box {
+        background: rgba(15, 23, 42, 0.85);
+        border: 1px solid rgba(56, 189, 248, 0.3);
+        border-radius: 16px;
+        padding: 18px 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+    .analysis-title {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: clamp(1.14rem, 2.6vh, 1.56rem);
+        font-weight: 700;
+        color: #38bdf8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .slide20-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 20px;
+    }
+    #slide-26 .slide20-footer { margin-top: 14px; }
+
+    #ui-layer {
+        position: absolute;
+        bottom: 20px; left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 8px 22px;
+        border-radius: 30px;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        z-index: 1000;
+        font-size: 0.85rem;
+        font-family: 'Inter', sans-serif;
+        transition: opacity 0.6s ease;
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .ui-btn {
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: #fff;
+        padding: 8px 14px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        font-family: inherit;
+        cursor: pointer;
+        transition: background 0.2s;
+        -webkit-tap-highlight-color: transparent;
+        min-width: 44px;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .ui-btn:hover,
+    .ui-btn:active {
+        background: rgba(255,255,255,0.35);
+    }
+
+    .ui-key {
+        background: #ffffff;
+        color: #000000;
+        padding: 3px 8px;
+        border-radius: 5px;
+        font-weight: 700;
+        font-size: 0.75rem;
+    }
+
+    #slide-indicator {
+        font-size: 0.82rem;
+        font-weight: 600;
+        min-width: 110px;
+        text-align: center;
+    }
+
+    @media (hover: none) and (pointer: coarse) {
         #ui-layer {
-            position: absolute;
-            bottom: 20px; left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 8px 22px;
-            border-radius: 30px;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            z-index: 1000;
-            font-size: 0.85rem;
-            font-family: 'Inter', sans-serif;
-            transition: opacity 0.6s ease;
-            opacity: 1;
-            pointer-events: auto;
+            bottom: 16px;
+            padding: 8px 16px;
+            gap: 10px;
         }
-
         .ui-btn {
-            background: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: #fff;
-            padding: 8px 14px;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            font-family: inherit;
-            cursor: pointer;
-            transition: background 0.2s;
-            -webkit-tap-highlight-color: transparent;
-            min-width: 44px;
-            min-height: 44px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
+            padding: 10px 14px;
+            font-size: 0.9rem;
         }
+    }
 
-        .ui-btn:hover,
-        .ui-btn:active {
-            background: rgba(255,255,255,0.35);
-        }
+    @property --ang { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+    .glass-container::before {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        border-radius: 25px;
+        padding: 2px;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.6s ease 0.9s;
+        background: conic-gradient(from var(--ang), transparent 0deg, transparent 240deg, rgba(56, 189, 248, 0.15) 265deg, #38bdf8 315deg, #ffffff 340deg, transparent 360deg);
+        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor;
+        mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+        mask-composite: exclude;
+    }
+    .animaciones-activas.state-1 #slide-19::before,
+    .animaciones-activas.state-2 #slide-20::before,
+    .animaciones-activas.state-3 #slide-21::before,
+    .animaciones-activas.state-4 #slide-22::before,
+    .animaciones-activas.state-5 #slide-23::before,
+    .animaciones-activas.state-6 #slide-24::before,
+    .animaciones-activas.state-7 #slide-25::before,
+    .animaciones-activas.state-8 #slide-26::before {
+        opacity: 1;
+        animation: borderSpin 5s linear infinite;
+    }
+    @keyframes borderSpin { to { --ang: 360deg; } }
 
-        .ui-key {
-            background: #ffffff;
-            color: #000000;
-            padding: 3px 8px;
-            border-radius: 5px;
-            font-weight: 700;
-            font-size: 0.75rem;
-        }
+    @keyframes inLeft  { from { opacity: 0; transform: translateX(-80px); } }
+    @keyframes inRight { from { opacity: 0; transform: translateX(80px); } }
+    @keyframes inUp    { from { opacity: 0; transform: translateY(46px); } }
+    @keyframes inDown  { from { opacity: 0; transform: translateY(-46px); } }
+    @keyframes fadeIn  { from { opacity: 0; } }
+    @keyframes float   { from { transform: translateY(0); } to { transform: translateY(-6px); } }
 
-        #slide-indicator {
-            font-size: 0.82rem;
-            font-weight: 600;
-            min-width: 110px;
-            text-align: center;
-        }
+    @keyframes shimmer {
+        0%   { background-position: 0% 0%; }
+        50%  { background-position: 100% 100%; }
+        100% { background-position: 0% 0%; }
+    }
+    .animaciones-activas .card-title,
+    .animaciones-activas .comp-title,
+    .animaciones-activas .cond-title-head,
+    .animaciones-activas .cond-body-text,
+    .animaciones-activas .text-outlined,
+    .animaciones-activas .analysis-title,
+    .animaciones-activas .matrix-crit,
+    .animaciones-activas .matrix-evid,
+    .animaciones-activas .doc-title,
+    .animaciones-activas .doc-cell,
+    .animaciones-activas .objective-tag,
+    .animaciones-activas .objective-text {
+        animation: shimmer 2.5s linear 2.4s infinite;
+    }
 
-        /* Botones más grandes en pantalla táctil */
-        @media (hover: none) and (pointer: coarse) {
-            #ui-layer {
-                bottom: 16px;
-                padding: 8px 16px;
-                gap: 10px;
-            }
-            .ui-btn {
-                padding: 10px 14px;
-                font-size: 0.9rem;
-            }
-        }
+    @keyframes popIn { 0% { opacity: 0; transform: scale(0.2) rotate(-90deg); } 60% { opacity: 1; transform: scale(1.18) rotate(8deg); } 100% { opacity: 1; transform: scale(1) rotate(0); } }
+    @keyframes ring  { 0% { opacity: 0.85; transform: scale(1); } 100% { opacity: 0; transform: scale(2.5); } }
 
-        /* EFECTOS */
-        @property --ang { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
-        .glass-container::before { content: ''; position: absolute; inset: -1px; border-radius: 25px; padding: 2px; pointer-events: none; opacity: 0; transition: opacity 0.6s ease 0.9s; background: conic-gradient(from var(--ang), transparent 0deg, transparent 240deg, rgba(56, 189, 248, 0.15) 265deg, #38bdf8 315deg, #ffffff 340deg, transparent 360deg); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); mask-composite: exclude; }
-        .animaciones-activas.state-1 #slide-19::before, .animaciones-activas.state-2 #slide-20::before, .animaciones-activas.state-3 #slide-21::before, .animaciones-activas.state-4 #slide-22::before, .animaciones-activas.state-5 #slide-23::before, .animaciones-activas.state-6 #slide-24::before, .animaciones-activas.state-7 #slide-25::before, .animaciones-activas.state-8 #slide-26::before { opacity: 1; animation: borderSpin 5s linear infinite; }
-        @keyframes borderSpin { to { --ang: 360deg; } }
+    .table-title, .main-overbox-title,
+    .card-title, .comp-title, .cond-title-head,
+    .cond-body-text, .text-outlined, .analysis-title,
+    .matrix-crit, .matrix-evid, .doc-title, .doc-cell,
+    .objective-tag, .objective-text {
+        background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 35%, #bae6fd 50%, #38bdf8 65%, #0ea5e9 100%);
+        background-size: 250% 250%;
+        background-position: 0% 0%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
 
-        @keyframes inLeft  { from { opacity: 0; transform: translateX(-80px); } }
-        @keyframes inRight { from { opacity: 0; transform: translateX(80px); } }
-        @keyframes inUp    { from { opacity: 0; transform: translateY(46px); } }
-        @keyframes inDown  { from { opacity: 0; transform: translateY(-46px); } }
-        @keyframes fadeIn  { from { opacity: 0; } }
-        @keyframes float   { from { transform: translateY(0); } to { transform: translateY(-6px); } }
+    .animaciones-activas.state-1 #slide-19 .table-title,
+    .animaciones-activas.state-3 #slide-21 .table-title,
+    .animaciones-activas.state-4 #slide-22 .table-title,
+    .animaciones-activas.state-5 #slide-23 .table-title,
+    .animaciones-activas.state-6 #slide-24 .table-title,
+    .animaciones-activas.state-7 #slide-25 .table-title,
+    .animaciones-activas.state-8 #slide-26 .main-overbox-title {
+        animation: inLeft 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both, shimmer 2.5s linear 2.4s infinite;
+    }
 
-        @keyframes shimmer {
-            0%   { background-position: 0% 0%; }
-            50%  { background-position: 100% 100%; }
-            100% { background-position: 0% 0%; }
-        }
-.animaciones-activas .card-title,
-.animaciones-activas .comp-title,
-.animaciones-activas .cond-title-head,
-.animaciones-activas .cond-body-text,
-.animaciones-activas .text-outlined,
-.animaciones-activas .analysis-title,
-.animaciones-activas .matrix-crit,
-.animaciones-activas .matrix-evid,
-.animaciones-activas .doc-title,
-.animaciones-activas .doc-cell,
-.animaciones-activas .objective-tag,
-.animaciones-activas .objective-text {
-    animation: shimmer 2.5s linear 2.4s infinite;
-}
+    .animaciones-activas.state-1 #slide-19 .bar-row,
+    .animaciones-activas.state-3 #slide-21 .bar-row,
+    .animaciones-activas.state-4 #slide-22 .bar-row,
+    .animaciones-activas.state-5 #slide-23 .bar-row {
+        animation: inLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
 
-        @keyframes popIn { 0% { opacity: 0; transform: scale(0.2) rotate(-90deg); } 60% { opacity: 1; transform: scale(1.18) rotate(8deg); } 100% { opacity: 1; transform: scale(1) rotate(0); } }
-        @keyframes ring  { 0% { opacity: 0.85; transform: scale(1); } 100% { opacity: 0; transform: scale(2.5); } }
+    .animaciones-activas.state-7 #slide-25 .matrix-row { animation: inLeft 0.85s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .animaciones-activas.state-7 #slide-25 .matrix-row:nth-child(1) { animation-delay: 0.50s; }
+    .animaciones-activas.state-7 #slide-25 .matrix-row:nth-child(2) { animation-delay: 0.60s; }
+    .animaciones-activas.state-7 #slide-25 .matrix-row:nth-child(3) { animation-delay: 0.70s; }
+    .animaciones-activas.state-7 #slide-25 .matrix-row:nth-child(4) { animation-delay: 0.80s; }
+    .animaciones-activas.state-7 #slide-25 .matrix-row:nth-child(5) { animation-delay: 0.90s; }
+    .animaciones-activas.state-7 #slide-25 .matrix-row:nth-child(6) { animation-delay: 1.00s; }
+    .animaciones-activas.state-7 #slide-25 .matrix-row:nth-child(7) { animation-delay: 1.10s; }
 
-        .table-title, .main-overbox-title,
-.card-title, .comp-title, .cond-title-head,
-.cond-body-text, .text-outlined, .analysis-title,
-.matrix-crit, .matrix-evid, .doc-title, .doc-cell,
-.objective-tag, .objective-text {
-    background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 35%, #bae6fd 50%, #38bdf8 65%, #0ea5e9 100%);
-    background-size: 250% 250%;
-    background-position: 0% 0%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
+    .animaciones-activas.state-8 #slide-26 .cond-card { animation: inUp 0.95s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .animaciones-activas.state-8 #slide-26 .cond-card.cond-1 { animation-delay: 0.6s; }
+    .animaciones-activas.state-8 #slide-26 .cond-card.cond-2 { animation-delay: 0.8s; }
+    .animaciones-activas.state-8 #slide-26 .cond-card.cond-3 { animation-delay: 1.0s; }
 
-        .animaciones-activas.state-1 #slide-19 .table-title, .animaciones-activas.state-3 #slide-21 .table-title, .animaciones-activas.state-4 #slide-22 .table-title, .animaciones-activas.state-5 #slide-23 .table-title, .animaciones-activas.state-6 #slide-24 .table-title, .animaciones-activas.state-7 #slide-25 .table-title, .animaciones-activas.state-8 #slide-26 .main-overbox-title { animation: inLeft 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both, shimmer 2.5s linear 2.4s infinite; }
+    .animaciones-activas.state-1 #slide-19 .left-footer,
+    .animaciones-activas.state-3 #slide-21 .left-footer,
+    .animaciones-activas.state-4 #slide-22 .left-footer,
+    .animaciones-activas.state-5 #slide-23 .left-footer,
+    .animaciones-activas.state-6 #slide-24 .left-footer,
+    .animaciones-activas.state-7 #slide-25 .right-column .left-footer,
+    .animaciones-activas.state-8 #slide-26 .slide20-footer {
+        animation: inUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1.2s both;
+    }
 
-        .animaciones-activas.state-1 #slide-19 .bar-row, .animaciones-activas.state-3 #slide-21 .bar-row, .animaciones-activas.state-4 #slide-22 .bar-row, .animaciones-activas.state-5 #slide-23 .bar-row { animation: inLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .animaciones-activas.state-1 #slide-19 .info-card,
+    .animaciones-activas.state-3 #slide-21 .info-card,
+    .animaciones-activas.state-4 #slide-22 .info-card:nth-child(1),
+    .animaciones-activas.state-5 #slide-23 .info-card,
+    .animaciones-activas.state-6 #slide-24 .info-card,
+    .animaciones-activas.state-7 #slide-25 .info-card {
+        animation: inRight 1s cubic-bezier(0.16, 1, 0.3, 1) 0.8s both, float 7s ease-in-out 1.8s infinite alternate;
+    }
 
-        .animaciones-activas.state-7 #slide-25 .matrix-row { animation: inLeft 0.85s cubic-bezier(0.16, 1, 0.3, 1) both; }
-        .animaciones-activas.state-7 #slide-25 .matrix-row:nth-child(1) { animation-delay: 0.50s; }
-        .animaciones-activas.state-7 #slide-25 .matrix-row:nth-child(2) { animation-delay: 0.60s; }
-        .animaciones-activas.state-7 #slide-25 .matrix-row:nth-child(3) { animation-delay: 0.70s; }
-        .animaciones-activas.state-7 #slide-25 .matrix-row:nth-child(4) { animation-delay: 0.80s; }
-        .animaciones-activas.state-7 #slide-25 .matrix-row:nth-child(5) { animation-delay: 0.90s; }
-        .animaciones-activas.state-7 #slide-25 .matrix-row:nth-child(6) { animation-delay: 1.00s; }
-        .animaciones-activas.state-7 #slide-25 .matrix-row:nth-child(7) { animation-delay: 1.10s; }
+    .highlight-outlined {
+        background-image: linear-gradient(90deg, #38bdf8, #bae6fd);
+        background-repeat: no-repeat;
+        background-position: 0 100%;
+        background-size: 0% 1px;
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone;
+    }
+    .highlight-outlined { -webkit-text-fill-color: #ffffff !important; }
+    .matrix-badge, .matrix-badge.obs, .badge-brecha { -webkit-text-fill-color: currentColor !important; }
+    .ui-key, .vs-badge, .ui-btn { -webkit-text-fill-color: currentColor !important; }
 
-        .animaciones-activas.state-8 #slide-26 .cond-card { animation: inUp 0.95s cubic-bezier(0.16, 1, 0.3, 1) both; }
-        .animaciones-activas.state-8 #slide-26 .cond-card.cond-1 { animation-delay: 0.6s; }
-        .animaciones-activas.state-8 #slide-26 .cond-card.cond-2 { animation-delay: 0.8s; }
-        .animaciones-activas.state-8 #slide-26 .cond-card.cond-3 { animation-delay: 1.0s; }
+    .animaciones-activas.state-1 #slide-19 .highlight-outlined,
+    .animaciones-activas.state-2 #slide-20 .highlight-outlined,
+    .animaciones-activas.state-3 #slide-21 .highlight-outlined,
+    .animaciones-activas.state-4 #slide-22 .highlight-outlined,
+    .animaciones-activas.state-5 #slide-23 .highlight-outlined,
+    .animaciones-activas.state-6 #slide-24 .highlight-outlined,
+    .animaciones-activas.state-7 #slide-25 .highlight-outlined,
+    .animaciones-activas.state-8 #slide-26 .highlight-outlined {
+        animation: drawLine 0.9s cubic-bezier(0.16, 1, 0.3, 1) 2.1s both;
+    }
 
-        .animaciones-activas.state-1 #slide-19 .left-footer, .animaciones-activas.state-3 #slide-21 .left-footer, .animaciones-activas.state-4 #slide-22 .left-footer, .animaciones-activas.state-5 #slide-23 .left-footer, .animaciones-activas.state-6 #slide-24 .left-footer, .animaciones-activas.state-7 #slide-25 .left-footer, .animaciones-activas.state-8 #slide-26 .slide20-footer { animation: inUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1.2s both; }
+    @keyframes drawLine { from { background-size: 0% 1px; } to { background-size: 100% 1px; } }
 
-        .animaciones-activas.state-1 #slide-19 .info-card, .animaciones-activas.state-3 #slide-21 .info-card, .animaciones-activas.state-4 #slide-22 .info-card:nth-child(1), .animaciones-activas.state-5 #slide-23 .info-card, .animaciones-activas.state-6 #slide-24 .info-card, .animaciones-activas.state-7 #slide-25 .info-card { animation: inRight 1s cubic-bezier(0.16, 1, 0.3, 1) 0.8s both, float 7s ease-in-out 1.8s infinite alternate; }
+    .animaciones-activas.state-2 #slide-20 .slide-header-center { animation: inDown 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.8s both; }
+    .animaciones-activas.state-2 #slide-20 .main-overbox-title  { animation: shimmer 2.5s linear 2.6s infinite; }
+    .animaciones-activas.state-2 #slide-20 .comp-card.left-card  { animation: inLeft 1s cubic-bezier(0.16, 1, 0.3, 1) 1s both, float 7s ease-in-out 2.2s infinite alternate; }
+    .animaciones-activas.state-2 #slide-20 .comp-card.right-card { animation: inRight 1s cubic-bezier(0.16, 1, 0.3, 1) 1s both, float 8s ease-in-out 2.4s infinite alternate; }
+    .animaciones-activas.state-2 #slide-20 .analysis-box        { animation: inUp 1s cubic-bezier(0.16, 1, 0.3, 1) 1.8s both; }
+    .animaciones-activas.state-2 #slide-20 .slide20-footer      { animation: fadeIn 1s ease 2.2s both; }
 
-        .highlight-outlined { background-image: linear-gradient(90deg, #38bdf8, #bae6fd); background-repeat: no-repeat; background-position: 0 100%; background-size: 0% 1px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
-.highlight-outlined { -webkit-text-fill-color: #ffffff !important; }
-.matrix-badge, .matrix-badge.obs, .badge-brecha { -webkit-text-fill-color: currentColor !important; }
-.ui-key, .vs-badge, .ui-btn { -webkit-text-fill-color: currentColor !important; }
+    .vs-badge {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        z-index: 5;
+        width: 56px;
+        height: 56px;
+        margin: -28px 0 0 -28px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        font-size: 1rem;
+        color: #fff;
+        background: radial-gradient(circle at 30% 25%, #7dd3fc, #2563eb 58%, #1e3a8a);
+        border: 2px solid rgba(255, 255, 255, 0.65);
+        box-shadow: 0 0 26px rgba(56, 189, 248, 0.75);
+        opacity: 0;
+    }
+    .vs-badge::after {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        border-radius: 50%;
+        border: 2px solid #38bdf8;
+        opacity: 0;
+    }
+    .animaciones-activas.state-2 #slide-20 .vs-badge { animation: popIn 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) 1.6s both; }
+    .animaciones-activas.state-2 #slide-20 .vs-badge::after { animation: ring 2.4s ease-out 2.6s infinite; }
 
-        .animaciones-activas.state-1 #slide-19 .highlight-outlined, .animaciones-activas.state-2 #slide-20 .highlight-outlined, .animaciones-activas.state-3 #slide-21 .highlight-outlined, .animaciones-activas.state-4 #slide-22 .highlight-outlined, .animaciones-activas.state-5 #slide-23 .highlight-outlined, .animaciones-activas.state-6 #slide-24 .highlight-outlined, .animaciones-activas.state-7 #slide-25 .highlight-outlined, .animaciones-activas.state-8 #slide-26 .highlight-outlined { animation: drawLine 0.9s cubic-bezier(0.16, 1, 0.3, 1) 2.1s both; }
+    /* RETRASO DE 1 s EN EL SLIDE 1 — solo al arrancar (clase arranque-inicial) */
+    .arranque-inicial.state-1 #slide-19 .table-title {
+        animation-delay: 1.5s, 2.4s;
+    }
+    .arranque-inicial.state-1 #slide-19 .bar-row {
+        animation-delay: 1s;
+    }
+    .arranque-inicial.state-1 #slide-19 .left-footer {
+        animation-delay: 2.2s;
+    }
+    .arranque-inicial.state-1 #slide-19 .info-card {
+        animation-delay: 1.8s, 2.8s;
+    }
+    .arranque-inicial.state-1 #slide-19 .highlight-outlined {
+        animation-delay: 3.1s;
+    }
+    .arranque-inicial.state-1 #slide-19 .light-streak {
+        animation-delay: calc(var(--delay, 0s) + 1s);
+    }
 
-        @keyframes drawLine { from { background-size: 0% 1px; } to { background-size: 100% 1px; } }
+    html, body, #presentation-container, button, a, input, textarea, select { cursor: none; }
+    html.cursor-visible, html.cursor-visible body, html.cursor-visible #presentation-container,
+    html.cursor-visible button, html.cursor-visible a, html.cursor-visible input,
+    html.cursor-visible textarea, html.cursor-visible select { cursor: default; }
 
-        .animaciones-activas.state-2 #slide-20 .slide-header-center { animation: inDown 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.8s both; }
-        .animaciones-activas.state-2 #slide-20 .main-overbox-title  { animation: shimmer 2.5s linear 2.6s infinite; }
-        .animaciones-activas.state-2 #slide-20 .comp-card.left-card  { animation: inLeft 1s cubic-bezier(0.16, 1, 0.3, 1) 1s both, float 7s ease-in-out 2.2s infinite alternate; }
-        .animaciones-activas.state-2 #slide-20 .comp-card.right-card { animation: inRight 1s cubic-bezier(0.16, 1, 0.3, 1) 1s both, float 8s ease-in-out 2.4s infinite alternate; }
-        .animaciones-activas.state-2 #slide-20 .analysis-box        { animation: inUp 1s cubic-bezier(0.16, 1, 0.3, 1) 1.8s both; }
-        .animaciones-activas.state-2 #slide-20 .slide20-footer      { animation: fadeIn 1s ease 2.2s both; }
-
-        .vs-badge { position: absolute; left: 50%; top: 50%; z-index: 5; width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 1rem; color: #fff; background: radial-gradient(circle at 30% 25%, #7dd3fc, #2563eb 58%, #1e3a8a); border: 2px solid rgba(255, 255, 255, 0.65); box-shadow: 0 0 26px rgba(56, 189, 248, 0.75); opacity: 0; }
-        .vs-badge::after { content: ''; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid #38bdf8; opacity: 0; }
-        .animaciones-activas.state-2 #slide-20 .vs-badge { animation: popIn 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) 1.6s both; }
-        .animaciones-activas.state-2 #slide-20 .vs-badge::after { animation: ring 2.4s ease-out 2.6s infinite; }
-
-        /* CURSOR */
-        html, body, #presentation-container, button, a, input, textarea, select { cursor: none; }
-        html.cursor-visible, html.cursor-visible body, html.cursor-visible #presentation-container, html.cursor-visible button, html.cursor-visible a, html.cursor-visible input, html.cursor-visible textarea, html.cursor-visible select { cursor: default; }
-
-        @media (prefers-reduced-motion: reduce) {
-            .glass-container, .bar-fill { transition-duration: 0.01s !important; transition-delay: 0s !important; }
-            *, *::before, *::after { animation: none !important; }
-            .bg-parallax { transition: none; }
-            #entrada-fade { animation: none !important; opacity: 0; visibility: hidden; }
-        }
-    </style>
+    @media (prefers-reduced-motion: reduce) {
+        .glass-container, .bar-fill { transition-duration: 0.01s !important; transition-delay: 0s !important; }
+        *, *::before, *::after { animation: none !important; }
+        .bg-parallax { transition: none; }
+        #entrada-fade { animation: none !important; opacity: 0; visibility: hidden; }
+    }
+</style>
 </head>
 <body>
+<div id="black-cover"></div>
+<div id="entrada-fade"></div>
+<div id="presentation-container">
+<div class="bg-parallax">
+<video autoplay class="bg-video" id="main-video" loop muted playsinline preload="auto">
+<source src="videos1/datos1.webm" type="video/webm"/>
+Tu navegador no soporta reproducción de video HTML5.
+</video>
+</div>
 
-    <div id="black-cover"></div>
-    <div id="entrada-fade"></div>
+<!-- DIAPOSITIVA 19 -->
+<main class="glass-container" id="slide-19">
+<section class="left-column">
+<header><h1 class="table-title">Perfil tecnológico de ingreso · Tabla 22</h1></header>
+<div class="chart-container">
+<article class="bar-row">
+<div class="bar-info"><span>Mixto (perfil heterogéneo)</span><span class="bar-metrics">fi: <strong data-count="38">38</strong> | <strong data-count="51.4" data-dec="1" data-suffix=" %">51,4 %</strong></span></div>
+<div class="bar-track"><div class="bar-fill mixto"></div><div class="light-streak" style="--streak-color: #60a5fa; --delay: 2.5s;"></div></div>
+</article>
+<article class="bar-row">
+<div class="bar-info"><span>Medio</span><span class="bar-metrics">fi: <strong data-count="30">30</strong> | <strong data-count="40.5" data-dec="1" data-suffix=" %">40,5 %</strong></span></div>
+<div class="bar-track"><div class="bar-fill medio"></div><div class="light-streak" style="--streak-color: #7dd3fc; --delay: 3.1s;"></div></div>
+</article>
+<article class="bar-row">
+<div class="bar-info"><span>Bajo</span><span class="bar-metrics">fi: <strong data-count="6">6</strong> | <strong data-count="8.1" data-dec="1" data-suffix=" %">8,1 %</strong></span></div>
+<div class="bar-track"><div class="bar-fill bajo"></div><div class="light-streak" style="--streak-color: #fde047; --delay: 3.7s;"></div></div>
+</article>
+<article class="bar-row">
+<div class="bar-info"><span>Alto</span><span class="bar-metrics">fi: <strong data-count="0">0</strong> | <strong data-count="0.0" data-dec="1" data-suffix=" %">0,0 %</strong></span></div>
+<div class="bar-track"><div class="bar-fill alto"></div><div class="light-streak" style="--streak-color: #e2e8f0; --delay: 4.3s;"></div></div>
+</article>
+</div>
+<footer class="left-footer">
+<div class="objective-card"><span class="objective-tag">Objetivo Específico 1</span><p class="objective-text">Diagnosticar el perfil tecnológico y la disposición hacia simuladores.</p></div>
+<p class="source-text">Fuente: elaboración propia. Baremo aplicado (n = 74).</p>
+</footer>
+</section>
+<section class="right-column">
+<article class="info-card"><h2 class="card-title">Descripción</h2><p class="text-outlined">En la muestra (<span class="highlight-outlined">n = 74</span>), predominan los perfiles <span class="highlight-outlined">Mixto (51,4 %)</span> y <span class="highlight-outlined">Medio (40,5 %)</span>. El 8,1 % quedó en nivel Bajo; <span class="highlight-outlined">nadie reunió todos los criterios de Alto</span>.</p></article>
+<article class="info-card"><h2 class="card-title">Análisis</h2><p class="text-outlined">El perfil <span class="highlight-outlined">Mixto no significa ausencia de talento</span>: refleja combinaciones dispares de uso digital y destrezas técnicas formales. Por eso, el modelo requiere una <span class="highlight-outlined">nivelación inicial</span> antes del entrenamiento especializado.</p></article>
+</section>
+</main>
 
-    <div id="presentation-container">
+<!-- DIAPOSITIVA 20 -->
+<main class="glass-container" id="slide-20">
+<header class="slide-header-center"><h1 class="main-overbox-title">Percepción institucional vs. perfil medido</h1></header>
+<section class="comparison-grid">
+<div aria-hidden="true" class="vs-badge">VS</div>
+<article class="comp-card left-card"><h2 class="comp-title left">Percepción del personal militar</h2><p class="text-outlined">De 116 militares, el manejo digital de los ingresantes fue valorado como <span class="highlight-outlined">alto (55,2 %)</span> o <span class="highlight-outlined">muy alto (43,1 %)</span>. Solo el 1,7 % lo ubicó en nivel medio.</p></article>
+<article class="comp-card right-card"><h2 class="comp-title right">Diagnóstico directo</h2><p class="text-outlined">En el diagnóstico sociotécnico (<span class="highlight-outlined">n = 74</span>), ningún participante reunió todos los criterios del perfil tecnológico <span class="highlight-outlined">Alto</span>.</p></article>
+</section>
+<section class="analysis-box"><h2 class="analysis-title">La brecha que revela el contraste</h2><p class="text-outlined">El uso frecuente de teléfonos y redes <span class="highlight-outlined">no equivale a dominio técnico</span> en programación, electrónica o simulación. La formación debe partir de competencias comprobadas, no presumidas.</p></section>
+<footer class="slide20-footer">
+<div class="objective-card" style="max-width: 60%;"><span class="objective-tag">Objetivo Específico 1</span><p class="objective-text">Diagnosticar el perfil tecnológico y la disposición hacia simuladores.</p></div>
+<p class="source-text">Fuente: Instrumentos N.º 4 (n = 116) y N.º 1 (n = 74).</p>
+</footer>
+</main>
 
-        <div class="bg-parallax">
-            <video class="bg-video" id="main-video" autoplay loop muted playsinline preload="auto">
-                <source src="videos1/datos1.webm" type="video/webm">
-                Tu navegador no soporta reproducción de video HTML5.
-            </video>
-        </div>
+<!-- DIAPOSITIVA 21 -->
+<main class="glass-container" id="slide-21">
+<section class="left-column">
+<header><h1 class="table-title">Formación técnica previa declarada · Tabla 21</h1></header>
+<div class="chart-container">
+<article class="bar-row">
+<div class="bar-info"><span class="bar-label">No declaró formación previa</span><span class="bar-metrics">fi: <strong data-count="52">52</strong> | <strong data-count="71.2" data-dec="1" data-suffix=" %">71,2 %</strong></span></div>
+<div class="bar-track"><div class="bar-fill s21-no" style="--p: 71.2;"></div><div class="light-streak" style="--streak-color: #60a5fa; --delay: 2.1s;"></div></div>
+</article>
+<article class="bar-row">
+<div class="bar-info"><span class="bar-label">Sí, pero sin especificar</span><span class="bar-metrics">fi: <strong data-count="12">12</strong> | <strong data-count="16.4" data-dec="1" data-suffix=" %">16,4 %</strong></span></div>
+<div class="bar-track"><div class="bar-fill s21-si" style="--p: 16.4;"></div><div class="light-streak" style="--streak-color: #7dd3fc; --delay: 2.5s;"></div></div>
+</article>
+<article class="bar-row">
+<div class="bar-info"><span class="bar-label">Formación específica diversa (9 respuestas)</span><span class="bar-metrics">fi: <strong data-count="9">9</strong> | <strong data-count="12.3" data-dec="1" data-suffix=" %">12,3 %</strong></span></div>
+<div class="bar-track"><div class="bar-fill s21-minor" style="--p: 12.3;"></div><div class="light-streak" style="--streak-color: #2dd4bf; --delay: 2.9s;"></div></div>
+</article>
+</div>
+<footer class="left-footer">
+<div class="objective-card"><span class="objective-tag">Objetivo Específico 1</span><p class="objective-text">Diagnosticar el perfil tecnológico de ingreso.</p></div>
+<p class="source-text">Fuente: Instrumento N.º 1, pregunta 16 (n = 73). Las 9 respuestas específicas incluyen ofimática, electrónica, programación, robótica y oficios técnicos.</p>
+</footer>
+</section>
+<section class="right-column">
+<article class="info-card" style="flex: 1.2;"><h2 class="card-title">Lectura del resultado</h2><p class="text-outlined">El <span class="highlight-outlined">71,2 %</span> no declaró cursos ni conocimientos previos; otro <span class="highlight-outlined">16,4 %</span> respondió sin especificar. Solo 9 personas describieron experiencias concretas, diversas y no equivalentes entre sí. La formación técnica especializada <span class="highlight-outlined">no puede darse por supuesta</span>.</p></article>
+</section>
+</main>
 
-        <!-- DIAPOSITIVA 19 -->
-        <main class="glass-container" id="slide-19">
-            <section class="left-column">
-                <header><h1 class="table-title">Tabla 22: Clasificación del perfil tecnológico de los respondientes según baremo (Alto / Medio / Bajo / Mixto).</h1></header>
-                <div class="chart-container">
-                    <article class="bar-row">
-                        <div class="bar-info"><span>Mixto (no clasificable con el baremo estricto)</span><span class="bar-metrics">fi: <strong data-count="38">38</strong> &nbsp;|&nbsp; <strong data-count="51.4" data-dec="1" data-suffix=" %">51,4 %</strong></span></div>
-                        <div class="bar-track"><div class="bar-fill mixto"></div><div class="light-streak" style="--streak-color: #60a5fa; --delay: 2.5s;"></div></div>
-                    </article>
-                    <article class="bar-row">
-                        <div class="bar-info"><span>Medio</span><span class="bar-metrics">fi: <strong data-count="30">30</strong> &nbsp;|&nbsp; <strong data-count="40.5" data-dec="1" data-suffix=" %">40,5 %</strong></span></div>
-                        <div class="bar-track"><div class="bar-fill medio"></div><div class="light-streak" style="--streak-color: #7dd3fc; --delay: 3.1s;"></div></div>
-                    </article>
-                    <article class="bar-row">
-                        <div class="bar-info"><span>Bajo</span><span class="bar-metrics">fi: <strong data-count="6">6</strong> &nbsp;|&nbsp; <strong data-count="8.1" data-dec="1" data-suffix=" %">8,1 %</strong></span></div>
-                        <div class="bar-track"><div class="bar-fill bajo"></div><div class="light-streak" style="--streak-color: #fde047; --delay: 3.7s;"></div></div>
-                    </article>
-                    <article class="bar-row">
-                        <div class="bar-info"><span>Alto</span><span class="bar-metrics">fi: <strong data-count="0">0</strong> &nbsp;|&nbsp; <strong data-count="0.0" data-dec="1" data-suffix=" %">0,0 %</strong></span></div>
-                        <div class="bar-track"><div class="bar-fill alto"></div><div class="light-streak" style="--streak-color: #e2e8f0; --delay: 4.3s;"></div></div>
-                    </article>
-                </div>
-                <footer class="left-footer">
-                    <div class="objective-card"><span class="objective-tag">Objetivo Específico 1</span><p class="objective-text">Diagnosticar el nivel actual de competencias tecnológicas y la disposición hacia el uso de simuladores tácticos que presentan los ciudadanos convocados al Servicio Militar Obligatorio.</p></div>
-                    <p class="source-text">Fuente: Elaboración propia del investigador en base a encuestados. (Total = 74 / 100,0 %)</p>
-                </footer>
-            </section>
-            <section class="right-column">
-                <article class="info-card"><h2 class="card-title">Descripción</h2><p class="text-outlined">El <span class="highlight-outlined">40.5%</span> de los convocados fue clasificado con un perfil tecnológico <span class="highlight-outlined">'Medio'</span>, el <span class="highlight-outlined">8.1%</span> con perfil <span class="highlight-outlined">'Bajo'</span>, y el <span class="highlight-outlined">51.4%</span> presentó un patrón de respuestas que no reúne de forma consistente los criterios de ninguna categoría del baremo estricto. Ningún caso alcanzó de manera simultánea la totalidad de condiciones definidas para el perfil <span class="highlight-outlined">'Alto'</span>.</p></article>
-                <article class="info-card"><h2 class="card-title">Análisis</h2><p class="text-outlined">La concentración de un <span class="highlight-outlined">0,0%</span> de registros en la categoría Alto indica que ningún participante cumplió simultáneamente de forma estricta la totalidad de los criterios exigidos por el baremo analítico de entrada. Este hallazgo descriptivo sugiere que el perfil de ingreso, aunque favorable en dimensiones aisladas como el uso frecuente de dispositivos, es marcadamente heterogéneo.</p></article>
-            </section>
-        </main>
+<!-- DIAPOSITIVA 22 -->
+<main class="glass-container" id="slide-22">
+<section class="left-column">
+<header><h1 class="table-title">Disposición hacia simulación y gamificación · Tabla 37</h1></header>
+<div class="chart-container">
+<article class="bar-row"><div class="bar-info"><span>A. Interés hacia los simuladores</span><span class="bar-metrics">Promedio: <strong data-count="4.83" data-dec="2">4,83</strong> / 5 | <em>Acuerdo muy alto</em></span></div><div class="bar-track"><div class="bar-fill dim-a" style="--p: 96.6;"></div><div class="light-streak" style="--streak-color: #7dd3fc; --delay: 2.2s;"></div></div></article>
+<article class="bar-row"><div class="bar-info"><span>B. Atractivo del juego</span><span class="bar-metrics">Promedio: <strong data-count="4.85" data-dec="2">4,85</strong> / 5 | <em>Acuerdo muy alto</em></span></div><div class="bar-track"><div class="bar-fill dim-b" style="--p: 97.0;"></div><div class="light-streak" style="--streak-color: #60a5fa; --delay: 2.7s;"></div></div></article>
+<article class="bar-row"><div class="bar-info"><span>C. Motivación para cumplir el SMO</span><span class="bar-metrics">Promedio: <strong data-count="4.88" data-dec="2">4,88</strong> / 5 | <em>Acuerdo muy alto</em></span></div><div class="bar-track"><div class="bar-fill dim-c" style="--p: 97.6;"></div><div class="light-streak" style="--streak-color: #34d399; --delay: 3.2s;"></div></div></article>
+</div>
+<footer class="left-footer">
+<div class="objective-card"><span class="objective-tag">Objetivo Específico 2</span><p class="objective-text">Definir requisitos técnicos y pedagógicos para la plataforma de simulación.</p></div>
+<p class="source-text">Fuente: Instrumento N.º 2 (n = 300).</p>
+</footer>
+</section>
+<section class="right-column">
+<article class="info-card"><h2 class="card-title">Qué indica la escala</h2><p class="text-outlined">Las tres dimensiones promedian entre <span class="highlight-outlined">4,83 y 4,88 sobre 5</span>: la disposición declarada es muy favorable hacia la simulación y la gamificación. <span class="highlight-outlined">Esto mide aceptación, no aprendizaje efectivo</span>.</p></article>
+<article class="info-card" style="background: rgba(15, 23, 42, 0.85); border-color: rgba(56, 189, 248, 0.28);"><h2 class="card-title" style="color: #60a5fa; font-size: clamp(1rem, 2.2vh, 1.3rem);">Contraste estadístico</h2><p class="text-outlined" style="font-size: clamp(1rem, 2.2vh, 1.3rem) !important;">En los 14 ítems, <span class="highlight-outlined">χ²: p &lt; 0,001</span>; la prueba binomial también confirmó una proporción favorable superior al 50 % (<span class="highlight-outlined">p &lt; 0,001</span>). El acuerdo en categorías 4–5 osciló entre <span class="highlight-outlined">97,3 % y 99,3 %</span> (n = 300).</p></article>
+</section>
+</main>
 
-        <!-- DIAPOSITIVA 20 -->
-        <main class="glass-container" id="slide-20">
-            <header class="slide-header-center"><h1 class="main-overbox-title">Percepción experta vs. diagnóstico directo</h1></header>
-            <section class="comparison-grid">
-                <div class="vs-badge" aria-hidden="true">VS</div>
-                <article class="comp-card left-card"><h2 class="comp-title left">Percepción del personal militar</h2><p class="text-outlined">"Sobre el nivel de manejo de herramientas digitales de los ciudadanos que ingresan al SMO, el personal militar lo calificó mayoritariamente como <span class="highlight-outlined">'alto' (64 de 116, 55,2 %)</span> o <span class="highlight-outlined">'muy alto' (50 de 116, 43,1 %)</span>, y solo 2 casos (1,7 %) lo calificaron como 'medio'; ningún respondente lo calificó como 'bajo' o 'muy bajo'."</p></article>
-                <article class="comp-card right-card"><h2 class="comp-title right">Diagnóstico directo</h2><p class="text-outlined">"Ningún caso alcanzó de manera simultánea la totalidad de condiciones definidas para el perfil <span class="highlight-outlined">'Alto'</span>."</p></article>
-            </section>
-            <section class="analysis-box"><h2 class="analysis-title">Análisis de la Disonancia</h2><p class="text-outlined">"El personal de mandos tiende a incurrir en una generalización metodológica, confundiendo el uso intensivo, intuitivo y recreativo de dispositivos (como smartphones y redes sociales) por parte de los nativos digitales con el dominio de habilidades técnicas complejas. En la práctica, esta disonancia devela que los instructores sobreestiman la base de partida de los ingresantes."</p></section>
-            <footer class="slide20-footer">
-                <div class="objective-card" style="max-width: 60%;"><span class="objective-tag">Objetivo Específico 1</span><p class="objective-text">Diagnosticar el nivel actual de competencias tecnológicas y la disposición hacia el uso de simuladores tácticos que presentan los ciudadanos convocados al Servicio Militar Obligatorio.</p></div>
-                <p class="source-text">Fuente: Elaboración propia a partir del Instrumento N.º 4 (n = 116) y del Instrumento N.º 1 (n = 74).</p>
-            </footer>
-        </main>
+<!-- DIAPOSITIVA 23 -->
+<main class="glass-container" id="slide-23">
+<section class="left-column">
+<header><h1 class="table-title">Expectativas sobre capacidad y permanencia · Tabla 49</h1></header>
+<div class="chart-container">
+<article class="bar-row"><div class="bar-info"><span>A. Competencias tecnológicas y drones</span><span class="bar-metrics">Promedio: <strong data-count="4.85" data-dec="2">4,85</strong> / 5 | <em>Acuerdo muy alto</em></span></div><div class="bar-track"><div class="bar-fill s23-dim-a" style="--p: 97.0;"></div><div class="light-streak" style="--streak-color: #38bdf8; --delay: 2.2s;"></div></div></article>
+<article class="bar-row"><div class="bar-info"><span>B. Cumplimiento del SMO</span><span class="bar-metrics">Promedio: <strong data-count="4.82" data-dec="2">4,82</strong> / 5 | <em>Acuerdo muy alto</em></span></div><div class="bar-track"><div class="bar-fill s23-dim-b" style="--p: 96.4;"></div><div class="light-streak" style="--streak-color: #f59e0b; --delay: 2.7s;"></div></div></article>
+<article class="bar-row"><div class="bar-info"><span>C. Reserva y retención de talento</span><span class="bar-metrics">Promedio: <strong data-count="4.86" data-dec="2">4,86</strong> / 5 | <em>Acuerdo muy alto</em></span></div><div class="bar-track"><div class="bar-fill s23-dim-c" style="--p: 97.2;"></div><div class="light-streak" style="--streak-color: #10b981; --delay: 3.2s;"></div></div></article>
+</div>
+<footer class="left-footer">
+<div class="objective-card"><span class="objective-tag">Objetivo Específico 3</span><p class="objective-text">Explorar las expectativas sobre capacidad institucional y costos operativos.</p></div>
+<p class="source-text">Fuente: Instrumento N.º 3. Resultados de percepción declarada.</p>
+</footer>
+</section>
+<section class="right-column">
+<article class="info-card" style="flex: 1.2;"><h2 class="card-title">Interpretación</h2><p class="text-outlined">Las tres dimensiones alcanzan un acuerdo muy alto (<span class="highlight-outlined">4,82–4,86/5</span>). La percepción favorece el potencial tecnológico y la reserva; la permanencia durante el SMO obtiene el promedio menor. <span class="highlight-outlined">No se midieron ahorros reales</span>: el componente económico requiere validación piloto.</p></article>
+</section>
+</main>
 
-        <!-- DIAPOSITIVA 21 -->
-        <main class="glass-container" id="slide-21">
-            <section class="left-column">
-                <header><h1 class="table-title">Tabla 21: Distribución de frecuencias y porcentajes según el tipo de conocimientos previos y cursos declarados por los encuestados.</h1></header>
-                <div class="chart-container">
-                    <article class="bar-row"><div class="bar-info"><span class="bar-label">No</span><span class="bar-metrics">fi: <strong data-count="52">52</strong> &nbsp;|&nbsp; <strong data-count="71.2" data-dec="1" data-suffix=" %">71,2 %</strong></span></div><div class="bar-track"><div class="bar-fill s21-no" style="--p: 71.2;"></div><div class="light-streak" style="--streak-color: #60a5fa; --delay: 2.1s;"></div></div></article>
-                    <article class="bar-row"><div class="bar-info"><span class="bar-label">Sí (especifique en Otro), sin especificar</span><span class="bar-metrics">fi: <strong data-count="12">12</strong> &nbsp;|&nbsp; <strong data-count="16.4" data-dec="1" data-suffix=" %">16,4 %</strong></span></div><div class="bar-track"><div class="bar-fill s21-si" style="--p: 16.4;"></div><div class="light-streak" style="--streak-color: #7dd3fc; --delay: 2.5s;"></div></div></article>
-                    <article class="bar-row"><div class="bar-info"><span class="bar-label">Curso de paracaidismo</span><span class="bar-metrics">fi: <strong data-count="1">1</strong> &nbsp;|&nbsp; <strong data-count="1.4" data-dec="1" data-suffix=" %">1,4 %</strong></span></div><div class="bar-track"><div class="bar-fill s21-minor" style="--p: 4.0;"></div><div class="light-streak" style="--streak-color: #2dd4bf; --delay: 2.9s;"></div></div></article>
-                    <article class="bar-row"><div class="bar-info"><span class="bar-label">Conocimientos de Word, PowerPoint, Excel</span><span class="bar-metrics">fi: <strong data-count="1">1</strong> &nbsp;|&nbsp; <strong data-count="1.4" data-dec="1" data-suffix=" %">1,4 %</strong></span></div><div class="bar-track"><div class="bar-fill s21-minor" style="--p: 4.0;"></div><div class="light-streak" style="--streak-color: #2dd4bf; --delay: 3.3s;"></div></div></article>
-                    <article class="bar-row"><div class="bar-info"><span class="bar-label">Soy profesional en electrónica</span><span class="bar-metrics">fi: <strong data-count="1">1</strong> &nbsp;|&nbsp; <strong data-count="1.4" data-dec="1" data-suffix=" %">1,4 %</strong></span></div><div class="bar-track"><div class="bar-fill s21-minor" style="--p: 4.0;"></div><div class="light-streak" style="--streak-color: #2dd4bf; --delay: 3.7s;"></div></div></article>
-                    <article class="bar-row"><div class="bar-info"><span class="bar-label">Programación</span><span class="bar-metrics">fi: <strong data-count="1">1</strong> &nbsp;|&nbsp; <strong data-count="1.4" data-dec="1" data-suffix=" %">1,4 %</strong></span></div><div class="bar-track"><div class="bar-fill s21-minor" style="--p: 4.0;"></div><div class="light-streak" style="--streak-color: #2dd4bf; --delay: 4.1s;"></div></div></article>
-                    <article class="bar-row"><div class="bar-info"><span class="bar-label">Cursos de electrónica, op. informática, máquinas CNC</span><span class="bar-metrics">fi: <strong data-count="1">1</strong> &nbsp;|&nbsp; <strong data-count="1.4" data-dec="1" data-suffix=" %">1,4 %</strong></span></div><div class="bar-track"><div class="bar-fill s21-minor" style="--p: 4.0;"></div><div class="light-streak" style="--streak-color: #2dd4bf; --delay: 4.5s;"></div></div></article>
-                    <article class="bar-row"><div class="bar-info"><span class="bar-label">Conocimiento básico de electrónica y algo de informática</span><span class="bar-metrics">fi: <strong data-count="1">1</strong> &nbsp;|&nbsp; <strong data-count="1.4" data-dec="1" data-suffix=" %">1,4 %</strong></span></div><div class="bar-track"><div class="bar-fill s21-minor" style="--p: 4.0;"></div><div class="light-streak" style="--streak-color: #2dd4bf; --delay: 4.9s;"></div></div></article>
-                    <article class="bar-row"><div class="bar-info"><span class="bar-label">Conocimientos básicos de una computadora y mecánica</span><span class="bar-metrics">fi: <strong data-count="1">1</strong> &nbsp;|&nbsp; <strong data-count="1.4" data-dec="1" data-suffix=" %">1,4 %</strong></span></div><div class="bar-track"><div class="bar-fill s21-minor" style="--p: 4.0;"></div><div class="light-streak" style="--streak-color: #2dd4bf; --delay: 5.3s;"></div></div></article>
-                    <article class="bar-row"><div class="bar-info"><span class="bar-label">Técnico de celular, reparación A.A, inst. eléctricas</span><span class="bar-metrics">fi: <strong data-count="1">1</strong> &nbsp;|&nbsp; <strong data-count="1.4" data-dec="1" data-suffix=" %">1,4 %</strong></span></div><div class="bar-track"><div class="bar-fill s21-minor" style="--p: 4.0;"></div><div class="light-streak" style="--streak-color: #2dd4bf; --delay: 5.7s;"></div></div></article>
-                </div>
-                <footer class="left-footer">
-                    <div class="objective-card"><span class="objective-tag">Objetivo Específico 1</span><p class="objective-text">Diagnosticar el nivel actual de competencias tecnológicas y la disposición hacia el uso de simuladores tácticos que presentan los ciudadanos convocados al Servicio Militar Obligatorio.</p></div>
-                    <p class="source-text">Fuente: Elaboración propia del investigador en base a encuestados. Nota: Pregunta 16 del Instrumento N.º 1 (Total = 73 / 100,0 %)</p>
-                </footer>
-            </section>
-            <section class="right-column">
-                <article class="info-card" style="flex: 1.2;"><h2 class="card-title">Análisis de la Tabla 21</h2><p class="text-outlined">"El conocimiento formal en robótica, electrónica o informática es minoritario (<span class="highlight-outlined">cerca de tres de cada diez casos</span>, sumando quienes indicaron 'sí' y quienes detallaron un curso específico), lo que sugiere que el perfil de entrada de la mayoría de los convocados <span class="highlight-outlined">no incluye formación técnica especializada previa</span>, dato relevante para calibrar el nivel de exigencia inicial de los contenidos técnicos de la plataforma (<span class="highlight-outlined">OE2</span>)."</p></article>
-            </section>
-        </main>
+<!-- DIAPOSITIVA 24 -->
+<main class="glass-container" id="slide-24">
+<section class="left-column">
+<header><h1 class="table-title">Brecha doctrinal identificada · Tabla 38</h1></header>
+<div class="doc-grid">
+<article class="doc-card brecha"><div class="doc-header"><span class="doc-title">Ficha 1</span><span class="doc-sub">Puntuación: 2.0</span></div><div class="doc-cell"><strong>Transferible:</strong> operaciones ribereñas a mapas 3D</div><div class="doc-cell"><strong>Carga:</strong> 5–10 h/sem</div><div><span class="badge-brecha">Brecha Crítica</span><p style="font-size: clamp(.8rem, 1.75vh, 1.04rem); color: #cbd5e1; margin-top: 4px;">Sin pautas de simulación digital</p></div></article>
+<article class="doc-card brecha"><div class="doc-header"><span class="doc-title">Ficha 2</span><span class="doc-sub">Puntuación: 2.0</span></div><div class="doc-cell"><strong>Transferible:</strong> maniobras terrestres o abstractas</div><div class="doc-cell"><strong>Carga:</strong> menos de 5 h/sem</div><div><span class="badge-brecha">Brecha Crítica</span><p style="font-size: clamp(.8rem, 1.75vh, 1.04rem); color: #cbd5e1; margin-top: 4px;">Sin pautas de simulación digital</p></div></article>
+<article class="doc-card brecha"><div class="doc-header"><span class="doc-title">Ficha 3</span><span class="doc-sub">Puntuación: 1.0</span></div><div class="doc-cell"><strong>Transferible:</strong> maniobras terrestres o abstractas</div><div class="doc-cell"><strong>Carga:</strong> 5–10 h/sem</div><div><span class="badge-brecha">Brecha Crítica</span><p style="font-size: clamp(.8rem, 1.75vh, 1.04rem); color: #cbd5e1; margin-top: 4px;">Sin pautas de simulación digital</p></div></article>
+<article class="doc-card brecha"><div class="doc-header"><span class="doc-title">Ficha 4</span><span class="doc-sub">Puntuación: 1.0</span></div><div class="doc-cell"><strong>Transferible:</strong> maniobras terrestres o abstractas</div><div class="doc-cell"><strong>Carga:</strong> menos de 5 h/sem</div><div><span class="badge-brecha">Brecha Crítica</span><p style="font-size: clamp(.8rem, 1.75vh, 1.04rem); color: #cbd5e1; margin-top: 4px;">Sin pautas de simulación digital</p></div></article>
+</div>
+<footer class="left-footer">
+<div class="objective-card"><span class="objective-tag">Objetivo Específico 2</span><p class="objective-text">Identificar requisitos técnicos y pedagógicos para el modelo.</p></div>
+<p class="source-text">Fuente: cuatro fichas de instrucción y directivas revisadas en el acervo del CINAE.</p>
+</footer>
+</section>
+<section class="right-column">
+<article class="info-card" style="flex: 1.2;"><h2 class="card-title">Hallazgo documental</h2><p class="text-outlined">En las <span class="highlight-outlined">cuatro fichas revisadas</span> predomina la instrucción analógica presencial. No se identificaron directrices para simulación digital ni empleo de UAV. El hallazgo respalda <span class="highlight-outlined">actualizar la doctrina</span>; no significa que se haya evaluado toda la documentación institucional.</p></article>
+</section>
+</main>
 
-        <!-- DIAPOSITIVA 22 -->
-        <main class="glass-container" id="slide-22">
-            <section class="left-column">
-                <header><h1 class="table-title">Tabla 37: Promedios generales e interpretación por dimensiones del Instrumento N.° 2 (Fase I - Exploración actitudinal masiva).</h1></header>
-                <div class="chart-container">
-                    <article class="bar-row"><div class="bar-info"><span>A. Interés hacia los simuladores</span><span class="bar-metrics">Promedio: <strong data-count="4.83" data-dec="2">4,83</strong> / 5 &nbsp;|&nbsp; <em>Acuerdo muy alto</em></span></div><div class="bar-track"><div class="bar-fill dim-a" style="--p: 96.6;"></div><div class="light-streak" style="--streak-color: #7dd3fc; --delay: 2.2s;"></div></div></article>
-                    <article class="bar-row"><div class="bar-info"><span>B. Atractivo del juego</span><span class="bar-metrics">Promedio: <strong data-count="4.85" data-dec="2">4,85</strong> / 5 &nbsp;|&nbsp; <em>Acuerdo muy alto</em></span></div><div class="bar-track"><div class="bar-fill dim-b" style="--p: 97.0;"></div><div class="light-streak" style="--streak-color: #60a5fa; --delay: 2.7s;"></div></div></article>
-                    <article class="bar-row"><div class="bar-info"><span>C. Motivación para cumplir el SMO</span><span class="bar-metrics">Promedio: <strong data-count="4.88" data-dec="2">4,88</strong> / 5 &nbsp;|&nbsp; <em>Acuerdo muy alto</em></span></div><div class="bar-track"><div class="bar-fill dim-c" style="--p: 97.6;"></div><div class="light-streak" style="--streak-color: #34d399; --delay: 3.2s;"></div></div></article>
-                </div>
-                <footer class="left-footer">
-                    <div class="objective-card"><span class="objective-tag">Objetivo Específico 2</span><p class="objective-text">Identificar los requerimientos técnicos y pedagógicos que debe cumplir una plataforma de simulación para favorecer la transferencia de habilidades reales a los ciudadanos que prestan el servicio militar obligatorio.</p></div>
-                    <p class="source-text">Fuente: Elaboración propia del investigador en base a encuestados.</p>
-                </footer>
-            </section>
-            <section class="right-column">
-                <article class="info-card"><h2 class="card-title">Análisis de la Tabla 37</h2><p class="text-outlined">"Las tres dimensiones del Instrumento N.º 2 se ubican en el tramo de <span class="highlight-outlined">'muy alto'</span> del baremo de interpretación (promedios entre <span class="highlight-outlined">4.83 y 4.88</span> sobre 5), sin diferencias sustantivas entre ellas. Este resultado constituye evidencia descriptiva compatible con una <span class="highlight-outlined">disposición favorable generalizada</span> hacia la incorporación de simuladores y gamificación en el SMO."</p></article>
-                <article class="info-card" style="background: rgba(15, 23, 42, 0.7); border-color: rgba(56, 189, 248, 0.25);"><h2 class="card-title" style="color: #60a5fa; font-size: 0.95rem;">Contraste Inferencial Complementario</h2><p class="text-outlined" style="font-size: 0.98rem !important;">"En la totalidad de los 14 ítems, la distribución difiere significativamente de la uniforme (<span class="highlight-outlined">χ² entre 573,90 y 1102,63; p &lt; 0,001</span>). La proporción de respuestas 'De acuerdo' o 'Totalmente de acuerdo' es <span class="highlight-outlined">significativamente superior al 50 % (p &lt; 0,001)</span>, oscilando entre el <span class="highlight-outlined">97,3 % y 99,3 %</span> sobre 300 casos válidos."</p></article>
-            </section>
-        </main>
+<!-- DIAPOSITIVA 25 -->
+<main class="glass-container" id="slide-25">
+<section class="left-column">
+<header><h1 class="table-title">Diagnóstico técnico e institucional en EPSOA · Tabla 39</h1></header>
+<div class="matrix-grid">
+<article class="matrix-row"><div class="matrix-crit"><span class="matrix-badge">Opinión</span>Viabilidad técnica del modelo</div><div class="matrix-evid">Requiere reajustar horarios de instrucción.</div></article>
+<article class="matrix-row"><div class="matrix-crit"><span class="matrix-badge">Opinión</span>Factor crítico principal</div><div class="matrix-evid">No hay personal dedicado a redes o simulación.</div></article>
+<article class="matrix-row"><div class="matrix-crit"><span class="matrix-badge">Opinión</span>Disposición institucional</div><div class="matrix-evid">Persiste preferencia por métodos analógicos.</div></article>
+<article class="matrix-row"><div class="matrix-crit"><span class="matrix-badge obs">Observación</span>Hardware disponible</div><div class="matrix-evid">Sala operativa; adaptar equipos para simulación 3D.</div></article>
+<article class="matrix-row"><div class="matrix-crit"><span class="matrix-badge obs">Observación</span>Suministro eléctrico</div><div class="matrix-evid">Soporte básico ante fluctuaciones eléctricas.</div></article>
+<article class="matrix-row"><div class="matrix-crit"><span class="matrix-badge obs">Observación</span>Red interna</div><div class="matrix-evid">Red limitada; puede ampliarse con una LAN local.</div></article>
+<article class="matrix-row"><div class="matrix-crit"><span class="matrix-badge obs">Observación</span>Espacio físico aulas</div><div class="matrix-evid">Aulas adaptables a estaciones modulares.</div></article>
+</div>
+</section>
+<section class="right-column">
+<article class="info-card"><h2 class="card-title">Lectura operativa</h2><p class="text-outlined">En la EPSOA, el principal reto observado es <span class="highlight-outlined">organizacional</span>: personal especializado y ajuste de horarios. La sala, el suministro eléctrico y las aulas ofrecen una base aprovechable; la red y los equipos requieren adaptación.</p></article>
+<footer class="left-footer">
+<div class="objective-card"><span class="objective-tag">Objetivo Específico 2</span><p class="objective-text">Identificar requisitos técnicos y pedagógicos del modelo.</p></div>
+<p class="source-text">Fuente: observación y opinión técnica en EPSOA (2026; N = 1 para observación).</p>
+</footer>
+</section>
+</main>
 
-        <!-- DIAPOSITIVA 23 -->
-        <main class="glass-container" id="slide-23">
-            <section class="left-column">
-                <header><h1 class="table-title">Tabla 49: Promedios generales e interpretación por dimensiones del Instrumento N.° 3 (Fase I - Exploración actitudinal masiva).</h1></header>
-                <div class="chart-container">
-                    <article class="bar-row"><div class="bar-info"><span>A. Competencias tecnológicas y drones</span><span class="bar-metrics">Promedio: <strong data-count="4.85" data-dec="2">4,85</strong> / 5 &nbsp;|&nbsp; <em>Acuerdo muy alto</em></span></div><div class="bar-track"><div class="bar-fill s23-dim-a" style="--p: 97.0;"></div><div class="light-streak" style="--streak-color: #38bdf8; --delay: 2.2s;"></div></div></article>
-                    <article class="bar-row"><div class="bar-info"><span>B. Cumplimiento del SMO</span><span class="bar-metrics">Promedio: <strong data-count="4.82" data-dec="2">4,82</strong> / 5 &nbsp;|&nbsp; <em>Acuerdo muy alto</em></span></div><div class="bar-track"><div class="bar-fill s23-dim-b" style="--p: 96.4;"></div><div class="light-streak" style="--streak-color: #f59e0b; --delay: 2.7s;"></div></div></article>
-                    <article class="bar-row"><div class="bar-info"><span>C. Reserva y retención de talento</span><span class="bar-metrics">Promedio: <strong data-count="4.86" data-dec="2">4,86</strong> / 5 &nbsp;|&nbsp; <em>Acuerdo muy alto</em></span></div><div class="bar-track"><div class="bar-fill s23-dim-c" style="--p: 97.2;"></div><div class="light-streak" style="--streak-color: #10b981; --delay: 3.2s;"></div></div></article>
-                </div>
-                <footer class="left-footer">
-                    <div class="objective-card"><span class="objective-tag">Objetivo Específico 3</span><p class="objective-text">Proyectar analíticamente el impacto potencial en la reducción de costos operativos y el incremento de la capacidad de la Armada mediante la adopción de este modelo.</p></div>
-                    <p class="source-text">Fuente: Elaboración propia del investigador en base a encuestados.</p>
-                </footer>
-            </section>
-            <section class="right-column">
-                <article class="info-card" style="flex: 1.2;"><h2 class="card-title">Análisis de la Tabla 49</h2><p class="text-outlined">"Las tres dimensiones se ubican en el tramo de <span class="highlight-outlined">acuerdo muy alto</span> del baremo, con la Dimensión B (cumplimiento del SMO, <span class="highlight-outlined">4.82</span>) levemente por debajo de las Dimensiones A (<span class="highlight-outlined">4.85</span>) y C (<span class="highlight-outlined">4.86</span>). Este patrón sugiere que, si bien los convocados proyectan un <span class="highlight-outlined">impacto institucional positivo</span> en materia de competencias y retención, la expectativa sobre su propia permanencia hasta el final del servicio es, en términos comparativos, la de <span class="highlight-outlined">menor intensidad</span>."</p></article>
-            </section>
-        </main>
+<!-- DIAPOSITIVA 26 -->
+<main class="glass-container" id="slide-26">
+<header class="slide-header-center"><h1 class="main-overbox-title">Condiciones emergentes de viabilidad</h1></header>
+<section class="slide26-grid">
+<article class="cond-card cond-1"><span class="cond-num">Condición 1</span><h2 class="cond-title-head">Personal técnico dedicado</h2><p class="cond-body-text text-outlined">La observación detectó falta de personal dedicado; los informantes también señalaron la necesidad de un <span class="highlight-outlined">técnico permanente</span>. Los manuales no contemplan esa función.</p></article>
+<article class="cond-card cond-2"><span class="cond-num">Condición 2</span><h2 class="cond-title-head">Nivelación inicial de competencias</h2><p class="cond-body-text text-outlined">El perfil de entrada es <span class="highlight-outlined">heterogéneo</span> y la formación técnica previa es minoritaria. Se recomienda nivelar competencias antes de iniciar la instrucción especializada.</p></article>
+<article class="cond-card cond-3"><span class="cond-num">Condición 3</span><h2 class="cond-title-head">Superación de la inercia cultural</h2><p class="cond-body-text text-outlined">La observación y los documentos reflejan predominio de métodos analógicos; no se seleccionaron opciones de simulación táctica avanzada. Hace falta <span class="highlight-outlined">gestionar el cambio</span> y preparar instructores.</p></article>
+</section>
+<footer class="slide20-footer">
+<div class="objective-card" style="max-width: 65%;"><span class="objective-tag">Objetivo Específico 3</span><p class="objective-text">Explorar el potencial institucional; el ahorro requiere comprobación piloto.</p></div>
+<p class="source-text">Fuente: cuestionarios, observación en EPSOA y análisis documental.</p>
+</footer>
+</main>
+</div>
 
-        <!-- DIAPOSITIVA 24 -->
-        <main class="glass-container" id="slide-24">
-            <section class="left-column">
-                <header><h1 class="table-title">Tabla 38: Matriz de diagnóstico doctrinal y operacional de las fichas de instrucción y manuales institucionales analizados.</h1></header>
-                <div class="doc-grid">
-                    <article class="doc-card brecha"><div class="doc-header"><span class="doc-title">Ficha 1</span><span class="doc-sub">Puntuación: 2.0</span></div><div class="doc-cell"><strong>Transferibles:</strong> Operaciones ribereñas de alta precisión replicables en mapas 3D</div><div class="doc-cell"><strong>Carga horaria:</strong> Régimen estándar (5–10 h/sem)</div><div><span class="badge-brecha">Brecha Crítica</span><p style="font-size: 0.68rem; color: #cbd5e1; margin-top: 3px;">Enfoque analógico sin nuevas tecnologías</p></div></article>
-                    <article class="doc-card brecha"><div class="doc-header"><span class="doc-title">Ficha 2</span><span class="doc-sub">Puntuación: 2.0</span></div><div class="doc-cell"><strong>Transferibles:</strong> Maniobras puramente terrestres o abstractas</div><div class="doc-cell"><strong>Carga horaria:</strong> Régimen bajo (&lt; 5 h/sem)</div><div><span class="badge-brecha">Brecha Crítica</span><p style="font-size: 0.68rem; color: #cbd5e1; margin-top: 3px;">Enfoque analógico sin nuevas tecnologías</p></div></article>
-                    <article class="doc-card brecha"><div class="doc-header"><span class="doc-title">Ficha 3</span><span class="doc-sub">Puntuación: 1.0</span></div><div class="doc-cell"><strong>Transferibles:</strong> Maniobras puramente terrestres o abstractas</div><div class="doc-cell"><strong>Carga horaria:</strong> Régimen estándar (5–10 h/sem)</div><div><span class="badge-brecha">Brecha Crítica</span><p style="font-size: 0.68rem; color: #cbd5e1; margin-top: 3px;">Enfoque analógico sin nuevas tecnologías</p></div></article>
-                    <article class="doc-card brecha"><div class="doc-header"><span class="doc-title">Ficha 4</span><span class="doc-sub">Puntuación: 1.0</span></div><div class="doc-cell"><strong>Transferibles:</strong> Maniobras puramente terrestres o abstractas</div><div class="doc-cell"><strong>Carga horaria:</strong> Régimen bajo (&lt; 5 h/sem)</div><div><span class="badge-brecha">Brecha Crítica</span><p style="font-size: 0.68rem; color: #cbd5e1; margin-top: 3px;">Enfoque analógico sin nuevas tecnologías</p></div></article>
-                </div>
-                <footer class="left-footer">
-                    <div class="objective-card"><span class="objective-tag">Objetivo Específico 2</span><p class="objective-text">Identificar los requerimientos técnicos y pedagógicos que debe cumplir una plataforma de simulación para favorecer la transferencia de habilidades reales a los ciudadanos que prestan el servicio militar obligatorio.</p></div>
-                    <p class="source-text">Fuente: Elaboración propia a partir del análisis documental de los manuales de instrucción básica y directivas educativas del acervo bibliográfico del CINAE.</p>
-                </footer>
-            </section>
-            <section class="right-column">
-                <article class="info-card" style="flex: 1.2;"><h2 class="card-title">Análisis Documental del CINAE</h2><p class="text-outlined">"El examen sistemático de las fuentes doctrinarias custodiadas en el CINAE (Fichas 1 a 4) evidencia de manera unánime una <span class="highlight-outlined">brecha documental</span> en la literatura militar de base. Los textos analizados mantienen una instrucción centrada en <span class="highlight-outlined">maniobras analógicas presenciales</span>, constatándose la <span class="highlight-outlined">ausencia de directrices</span> orientadas a la instrucción asistida por <span class="highlight-outlined">simulación digital</span> o al empleo operativo de aeronaves no tripuladas (<span class="highlight-outlined">UAV</span>)."</p></article>
-            </section>
-        </main>
+<div id="ui-layer">
+<button class="ui-btn" onclick="irAnterior()">← <span class="ui-key">P</span></button>
+<span id="slide-indicator">Diapositiva 1 / 8</span>
+<button class="ui-btn" onclick="irSiguiente()"><span class="ui-key">N</span> →</button>
+<button class="ui-btn" onclick="toggleFullscreen()">⛶ <span class="ui-key">F</span></button>
+</div>
+<script>
+    let currentSlide = 1;
+    let isTransitioning = false;
+    const totalSlides = 8;
+    const NEXT_FILE = 'presentación3.html';
+    const slideEls = [
+        document.getElementById('slide-19'),
+        document.getElementById('slide-20'),
+        document.getElementById('slide-21'),
+        document.getElementById('slide-22'),
+        document.getElementById('slide-23'),
+        document.getElementById('slide-24'),
+        document.getElementById('slide-25'),
+        document.getElementById('slide-26')
+    ];
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-        <!-- DIAPOSITIVA 25 -->
-        <main class="glass-container" id="slide-25">
-            <section class="left-column">
-                <header><h1 class="table-title">Tabla 39: Matriz de criterios observados y evidencias registradas para el diagnóstico logístico, técnico e institucional (Estudio de caso - EPSOA).</h1></header>
-                <div class="matrix-grid">
-                    <article class="matrix-row"><div class="matrix-crit"><span class="matrix-badge">Opinión</span>Viabilidad técnica del modelo</div><div class="matrix-evid"><strong>Compleja:</strong> Rigidez de la rutina diaria requiere readecuación profunda de horarios.</div></article>
-                    <article class="matrix-row"><div class="matrix-crit"><span class="matrix-badge">Opinión</span>Factor crítico principal</div><div class="matrix-evid"><strong>Limitación de instructores:</strong> Inexistencia de personal orgánico con dedicación exclusiva a redes o simulación.</div></article>
-                    <article class="matrix-row"><div class="matrix-crit"><span class="matrix-badge">Opinión</span>Disposición institucional</div><div class="matrix-evid"><strong>Reactiva por inercia:</strong> Resistencia cultural basada en mantener métodos analógicos tradicionales.</div></article>
-                    <article class="matrix-row"><div class="matrix-crit"><span class="matrix-badge obs">Observación</span>Hardware disponible</div><div class="matrix-evid">Sala de informática operativa estándar; requiere migración técnica para soporte 3D offline/online.</div></article>
-                    <article class="matrix-row"><div class="matrix-crit"><span class="matrix-badge obs">Observación</span>Suministro eléctrico</div><div class="matrix-evid">Sistema con soporte base, protegido ante fluctuaciones de la red externa.</div></article>
-                    <article class="matrix-row"><div class="matrix-crit"><span class="matrix-badge obs">Observación</span>Red interna</div><div class="matrix-evid">Conectividad sectorizada (Plana Mayor), optimizable con tendido LAN local para aulas tácticas.</div></article>
-                    <article class="matrix-row"><div class="matrix-crit"><span class="matrix-badge obs">Observación</span>Espacio físico aulas</div><div class="matrix-evid">Infraestructura física adaptable; aulas que admiten montaje modular de estaciones de simulación.</div></article>
-                </div>
-                <footer class="left-footer">
-                    <div class="objective-card"><span class="objective-tag">Objetivo Específico 2</span><p class="objective-text">Identificar los requerimientos técnicos y pedagógicos que debe cumplir una plataforma de simulación para favorecer la transferencia de habilidades reales a los ciudadanos que prestan el servicio militar obligatorio.</p></div>
-                    <p class="source-text">Fuente: Elaboración propia a partir de la guía de observación de infraestructura y registros de opinión técnica aplicados en la EPSOA (2026).</p>
-                </footer>
-            </section>
-            <section class="right-column">
-                <article class="info-card" style="flex: 1.2;"><h2 class="card-title">Análisis de la Tabla 39</h2><p class="text-outlined">"La valoración de la opinión operativa recogida en el terreno muestra un <span class="highlight-outlined">perfil más cauteloso</span> que la evidencia derivada de la inspección física. Mientras las apreciaciones del personal enfatizan la <span class="highlight-outlined">rigidez de la rutina diaria</span>, la <span class="highlight-outlined">falta de instructores</span> y una disposición reactiva por inercia, el diagnóstico técnico describe un <span class="highlight-outlined">espacio físico adaptable y suministro eléctrico funcional</span>, optimizable en la red interna."</p></article>
-            </section>
-        </main>
+    let counterRAF = null, counterTimer = null;
+    function fmt(el, v) {
+        const d = +el.dataset.dec || 0;
+        el.textContent = v.toFixed(d).replace('.', ',') + (el.dataset.suffix || '');
+    }
+    function runCounters(slideEl, delay) {
+        cancelAnimationFrame(counterRAF);
+        clearTimeout(counterTimer);
+        const counterEls = [...slideEl.querySelectorAll('[data-count]')];
+        if (reducedMotion.matches) { counterEls.forEach(el => fmt(el, +el.dataset.count)); return; }
+        counterEls.forEach(el => fmt(el, 0));
+        counterTimer = setTimeout(() => {
+            const dur = 1400, t0 = performance.now();
+            const tick = (now) => {
+                const t = Math.min(1, (now - t0) / dur);
+                const e = 1 - Math.pow(1 - t, 4);
+                counterEls.forEach(el => fmt(el, +el.dataset.count * e));
+                if (t < 1) counterRAF = requestAnimationFrame(tick);
+            };
+            counterRAF = requestAnimationFrame(tick);
+        }, delay);
+    }
 
-        <!-- DIAPOSITIVA 26 -->
-        <main class="glass-container" id="slide-26">
-            <header class="slide-header-center"><h1 class="main-overbox-title">Condiciones emergentes de viabilidad</h1></header>
-            <section class="slide26-grid">
-                <article class="cond-card cond-1"><span class="cond-num">Condición 1</span><h2 class="cond-title-head">Personal técnico dedicado</h2><p class="cond-body-text text-outlined"><strong>Evidencia:</strong> observación directa (N=1) registró <span class="highlight-outlined">'inexistencia de personal orgánico con dedicación exclusiva a redes o simulación'</span> como factor crítico; cuestionario a informantes clave (n=116) seleccionó <span class="highlight-outlined">'personal técnico permanente'</span> como requerimiento; análisis documental confirma que el manual no contempla esta figura.</p></article>
-                <article class="cond-card cond-2"><span class="cond-num">Condición 2</span><h2 class="cond-title-head">Nivelación inicial de competencias</h2><p class="cond-body-text text-outlined"><strong>Evidencia:</strong> baremo de perfil tecnológico (n=74) mostró <span class="highlight-outlined">40,5% medio, 8,1% bajo, 51,4% mixto, 0% alto</span>; respuestas abiertas (n=9) confirman minoría con formación previa; paradoja: <span class="highlight-outlined">'adaptación al nivel tecnológico de cada participante'</span> fue la característica pedagógica menos seleccionada (<span class="highlight-outlined">1,7%</span>) por los instructores.</p></article>
-                <article class="cond-card cond-3"><span class="cond-num">Condición 3</span><h2 class="cond-title-head">Superación de la inercia cultural</h2><p class="cond-body-text text-outlined"><strong>Evidencia:</strong> observación directa (N=1) registró <span class="highlight-outlined">'disposición institucional reactiva por inercia'</span>; análisis documental confirma enfoque analógico tradicional; cuestionario a informantes clave (n=116) muestra <span class="highlight-outlined">0% de selección</span> en opciones de simulación táctica avanzada.</p></article>
-            </section>
-            <footer class="slide20-footer">
-                <div class="objective-card" style="max-width: 65%;"><span class="objective-tag">Objetivo Específico 3</span><p class="objective-text">Proyectar analíticamente el impacto potencial en la reducción de costos operativos y el incremento de la capacidad de la Armada mediante la adopción de este modelo.</p></div>
-                <p class="source-text">Fuente: Elaboración propia a partir del análisis integrado de los Instrumentos N.º 1, N.º 4, observación directa y análisis documental.</p>
-            </footer>
-        </main>
+    function arrancarPresentacion() {
+        const container = document.getElementById('presentation-container');
+        const entrada   = document.getElementById('entrada-fade');
+        const cover     = document.getElementById('black-cover');
 
-    </div>
+        container.classList.add('listo');
+        container.classList.add('state-1');
+        container.classList.add('arranque-inicial');
+        entrada.classList.add('arrancar');
 
-    <!-- =========================================================
-         UI DE NAVEGACIÓN — botones clicables en PC y móvil
-         ========================================================= -->
-    <div id="ui-layer">
-        <button class="ui-btn" onclick="irAnterior()">← <span class="ui-key">P</span></button>
-        <span id="slide-indicator">Diapositiva 1 / 8</span>
-        <button class="ui-btn" onclick="irSiguiente()"><span class="ui-key">N</span> →</button>
-        <button class="ui-btn" onclick="toggleFullscreen()">⛶ <span class="ui-key">F</span></button>
-    </div>
+        setTimeout(() => {
+            container.classList.add('animaciones-activas');
+        }, 300);
 
-    <script>
-        let currentSlide = 1;
-        let isTransitioning = false;
-        const totalSlides = 8;
-        const NEXT_FILE = 'presentación3.html';
-        const slideEls = [
-            document.getElementById('slide-19'),
-            document.getElementById('slide-20'),
-            document.getElementById('slide-21'),
-            document.getElementById('slide-22'),
-            document.getElementById('slide-23'),
-            document.getElementById('slide-24'),
-            document.getElementById('slide-25'),
-            document.getElementById('slide-26')
-        ];
-        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        setTimeout(() => {
+            runCounters(slideEls[0], 1200);
+        }, 500);
 
-        // CONTADORES ANIMADOS
-        let counterRAF = null, counterTimer = null;
-        function fmt(el, v) {
-            const d = +el.dataset.dec || 0;
-            el.textContent = v.toFixed(d).replace('.', ',') + (el.dataset.suffix || '');
+        setTimeout(() => {
+            container.classList.remove('arranque-inicial');
+        }, 6500);
+
+        function onFadeEnd(e) {
+            if (e.animationName !== 'entradaFade') return;
+            entrada.removeEventListener('animationend', onFadeEnd);
+            cover.classList.add('quitar');
+            setTimeout(() => { cover.remove(); }, 600);
         }
-        function runCounters(slideEl, delay) {
-            cancelAnimationFrame(counterRAF);
-            clearTimeout(counterTimer);
-            const counterEls = [...slideEl.querySelectorAll('[data-count]')];
-            if (reducedMotion.matches) { counterEls.forEach(el => fmt(el, +el.dataset.count)); return; }
-            counterEls.forEach(el => fmt(el, 0));
-            counterTimer = setTimeout(() => {
-                const dur = 1400, t0 = performance.now();
-                const tick = (now) => {
-                    const t = Math.min(1, (now - t0) / dur);
-                    const e = 1 - Math.pow(1 - t, 4);
-                    counterEls.forEach(el => fmt(el, +el.dataset.count * e));
-                    if (t < 1) counterRAF = requestAnimationFrame(tick);
-                };
-                counterRAF = requestAnimationFrame(tick);
-            }, delay);
-        }
+        entrada.addEventListener('animationend', onFadeEnd);
 
-        /* ARRANQUE REAL DE LA PRESENTACIÓN */
-        function arrancarPresentacion() {
-            const container = document.getElementById('presentation-container');
-            const entrada   = document.getElementById('entrada-fade');
-            const cover     = document.getElementById('black-cover');
-
-            container.classList.add('listo');
-            container.classList.add('state-1');
-            entrada.classList.add('arrancar');
-
-            setTimeout(() => {
-                container.classList.add('animaciones-activas');
-            }, 300);
-
-            setTimeout(() => {
-                runCounters(slideEls[0], 200);
-            }, 500);
-
-            function onFadeEnd(e) {
-                if (e.animationName !== 'entradaFade') return;
-                entrada.removeEventListener('animationend', onFadeEnd);
+        setTimeout(() => {
+            if (document.getElementById('black-cover')) {
                 cover.classList.add('quitar');
-                setTimeout(() => { cover.remove(); }, 600);
+                setTimeout(() => { if (cover.parentNode) cover.remove(); }, 600);
             }
-            entrada.addEventListener('animationend', onFadeEnd);
+        }, 2000);
+    }
 
-            setTimeout(() => {
-                if (document.getElementById('black-cover')) {
-                    cover.classList.add('quitar');
-                    setTimeout(() => { if (cover.parentNode) cover.remove(); }, 600);
-                }
-            }, 2000);
-        }
+    window.addEventListener('load', () => {
+        const video = document.getElementById('main-video');
+        const esperarVideo = video
+            ? new Promise(resolve => {
+                if (video.readyState >= 3) return resolve();
+                const t = setTimeout(resolve, 900);
+                video.addEventListener('canplay', () => { clearTimeout(t); resolve(); }, { once: true });
+            })
+            : Promise.resolve();
 
-        window.addEventListener('load', () => {
-            const video = document.getElementById('main-video');
-            const esperarVideo = video
-                ? new Promise(resolve => {
-                    if (video.readyState >= 3) return resolve();
-                    const t = setTimeout(resolve, 900);
-                    video.addEventListener('canplay', () => { clearTimeout(t); resolve(); }, { once: true });
-                })
-                : Promise.resolve();
-
-            esperarVideo.then(() => {
+        esperarVideo.then(() => {
+            requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        arrancarPresentacion();
-                    });
+                    arrancarPresentacion();
                 });
             });
         });
+    });
 
-        setTimeout(() => {
-            const container = document.getElementById('presentation-container');
-            if (!container.classList.contains('listo')) {
-                arrancarPresentacion();
-            }
-        }, 3000);
-
-        /* NAVEGACIÓN */
-        function salirAlSiguiente() {
-            const salida = document.createElement('div');
-            salida.style.cssText = 'position:fixed;inset:0;background:#000;z-index:99999;opacity:0;pointer-events:none;transition:opacity 0.4s ease;';
-            document.body.appendChild(salida);
-            requestAnimationFrame(() => { salida.style.opacity = '1'; });
-            setTimeout(() => { window.location.href = NEXT_FILE; }, 450);
+    setTimeout(() => {
+        const container = document.getElementById('presentation-container');
+        if (!container.classList.contains('listo')) {
+            arrancarPresentacion();
         }
+    }, 3000);
 
-        function changeSlide(target) {
-            if (isTransitioning || target === currentSlide) return;
-            if (target < 1 || target > totalSlides) return;
-            isTransitioning = true;
-            currentSlide = target;
-            const container = document.getElementById('presentation-container');
-            container.className = `listo state-${target} animaciones-activas`;
+    function salirAlSiguiente() {
+        const salida = document.createElement('div');
+        salida.style.cssText = 'position:fixed;inset:0;background:#000;z-index:99999;opacity:0;pointer-events:none;transition:opacity 0.4s ease;';
+        document.body.appendChild(salida);
+        requestAnimationFrame(() => { salida.style.opacity = '1'; });
+        setTimeout(() => { window.location.href = NEXT_FILE; }, 450);
+    }
+
+    function changeSlide(target) {
+        if (isTransitioning || target === currentSlide) return;
+        if (target < 1 || target > totalSlides) return;
+        isTransitioning = true;
+        currentSlide = target;
+        const container = document.getElementById('presentation-container');
+        container.className = `listo state-${target} animaciones-activas`;
+        const arranqueActivo = container.classList.contains('arranque-inicial');
+        if (target === 1) {
+            runCounters(slideEls[0], arranqueActivo ? 1200 : 600);
+        } else {
             runCounters(slideEls[target - 1], 600);
-            document.getElementById('slide-indicator').textContent = `Diapositiva ${target} / ${totalSlides}`;
-            setTimeout(() => { isTransitioning = false; }, reducedMotion.matches ? 50 : 1200);
+        }
+        document.getElementById('slide-indicator').textContent = `Diapositiva ${target} / ${totalSlides}`;
+        setTimeout(() => { isTransitioning = false; }, reducedMotion.matches ? 50 : 1200);
+    }
+
+    function irAnterior() {
+        if (currentSlide > 1) changeSlide(currentSlide - 1);
+    }
+
+    function irSiguiente() {
+        if (currentSlide === totalSlides) {
+            salirAlSiguiente();
+            return;
+        }
+        changeSlide(currentSlide + 1);
+    }
+
+    let primeraInteraccionHecha = false;
+
+    function solicitarFullscreen() {
+        if (document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            document.mozFullScreenElement ||
+            document.msFullscreenElement) {
+            return;
         }
 
-        /* Botones de la UI */
-        function irAnterior() {
-            if (currentSlide > 1) changeSlide(currentSlide - 1);
-        }
+        const el = document.documentElement;
+        const requestFn =
+            el.requestFullscreen ||
+            el.webkitRequestFullscreen ||
+            el.webkitRequestFullScreen ||
+            el.mozRequestFullScreen ||
+            el.msRequestFullscreen;
 
-        function irSiguiente() {
-            if (currentSlide === totalSlides) {
-                salirAlSiguiente();
-                return;
+        if (!requestFn) return;
+
+        try {
+            const p = requestFn.call(el);
+            if (p && typeof p.catch === 'function') p.catch(() => {});
+        } catch (e) {}
+    }
+
+    function toggleFullscreen() {
+        const enFullscreen =
+            document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            document.mozFullScreenElement ||
+            document.msFullscreenElement;
+
+        if (enFullscreen) {
+            const exitFn =
+                document.exitFullscreen ||
+                document.webkitExitFullscreen ||
+                document.mozCancelFullScreen ||
+                document.msExitFullscreen;
+            if (exitFn) {
+                try {
+                    const p = exitFn.call(document);
+                    if (p && typeof p.catch === 'function') p.catch(() => {});
+                } catch (e) {}
             }
-            changeSlide(currentSlide + 1);
-        }
-
-        /* =========================================================
-           Fullscreen — auto en primera interacción + toggle con F
-           ========================================================= */
-        let primeraInteraccionHecha = false;
-
-        function solicitarFullscreen() {
-            if (document.fullscreenElement ||
-                document.webkitFullscreenElement ||
-                document.mozFullScreenElement ||
-                document.msFullscreenElement) {
-                return;
-            }
-
-            const el = document.documentElement;
-            const requestFn =
-                el.requestFullscreen ||
-                el.webkitRequestFullscreen ||
-                el.webkitRequestFullScreen ||
-                el.mozRequestFullScreen ||
-                el.msRequestFullscreen;
-
-            if (!requestFn) return;
-
-            try {
-                const p = requestFn.call(el);
-                if (p && typeof p.catch === 'function') p.catch(() => {});
-            } catch (e) { /* silencioso */ }
-        }
-
-        function toggleFullscreen() {
-            const enFullscreen =
-                document.fullscreenElement ||
-                document.webkitFullscreenElement ||
-                document.mozFullScreenElement ||
-                document.msFullscreenElement;
-
-            if (enFullscreen) {
-                const exitFn =
-                    document.exitFullscreen ||
-                    document.webkitExitFullscreen ||
-                    document.mozCancelFullScreen ||
-                    document.msExitFullscreen;
-                if (exitFn) {
-                    try {
-                        const p = exitFn.call(document);
-                        if (p && typeof p.catch === 'function') p.catch(() => {});
-                    } catch (e) { /* silencioso */ }
-                }
-            } else {
-                solicitarFullscreen();
-            }
-        }
-
-        function autoFullscreenPrimeraVez() {
-            if (primeraInteraccionHecha) return;
-            primeraInteraccionHecha = true;
+        } else {
             solicitarFullscreen();
         }
+    }
 
-        ['click', 'touchstart', 'pointerdown'].forEach(ev => {
-            document.addEventListener(ev, autoFullscreenPrimeraVez, { passive: true });
-        });
+    function autoFullscreenPrimeraVez() {
+        if (primeraInteraccionHecha) return;
+        primeraInteraccionHecha = true;
+        solicitarFullscreen();
+    }
 
-        // ===== TECLADO (PC) =====
-        document.addEventListener('keydown', (e) => {
-            const key = e.key.toLowerCase();
-            if (key === 'n' || key === 'arrowright' || e.code === 'Space') {
-                e.preventDefault();
-                irSiguiente();
-            } else if (key === 'p' || key === 'arrowleft' || key === 'backspace') {
-                e.preventDefault();
-                irAnterior();
-            } else if (key === 'f') {
-                e.preventDefault();
-                toggleFullscreen();
-            }
-        });
+    ['click', 'touchstart', 'pointerdown'].forEach(ev => {
+        document.addEventListener(ev, autoFullscreenPrimeraVez, { passive: true });
+    });
 
-        // ===== TOUCH: swipe con umbral de tiempo y predominancia =====
-        let touchStartX = 0;
-        let touchStartY = 0;
-        let touchStartT = 0;
-
-        document.addEventListener('touchstart', (e) => {
-            const t = e.changedTouches[0];
-            touchStartX = t.screenX;
-            touchStartY = t.screenY;
-            touchStartT = Date.now();
-        }, { passive: true });
-
-        document.addEventListener('touchend', (e) => {
-            const t = e.changedTouches[0];
-            const dx = t.screenX - touchStartX;
-            const dy = t.screenY - touchStartY;
-            const dt = Date.now() - touchStartT;
-
-            if (dt < 600 && Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.5) {
-                if (dx < 0) {
-                    irSiguiente();
-                } else {
-                    irAnterior();
-                }
-            }
-        }, { passive: true });
-
-        // Click / tap: reanuda el video de fondo si estuviera pausado
-        document.addEventListener('click', () => {
-            const video = document.getElementById('main-video');
-            if (video && video.paused) video.play().catch(() => {});
-        });
-
-        let cursorTimeout;
-        function mostrarCursorTemporalmente() {
-            document.documentElement.classList.add('cursor-visible');
-            clearTimeout(cursorTimeout);
-            cursorTimeout = setTimeout(() => {
-                document.documentElement.classList.remove('cursor-visible');
-            }, 2000);
+    document.addEventListener('keydown', (e) => {
+        const key = e.key.toLowerCase();
+        if (key === 'n' || key === 'arrowright' || e.code === 'Space') {
+            e.preventDefault();
+            irSiguiente();
+        } else if (key === 'p' || key === 'arrowleft' || key === 'backspace') {
+            e.preventDefault();
+            irAnterior();
+        } else if (key === 'f') {
+            e.preventDefault();
+            toggleFullscreen();
         }
-        document.addEventListener('mousemove', mostrarCursorTemporalmente);
-        document.addEventListener('mousedown', mostrarCursorTemporalmente);
-    </script>
+    });
+
+    let touchStartX = 0, touchStartY = 0, touchStartT = 0;
+
+    document.addEventListener('touchstart', (e) => {
+        const t = e.changedTouches[0];
+        touchStartX = t.screenX;
+        touchStartY = t.screenY;
+        touchStartT = Date.now();
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+        const t = e.changedTouches[0];
+        const dx = t.screenX - touchStartX;
+        const dy = t.screenY - touchStartY;
+        const dt = Date.now() - touchStartT;
+
+        if (dt < 600 && Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+            if (dx < 0) {
+                irSiguiente();
+            } else {
+                irAnterior();
+            }
+        }
+    }, { passive: true });
+
+    document.addEventListener('click', () => {
+        const video = document.getElementById('main-video');
+        if (video && video.paused) video.play().catch(() => {});
+    });
+
+    let cursorTimeout;
+    function mostrarCursorTemporalmente() {
+        document.documentElement.classList.add('cursor-visible');
+        clearTimeout(cursorTimeout);
+        cursorTimeout = setTimeout(() => {
+            document.documentElement.classList.remove('cursor-visible');
+        }, 2000);
+    }
+    document.addEventListener('mousemove', mostrarCursorTemporalmente);
+    document.addEventListener('mousedown', mostrarCursorTemporalmente);
+</script>
 </body>
 </html>
