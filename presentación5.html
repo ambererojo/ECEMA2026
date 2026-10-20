@@ -12,7 +12,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Presentación 5 - Cierre</title>
+    <title>Presentación 5 - Propuesta y Cierre</title>
 
     <style>
         html { background: #000 !important; }
@@ -28,7 +28,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -86,13 +86,17 @@
             position: absolute; top: 0; left: 0;
             width: 100vw; height: 100vh;
             object-fit: cover;
-            filter: grayscale(100%) contrast(1.15) brightness(0.45);
+            filter: grayscale(100%) contrast(1.15) brightness(0.42);
             animation: bgDrift 40s ease-in-out infinite alternate;
             will-change: transform;
         }
-        .state-1 .bg-parallax, .state-3 .bg-parallax { transform: scale(1.08) translateX(0); }
+        .state-1 .bg-parallax, .state-3 .bg-parallax, .state-7 .bg-parallax { transform: scale(1.08) translateX(0); }
         .state-2 .bg-parallax { transform: scale(1.02) translateX(0); }
         .state-4 .bg-parallax { transform: scale(1.15) translateX(-3%); }
+        .state-5 .bg-parallax { transform: scale(1.10) translateX(3%); }
+        .state-6 .bg-parallax { transform: scale(1.14) translateX(-4%); }
+        .state-8 .bg-parallax { transform: scale(1.16) translateX(-2%); }
+        .state-9 .bg-parallax { transform: scale(1.02) translateX(0); }
         @keyframes bgDrift { from { transform: scale(1); } to { transform: scale(1.07); } }
 
         /* GLASS */
@@ -116,7 +120,21 @@
             backface-visibility: hidden;
         }
 
-        /* SLIDES A PANTALLA COMPLETA (rostros y remate) */
+        /* CARTEL */
+        .glass-container.cartel {
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            border-radius: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .glass-container.cartel::before { display: none; }
+
+        /* FULLSCREEN */
         .glass-container.fullscreen {
             top: 0; left: 0;
             width: 100vw; height: 100vh;
@@ -128,10 +146,12 @@
         }
         .glass-container.fullscreen::before { display: none; }
 
-        /* ESTADOS ACTIVOS */
+        /* ESTADOS */
         .state-1 #slide-01, .state-2 #slide-02,
         .state-3 #slide-03, .state-4 #slide-04,
-        .state-5 #slide-05 {                       /* NUEVO */
+        .state-5 #slide-05, .state-6 #slide-06,
+        .state-7 #slide-07, .state-8 #slide-08,
+        .state-9 #slide-09, .state-10 #slide-10 {
             opacity: 1;
             transform: translateY(0) scale(1);
             pointer-events: auto;
@@ -139,116 +159,229 @@
             transition-delay: 0.3s;
         }
 
-        /* ==================================================
-           SLIDE 01 — LA FASE PILOTO
-           ================================================== */
+        /* RÓTULO */
         .slide-header {
             position: absolute;
-            top: 1.5cm;
+            top: 1.4cm;
             left: 38px; right: 38px;
             text-align: center;
             z-index: 3;
         }
         .slide-top-title {
-            font-size: 1.6rem;
-            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(0.92rem, 2vh, 1.15rem);
+            font-weight: 700;
             text-align: center;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
-            line-height: 1.3;
-            background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 35%, #bae6fd 50%, #38bdf8 65%, #0ea5e9 100%);
-            background-size: 250% 250%;
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: shimmer 2.5s linear 2.4s infinite;
+            letter-spacing: 0.10em;
+            line-height: 1.35;
+            color: #38bdf8;
+            filter: drop-shadow(0 0 6px rgba(0,0,0,0.85));
         }
 
-        .grid-blueprint {
-            position: absolute;
-            top: 3.2cm;
-            left: 38px; right: 38px;
-            bottom: 90px;
+        /* DESARROLLO */
+        .glass-container.desarrollo {
+            display: flex; flex-direction: column;
+            padding: 3.2vh 38px max(14px, calc(80px - 5vh));
+        }
+        .glass-container.desarrollo .slide-header { position: static; margin-bottom: 1.8vh; }
+        .glass-container.desarrollo .slide-top-title { font-size: clamp(1rem, 2.4vh, 1.3rem); }
+
+        .grid-conclusion {
+            flex: 1;
             display: grid;
-            grid-template-columns: 1.05fr 1fr;
-            gap: 24px;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto 1fr 1fr;
+            gap: 1.4vh 28px;
         }
-
-        .left-column, .right-column {
-            display: flex; flex-direction: column; gap: 12px;
-            overflow-y: auto;
-            padding-right: 8px;
-        }
-
         .column-title {
-            font-size: 0.78rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(.72rem, 1.6vh, .92rem);
             font-weight: 700;
             color: #94a3b8;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 4px;
+            letter-spacing: 0.12em;
             padding-bottom: 6px;
             border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+            margin-bottom: 2px;
         }
+        .column-title.col-a { color: #38bdf8; }
+        .column-title.col-b { color: #fbbf24; }
+        .column-title.col-c { color: #34d399; }
 
-        .blueprint-card {
+        .card-conclusion {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-left: 4px solid #38bdf8;
             border-radius: 8px;
-            padding: 14px 18px;
+            padding: 1.3vh 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: .8vh;
         }
-        .blueprint-card p {
-            font-size: 0.88rem;
+        .card-conclusion p {
+            font-size: clamp(.9rem, 2.0vh, 1.2rem);
             line-height: 1.55;
             color: #cbd5e1;
         }
-        .blueprint-card strong { color: #f1f5f9; font-weight: 600; }
-        .blueprint-card.ambar { border-left-color: #f59e0b; }
-        .blueprint-card.verde { border-left-color: #10b981; }
-        .blueprint-card.destacado {
+        .card-conclusion strong { color: #f1f5f9; font-weight: 600; }
+        .card-conclusion em { color: #fbbf24; font-style: normal; font-weight: 600; }
+        .card-conclusion.ambar { border-left-color: #f59e0b; }
+        .card-conclusion.verde { border-left-color: #10b981; }
+        .card-conclusion.destacado {
             background: rgba(245, 158, 11, 0.08);
             border: 1px solid rgba(245, 158, 11, 0.25);
             border-left: 4px solid #f59e0b;
         }
-        .blueprint-card.lista { padding: 12px 16px; }
-        .blueprint-card.lista ul { padding-left: 16px; margin-top: 4px; }
-        .blueprint-card.lista li {
-            font-size: 0.86rem; color: #cbd5e1;
-            line-height: 1.5; margin-bottom: 5px;
+        .card-conclusion.destacado-verde {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            border-left: 4px solid #10b981;
         }
 
-        .porque-posible {
-            position: absolute;
-            left: 38px; right: 38px;
-            bottom: 40px;
-            padding: 14px 22px;
-            background: rgba(14, 165, 233, 0.06);
-            border-left: 4px solid #0ea5e9;
+        .card-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(.68rem, 1.5vh, .85rem);
+            font-weight: 700;
+            letter-spacing: .10em;
+            text-transform: uppercase;
+            color: #38bdf8;
+            display: block;
+            margin-bottom: 2px;
+        }
+        .card-tag.amb { color: #fbbf24; }
+        .card-tag.ver { color: #34d399; }
+
+        .mini-row { display: flex; gap: 22px; }
+        .mini { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .4vh; }
+        .mini b { font-size: clamp(1.25rem, 3.2vh, 2.0rem); font-weight: 800; line-height: 1.1; }
+        .mini small { font-size: clamp(.72rem, 1.6vh, .95rem); color: #94a3b8; }
+
+        .anclaje-pie {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(.62rem, 1.35vh, .78rem);
+            color: #64748b;
+            letter-spacing: 0.05em;
+            text-align: right;
+            margin-top: 1vh;
+        }
+
+        /* LISTA */
+        .lista-recs {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1.0vh;
+            padding: 0;
+        }
+        .lista-recs li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 1.0vh 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-left: 3px solid #f59e0b;
             border-radius: 8px;
-            z-index: 3;
         }
-        .porque-posible .porque-label {
-            font-size: 0.7rem; font-weight: 700;
-            letter-spacing: 0.15em; text-transform: uppercase;
-            color: #38bdf8; margin-bottom: 4px;
+        .lista-recs li .num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(.85rem, 1.9vh, 1.1rem);
+            font-weight: 800;
+            color: #fbbf24;
+            line-height: 1;
+            min-width: 22px;
         }
-        .porque-posible p {
-            font-size: 0.92rem; line-height: 1.55;
-            color: #e2e8f0; font-style: italic;
+        .lista-recs li .txt-r {
+            font-size: clamp(.85rem, 1.9vh, 1.1rem);
+            line-height: 1.5;
+            color: #cbd5e1;
         }
+        .lista-recs li .txt-r strong { color: #f1f5f9; }
+
+        /* CARTEL */
+        .cartel-wrap {
+            max-width: 1240px;
+            width: 100%;
+            padding: 5vh 6vw;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 3.0vh;
+            background: radial-gradient(ellipse 92% 88% at 50% 50%,
+                        rgba(3, 6, 14, 0.88) 0%,
+                        rgba(3, 6, 14, 0.74) 55%,
+                        transparent 88%);
+            border-radius: 28px;
+        }
+        .cartel-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(1.4rem, 3.6vh, 2.2rem);
+            font-weight: 700;
+            letter-spacing: 0.10em;
+            text-transform: uppercase;
+            line-height: 1.25;
+            text-align: center;
+            color: #38bdf8;
+            filter: drop-shadow(0 0 8px rgba(0,0,0,0.9));
+        }
+        .cartel-claim {
+            font-size: clamp(1.3rem, 3.2vh, 2.0rem);
+            font-weight: 600;
+            color: #e2e8f0;
+            text-align: center;
+            line-height: 1.4;
+            margin-top: -0.8vh;
+            text-shadow: 0 0 8px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.95);
+        }
+        .cartel-bloque {
+            padding-left: 26px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.0vh;
+        }
+        .cartel-bloque .bloque-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(.85rem, 1.9vh, 1.15rem);
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: #94a3b8;
+        }
+        .cartel-bloque p {
+            font-size: clamp(1.15rem, 2.6vh, 1.6rem);
+            line-height: 1.55;
+            text-shadow: 0 0 8px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.95);
+        }
+        .cartel-bloque p strong { color: #ffffff; font-weight: 700; }
+
+        .cartel-bloque.cartel-que { border-left: 4px solid #38bdf8; }
+        .cartel-bloque.cartel-que .bloque-label { color: #38bdf8; }
+        .cartel-bloque.cartel-que p { color: #cbd5e1; font-style: italic; }
+
+        .cartel-bloque.cartel-como { border-left: 4px solid #f59e0b; }
+        .cartel-bloque.cartel-como .bloque-label { color: #fbbf24; }
+        .cartel-bloque.cartel-como p { color: #f8fafc; }
+
+        .cartel-bloque.cartel-verde { border-left: 4px solid #10b981; }
+        .cartel-bloque.cartel-verde .bloque-label { color: #34d399; }
+        .cartel-bloque.cartel-verde p { color: #f8fafc; }
 
         /* ==================================================
-           SLIDE 02 — RETORNO A LOS ROSTROS
+           SLIDE 9 — RETORNO A ROSTROS con HUD Musk
            ================================================== */
         .retorno-wrap {
             position: absolute;
             inset: 0;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             z-index: 3;
         }
         .retorno-videos {
-            position: absolute; inset: 0;
+            position: absolute;
+            inset: 0;
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             overflow: hidden;
@@ -257,110 +390,232 @@
             width: 100%; height: 100%;
             object-fit: cover;
             display: block;
-            filter: brightness(0.5) contrast(1.05);
-        }
-        .retorno-texto {
-            position: relative;
-            z-index: 4;
-            text-align: center;
-            padding: 0 8vw;
-            font-size: clamp(1.8rem, 4.5vw, 3.2rem);
-            font-weight: 700;
-            font-style: italic;
-            color: #ffffff;
-            letter-spacing: 0.02em;
-            line-height: 1.3;
-            text-shadow: 0 6px 24px rgba(0, 0, 0, 1), 0 0 8px rgba(0, 0, 0, 0.9);
-            -webkit-text-stroke: 1.5px rgba(0, 0, 0, 0.85);
-            opacity: 0;
-            animation: fadeInRetorno 2.2s ease 1.4s forwards;
-        }
-        @keyframes fadeInRetorno {
-            from { opacity: 0; transform: translateY(14px); }
-            to   { opacity: 1; transform: translateY(0); }
+            filter: brightness(0.55) contrast(1.05);
         }
         .retorno-videos video { opacity: 0; animation: fadeInVideo 1.6s ease 0.3s forwards; }
         @keyframes fadeInVideo { to { opacity: 1; } }
 
-        /* ==================================================
-           SLIDE 03 — SÍNTESIS: TÍTULO Y DECLARACIÓN
-           ================================================== */
-        .sintesis-wrap {
-            position: absolute; inset: 0;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            text-align: center;
-            padding: 0 6vw;
-            gap: 34px;
-            z-index: 3;
+        /* >>> CELDA DE sujeto2: wrapper con overflow hidden, video desplazado 7cm a la izquierda <<< */
+        .celda-sujeto2 {
+            position: relative;
+            overflow: hidden;
         }
-        .sintesis-titulo {
-            font-size: clamp(1.4rem, 3.2vw, 2.4rem);
-            font-weight: 800;
-            line-height: 1.25;
-            letter-spacing: -0.005em;
-            color: #38bdf8;
-            background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 35%, #bae6fd 50%, #38bdf8 65%, #0ea5e9 100%);
-            background-size: 250% 250%;
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: shimmer 2.5s linear 2.4s infinite;
-        }
-        .sintesis-sep {
-            width: 80px; height: 2px;
-            background: linear-gradient(90deg, transparent, #38bdf8, transparent);
-        }
-        .sintesis-declaracion {
-            font-size: clamp(0.95rem, 1.6vw, 1.2rem);
-            font-style: italic;
-            color: #cbd5e1;
-            max-width: 780px;
-            line-height: 1.6;
-        }
-        .sintesis-firma {
-            font-size: 0.82rem;
-            font-family: monospace;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: #64748b;
-            margin-top: 12px;
+        #ret-sujeto2 {
+            position: absolute;
+            top: 0;
+            left: -12cm;
+            width: calc(100% + 12cm);
+            height: 100%;
+            object-fit: cover;
+            object-position: center center;
         }
 
-        /* ==================================================
-           SLIDE 04 — REMATE FINAL
-           ================================================== */
-        .remate-wrap {
-            position: absolute; inset: 0;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            text-align: center;
-            padding: 0 6vw;
-            gap: 38px;
-            z-index: 3;
+        /* HUD estilo Musk para los 3 rostros */
+        .hud {
+            --u: min(1vw, 1.7778vh);
+            --k: calc(var(--u) * 2.8);
+            --b: calc(var(--u) * .3);
+            --hud-font: calc(var(--u) * 1.35);
+            position: absolute;
+            z-index: 4;
+            bottom: 8%;
+            left: 50%;
+            width: calc(var(--u) * 44);
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(-50%);
+            transition: opacity 0.9s ease;
+            will-change: opacity;
         }
-        .remate-titulo {
-            font-size: clamp(2rem, 5vw, 3.8rem);
-            font-weight: 800;
-            line-height: 1.15;
-            letter-spacing: 0.01em;
-            background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 35%, #bae6fd 50%, #38bdf8 65%, #0ea5e9 100%);
-            background-size: 250% 250%;
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: shimmer 2.5s linear 2.4s infinite;
+
+        .hud-frame {
+            position: relative;
+            min-height: calc(var(--u) * 9.5);
+            background: var(--edge);
+            clip-path: polygon(var(--k) 0, 100% 0, calc(100% - var(--k)) 100%, 0 100%);
         }
-        .remate-linea {
-            font-size: clamp(1rem, 1.8vw, 1.35rem);
-            font-style: italic;
-            color: #cbd5e1;
+        .hud-frame::before {
+            content: "";
+            position: absolute;
+            inset: var(--b);
+            background: var(--fill);
+            clip-path: polygon(var(--k) 0, 100% 0, calc(100% - var(--k)) 100%, 0 100%);
+        }
+        .hud-text {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(var(--u) * 9.5);
+            padding: calc(var(--u) * 2) calc(var(--k) + var(--u) * 2.5);
+            font-size: var(--hud-font);
             line-height: 1.5;
-            max-width: 780px;
+            font-weight: 600;
+            letter-spacing: .02em;
+            text-align: center;
+        }
+        .hud-text .txt {
+            display: inline-block;
+            font-style: italic;
+            background-image: linear-gradient(108deg,
+                #8d9298 0%, #8d9298 30%, #f0f2f5 42%, #ffffff 46%, #fffde6 49%,
+                #ffe98a 51%, #fffde6 53%, #ffffff 56%, #f0f2f5 60%, #8d9298 72%, #8d9298 100%);
+            background-size: 350% 100%;
+            background-position: 100% 0;
+            background-repeat: no-repeat;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            filter: drop-shadow(0 0 1px rgba(0,0,0,1)) drop-shadow(0 0 2px rgba(0,0,0,.95))
+                    drop-shadow(0 0 4px rgba(0,0,0,.85)) drop-shadow(0 0 8px rgba(0,0,0,.65))
+                    drop-shadow(0 0 16px rgba(0,0,0,.4));
+            animation: shineSweep 2.5s ease-in-out infinite;
+        }
+
+        /* Cuadro pequeño con estrellas */
+        .hud-tag {
+            position: absolute;
+            z-index: 2;
+            top: calc(var(--u) * -3.2);
+            left: calc(var(--u) * 3);
+            width: calc(var(--u) * 18);
+            height: calc(var(--u) * 4.2);
+            background: var(--edge);
+            clip-path: polygon(calc(var(--k) * (4.2 / 9.5)) 0, 100% 0,
+                              calc(100% - var(--k) * (4.2 / 9.5)) 100%, 0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .hud-tag::before {
+            content: "";
+            position: absolute;
+            inset: var(--b);
+            background: var(--fill);
+            clip-path: polygon(calc(var(--k) * (4.2 / 9.5)) 0, 100% 0,
+                              calc(100% - var(--k) * (4.2 / 9.5)) 100%, 0 100%);
+        }
+        .hud-tag > span {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: calc(var(--u) * .65);
+            font-size: calc(var(--u) * 2.0);
+            line-height: 1;
+            font-style: normal;
+            font-weight: 700;
+        }
+        .hud-tag .star {
+            display: inline-block;
+            font-style: normal;
+            background-image: linear-gradient(108deg,
+                #b8860b 0%, #b8860b 30%, #fbbf24 40%, #fde047 45%, #ffffff 49%,
+                #fffbe0 51%, #ffffff 53%, #fde047 57%, #fbbf24 65%, #b8860b 75%, #b8860b 100%);
+            background-size: 350% 100%;
+            background-position: 100% 0;
+            background-repeat: no-repeat;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            filter: drop-shadow(0 0 1px rgba(0,0,0,1)) drop-shadow(0 0 2px rgba(0,0,0,.9))
+                    drop-shadow(0 0 4px rgba(0,0,0,.7)) drop-shadow(0 0 .5px rgba(255,200,50,.9))
+                    drop-shadow(0 0 3px rgba(255,180,30,.6));
+            animation: shineSweep 2.5s ease-in-out infinite;
+        }
+        .hud-tag .star:nth-child(1) { animation-delay: 0s; }
+        .hud-tag .star:nth-child(2) { animation-delay: .08s; }
+        .hud-tag .star:nth-child(3) { animation-delay: .16s; }
+        .hud-tag .star:nth-child(4) { animation-delay: .24s; }
+        .hud-tag .star:nth-child(5) { animation-delay: .32s; }
+        .hud-tag .star.plata {
+            background-image: linear-gradient(108deg,
+                #6b7280 0%, #6b7280 30%, #cbd5e1 42%, #ffffff 46%, #f9fafb 49%,
+                #e5e7eb 51%, #f9fafb 53%, #ffffff 56%, #cbd5e1 60%, #6b7280 72%, #6b7280 100%);
+        }
+        .hud-tag .star.media {
+            background-image: linear-gradient(90deg,
+                #b8860b 0%, #fbbf24 20%, #fde047 35%, #ffffff 45%,
+                #475569 50%, #475569 60%, #334155 100%);
+            background-size: 100% 100%;
+            background-position: 0 0;
+            animation: none;
+        }
+        .hud-tag .star.hueco {
+            background-image: none;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            -webkit-text-stroke: 1.1px rgba(148, 163, 184, 0.65);
+            animation: none;
+        }
+
+        @keyframes shineSweep {
+            0%, 18%   { background-position: 100% 0; }
+            82%, 100% { background-position: 0% 0; }
+        }
+
+        .hud-azul {
+            --edge: linear-gradient(135deg, #b4e8ff, #2f86c4 55%, #8fdcff);
+            --fill: repeating-linear-gradient(to bottom, rgba(130,205,255,.06) 0 1px, transparent 1px 4px),
+                    linear-gradient(160deg, rgba(6,22,42,.9), rgba(3,10,22,.92));
+            --ink: #eaf6ff;
+        }
+        .hud-ambar {
+            --edge: linear-gradient(135deg, #fff0c4, #ff9a1f 50%, #ffd27a);
+            --fill: radial-gradient(ellipse 110% 140% at -8% -25%, rgba(255,195,80,.65), rgba(255,120,20,.22) 50%, transparent 80%),
+                    linear-gradient(160deg, rgba(48,20,6,.92), rgba(14,7,3,.94));
+            --ink: #fff3d6;
+        }
+        .hud-verde {
+            --edge: linear-gradient(135deg, #c9ffe8, #18b07a 55%, #9af5cc);
+            --fill: repeating-linear-gradient(to bottom, rgba(120,255,200,.06) 0 1px, transparent 1px 4px),
+                    radial-gradient(ellipse 110% 140% at -8% -25%, rgba(70,235,160,.4), transparent 75%),
+                    linear-gradient(160deg, rgba(4,34,24,.93), rgba(2,14,10,.95));
+            --ink: #eafff4;
+        }
+
+        /* Posiciones específicas de los tres HUDs */
+        #hud-s1 { left: 16.66%; width: calc(var(--u) * 28); }
+        #hud-s2 { left: 50%;    width: calc(var(--u) * 28); }
+        #hud-s3 { left: 83.33%; width: calc(var(--u) * 28); }
+
+        .state-9 #hud-s1 { opacity: 0; animation: hudEntra 0.8s ease 0.8s forwards; }
+        .state-9 #hud-s2 { opacity: 0; animation: hudEntra 0.8s ease 1.1s forwards; }
+        .state-9 #hud-s3 { opacity: 0; animation: hudEntra 0.8s ease 1.4s forwards; }
+        @keyframes hudEntra {
+            from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+            to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        /* Texto proyectivo de cierre */
+        .retorno-cierre {
+            position: absolute;
+            bottom: 2.5%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+            text-align: center;
+            padding: 0 5vw;
+            font-size: clamp(.9rem, 1.8vw, 1.3rem);
+            font-weight: 600;
+            font-style: italic;
+            color: #ffffff;
+            letter-spacing: 0.01em;
+            line-height: 1.4;
+            text-shadow: 0 4px 18px rgba(0,0,0,1), 0 0 6px rgba(0,0,0,0.9);
+            -webkit-text-stroke: 1px rgba(0,0,0,0.85);
+            opacity: 0;
+            animation: fadeInRetorno 1.6s ease 1.9s forwards;
+        }
+        @keyframes fadeInRetorno {
+            from { opacity: 0; transform: translate(-50%, 12px); }
+            to   { opacity: 1; transform: translate(-50%, 0); }
         }
 
         /* ==================================================
-           SLIDE 05 — GRACIAS / PREGUNTAS   (NUEVO)
+           SLIDE 10 — GRACIAS
            ================================================== */
         .gracias-wrap {
             position: absolute; inset: 0;
@@ -373,7 +628,7 @@
             width: 100%; height: 100%;
             object-fit: cover;
             display: block;
-filter: grayscale(25%) contrast(1.1) brightness(0.82) saturate(1.2);
+            filter: grayscale(25%) contrast(1.1) brightness(0.82) saturate(1.2);
             animation: graciasZoom 32s ease-in-out infinite alternate;
             will-change: transform;
         }
@@ -433,8 +688,8 @@ filter: grayscale(25%) contrast(1.1) brightness(0.82) saturate(1.2);
             from { opacity: 0; transform: translateY(28px) scale(0.97); }
             to   { opacity: 1; transform: translateY(0) scale(1); }
         }
-        .state-5 .gracias-titulo   { animation: graciasIn 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.45s forwards; }
-        .state-5 .gracias-pregunta { animation: graciasIn 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.85s forwards; }
+        .state-10 .gracias-titulo   { animation: graciasIn 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.45s forwards; }
+        .state-10 .gracias-pregunta { animation: graciasIn 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.85s forwards; }
 
         /* UI */
         #ui-layer {
@@ -477,6 +732,12 @@ filter: grayscale(25%) contrast(1.1) brightness(0.82) saturate(1.2);
             font-size: 0.82rem; font-weight: 600;
             min-width: 110px; text-align: center;
         }
+        #btn-reiniciar {
+            background: rgba(56, 189, 248, 0.18);
+            border-color: rgba(56, 189, 248, 0.5);
+            color: #7dd3fc;
+        }
+        #btn-reiniciar:hover { background: rgba(56, 189, 248, 0.4); }
 
         @media (hover: none) and (pointer: coarse) {
             #ui-layer { bottom: 12px; padding: 6px 14px; gap: 10px; }
@@ -485,7 +746,7 @@ filter: grayscale(25%) contrast(1.1) brightness(0.82) saturate(1.2);
 
         /* BORDE GIRATORIO */
         @property --ang { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
-        .glass-container:not(.fullscreen)::before {
+        .glass-container.desarrollo::before {
             content: ''; position: absolute; inset: -1px;
             border-radius: 25px; padding: 2px; pointer-events: none;
             opacity: 0;
@@ -497,7 +758,7 @@ filter: grayscale(25%) contrast(1.1) brightness(0.82) saturate(1.2);
             mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
             mask-composite: exclude;
         }
-        .animaciones-activas .glass-container:not(.fullscreen)::before {
+        .animaciones-activas .glass-container.desarrollo::before {
             opacity: 1;
             animation: borderSpin 5s linear infinite;
         }
@@ -529,101 +790,344 @@ filter: grayscale(25%) contrast(1.1) brightness(0.82) saturate(1.2);
         </div>
 
         <!-- ==================================================
-             SLIDE 01 — LA FASE PILOTO
+             SLIDE 01 — FILTRO STEAM
              ================================================== -->
-        <main class="glass-container" id="slide-01">
+        <main class="glass-container desarrollo" id="slide-01">
             <header class="slide-header">
-                <h1 class="slide-top-title">La fase piloto</h1>
+                <h1 class="slide-top-title">Propuesta · Filtro STEAM · Detectar sin excluir</h1>
             </header>
+            <section class="grid-conclusion">
+                <h2 class="column-title col-a" style="grid-column:1;grid-row:1;">La herramienta</h2>
+                <h2 class="column-title col-b" style="grid-column:2;grid-row:1;">Cómo la diseña la tesis</h2>
 
-            <section class="grid-blueprint">
-                <div class="left-column">
-                    <h2 class="column-title">Parámetros del piloto</h2>
-                    <article class="blueprint-card lista">
-                        <ul>
-                            <li><strong>Duración:</strong> tres meses.</li>
-                            <li><strong>Modalidad:</strong> software comercial en modalidad local (offline).</li>
-                            <li><strong>Hardware:</strong> mandos estándar, sin periféricos especializados.</li>
-                            <li><strong>Contingente:</strong> reducido, conscriptos voluntarios.</li>
-                            <li><strong>Sede:</strong> EPSOA.</li>
-                        </ul>
-                    </article>
-                </div>
+                <article class="card-conclusion" style="grid-column:1;grid-row:2;grid-row-end:4;">
+                    <span class="card-tag">Categoría propia del investigador</span>
+                    <p>Mecanismo que identifica talento a partir de <strong>señales certificadas de competencia</strong>: pruebas de aptitud, certificaciones, cuestionarios, participación en clubes de programación o robótica.</p>
+                    <p>Inspirado en <strong>Becker</strong>, <strong>Arrow</strong> y <strong>Spence</strong>. No es un examen de ingreso: organiza trayectorias distintas dentro de un mismo sistema.</p>
+                    <p style="margin-top:1vh;color:#fbbf24;font-style:italic;">«No es una innovación sin precedentes. Es cerrar un vacío que ya existe.»</p>
+                    <p style="margin-top:1vh;font-size:clamp(.8rem,1.7vh,1rem);color:#94a3b8;">Base legal: <strong style="color:#cbd5e1;">Ley 1.115/1997 art. 57</strong> — el mecanismo selectivo por acreditación ya rige para cuadros complementarios de oficiales, suboficiales y profesionales. Todavía no alcanza al conscripto.</p>
+                </article>
 
-                <div class="right-column">
-                    <h2 class="column-title">Objetivos de medición</h2>
-                    <article class="blueprint-card">
-                        <p>Tasa real de transferencia de habilidades motoras hacia vectores reales.</p>
-                    </article>
-                    <article class="blueprint-card">
-                        <p>Carga horaria óptima de instrucción virtual.</p>
-                    </article>
-                    <article class="blueprint-card">
-                        <p>Registro de costos efectivos de mantenimiento y consumo energético.</p>
-                    </article>
-                    <article class="blueprint-card destacado">
-                        <p><strong>El costo-beneficio no se supone: se mide.</strong> Este estudio no cuantifica el ahorro; lo delimita como supuesto a verificar en este piloto.</p>
-                    </article>
-                </div>
+                <article class="card-conclusion ambar" style="grid-column:2;grid-row:2;">
+                    <span class="card-tag amb">Umbral 1 · Entrada (bajo)</span>
+                    <p>Basta una <strong>subcompetencia STEAM verificable</strong> (electrónica básica, diseño 3D, aerodinámica elemental, programación) para acceder al canal tecnológico.</p>
+                    <p>Exigir un perfil completo dejaría fuera a la mayoría de los convocados.</p>
+                </article>
+
+                <article class="card-conclusion ambar" style="grid-column:2;grid-row:3;">
+                    <span class="card-tag amb">Umbral 2 · Detección (alto)</span>
+                    <p>Entre los <strong>ya nivelados</strong>, se identifican perfiles avanzados para trayectorias de especialización técnica superior.</p>
+                    <p>Quien no presenta perfil STEAM continúa bajo el régimen tradicional del SMO, sin cambios.</p>
+                </article>
             </section>
+            <div class="anclaje-pie">Cap. II, Filtro social y académico · Cap. V, Rec. 1</div>
+        </main>
 
-            <div class="porque-posible">
-                <div class="porque-label">Por qué es posible</div>
-                <p>El Ejecutivo está facultado a optimizar el tiempo de servicio si se mejora la instrucción (Ley 569/75, art. 41 inc. b). La fase piloto no pide permiso: ejecuta un mandato de optimización que la ley ya contempla.</p>
+        <!-- ==================================================
+             SLIDE 02 — NIVELACIÓN INICIAL
+             ================================================== -->
+        <main class="glass-container desarrollo" id="slide-02">
+            <header class="slide-header">
+                <h1 class="slide-top-title">Propuesta · Nivelación inicial · Dos semanas, cuarenta horas</h1>
+            </header>
+            <section class="grid-conclusion">
+                <h2 class="column-title col-a" style="grid-column:1;grid-row:1;">Diagnóstico de entrada · n = 74</h2>
+                <h2 class="column-title col-b" style="grid-column:2;grid-row:1;">Módulo de nivelación</h2>
+
+                <article class="card-conclusion" style="grid-column:1;grid-row:2;">
+                    <span class="card-tag">Baremo de perfil tecnológico · Tabla 22</span>
+                    <div class="mini-row">
+                        <div class="mini"><b style="color:#3b82f6">51,4 %</b><small>Mixto</small></div>
+                        <div class="mini"><b style="color:#38bdf8">40,5 %</b><small>Medio</small></div>
+                        <div class="mini"><b style="color:#eab308">8,1 %</b><small>Bajo</small></div>
+                        <div class="mini"><b style="color:#64748b">0 %</b><small>Alto</small></div>
+                    </div>
+                    <p style="margin-top:1vh;">Con una base tan heterogénea, la brecha inicial condicionaría el rendimiento en simulación antes de cualquier adiestramiento táctico.</p>
+                </article>
+
+                <article class="card-conclusion destacado" style="grid-column:1;grid-row:3;">
+                    <span class="card-tag amb">Por qué la tesis la exige</span>
+                    <p>La nivelación no corrige déficits individuales: es la <strong>contraparte funcional del filtro</strong>, la etapa que recibe a quienes ingresan por el umbral bajo.</p>
+                </article>
+
+                <article class="card-conclusion ambar" style="grid-column:2;grid-row:2;">
+                    <span class="card-tag amb">Semana 1 · Infraestructura digital</span>
+                    <p>Alfabetización aplicada, hardware, sistemas operativos, protocolos offline, ciberseguridad básica.</p>
+                </article>
+
+                <article class="card-conclusion ambar" style="grid-column:2;grid-row:3;">
+                    <span class="card-tag amb">Semana 2 · Electrónica básica</span>
+                    <p>Componentes, soldadura, radiofrecuencia, telemetría, configuración de mandos estándar.</p>
+                    <p style="margin-top:1vh;color:#94a3b8;font-size:clamp(.8rem,1.7vh,1rem);">Base legal: <strong style="color:#cbd5e1;">CN 92, arts. 73 y 74</strong> — el SMO es espacio formativo bajo tutela del Estado y mandato de regímenes pedagógicos modernos.</p>
+                </article>
+            </section>
+            <div class="anclaje-pie">Cap. IV, Tabla 22 · Cap. V, Rec. 2</div>
+        </main>
+
+        <!-- ==================================================
+             SLIDE 03 — OFICINA TÉCNICA
+             ================================================== -->
+        <main class="glass-container desarrollo" id="slide-03">
+            <header class="slide-header">
+                <h1 class="slide-top-title">Propuesta · Oficina técnica de simulación</h1>
+            </header>
+            <section class="grid-conclusion">
+                <h2 class="column-title col-a" style="grid-column:1;grid-row:1;">Qué debe existir</h2>
+                <h2 class="column-title col-b" style="grid-column:2;grid-row:1;">Base empírica</h2>
+
+                <article class="card-conclusion" style="grid-column:1;grid-row:2;grid-row-end:4;">
+                    <span class="card-tag">Recomendación 3 · Cap. V</span>
+                    <p>Dependencia técnica dedicada a la instrucción en simulación y sistemas no tripulados, con:</p>
+                    <ul class="lista-recs" style="margin-top:1.2vh;">
+                        <li><span class="num">01</span><span class="txt-r"><strong>Personal con dedicación exclusiva</strong> a redes y simulación.</span></li>
+                        <li><span class="num">02</span><span class="txt-r"><strong>Administración de redes LAN</strong> locales para aulas tácticas.</span></li>
+                        <li><span class="num">03</span><span class="txt-r"><strong>Mantenimiento de hardware</strong> y periféricos de simulación.</span></li>
+                        <li><span class="num">04</span><span class="txt-r"><strong>Registro de calificaciones</strong> y trazabilidad del desempeño.</span></li>
+                    </ul>
+                </article>
+
+                <article class="card-conclusion ambar" style="grid-column:2;grid-row:2;">
+                    <span class="card-tag amb">Observación directa · EPSOA · N = 1</span>
+                    <p>El factor técnico más crítico registrado fue la <strong>«inexistencia de personal orgánico con dedicación exclusiva a redes o simulación»</strong>.</p>
+                </article>
+
+                <article class="card-conclusion ambar" style="grid-column:2;grid-row:3;">
+                    <span class="card-tag amb">Cuestionario a informantes clave · n = 116</span>
+                    <p>«Personal técnico permanente» figura como requerimiento seleccionado por los cuadros de mando, junto a computadoras con capacidad gráfica, red local y respaldo eléctrico.</p>
+                </article>
+            </section>
+            <div class="anclaje-pie">Cap. IV, Tabla 39 · Cap. V, Rec. 3</div>
+        </main>
+
+        <!-- ==================================================
+             SLIDE 04 — ACTUALIZACIÓN DOCTRINAL
+             ================================================== -->
+        <main class="glass-container desarrollo" id="slide-04">
+            <header class="slide-header">
+                <h1 class="slide-top-title">Propuesta · Actualización doctrinal del manual de instrucción</h1>
+            </header>
+            <section class="grid-conclusion">
+                <h2 class="column-title col-a" style="grid-column:1;grid-row:1;">Qué debe incorporarse</h2>
+                <h2 class="column-title col-b" style="grid-column:2;grid-row:1;">Base normativa</h2>
+
+                <article class="card-conclusion" style="grid-column:1;grid-row:2;grid-row-end:4;">
+                    <span class="card-tag">Recomendación 4 · Cap. V</span>
+                    <p>Mesa técnica que incorpore al Manual de Instrucción Básica Naval, como modalidades <strong>formales</strong>:</p>
+                    <ul class="lista-recs" style="margin-top:1.2vh;">
+                        <li><span class="num">01</span><span class="txt-r"><strong>Simulación</strong> interactiva de vuelo FPV y táctica naval.</span></li>
+                        <li><span class="num">02</span><span class="txt-r"><strong>Gamificación</strong> táctica (puntajes, niveles, insignias, podios).</span></li>
+                        <li><span class="num">03</span><span class="txt-r"><strong>Pilotaje de UAV</strong> como competencia básica del conscripto.</span></li>
+                    </ul>
+                </article>
+
+                <article class="card-conclusion" style="grid-column:2;grid-row:2;">
+                    <span class="card-tag">Estrategia Nacional de Ciberseguridad</span>
+                    <p><strong>Decreto 3900/2025</strong> y <strong>Res. 573/2021</strong> (Política de Ciberdefensa): lineamientos nacionales para la formación de capacidades técnicas en defensa y protección del ciberespacio.</p>
+                </article>
+
+                <article class="card-conclusion destacado-verde" style="grid-column:2;grid-row:3;">
+                    <span class="card-tag ver">Análisis documental · Tabla 38</span>
+                    <p>Los manuales vigentes del CINAE presentan <strong>brecha crítica</strong>: enfoque analógico tradicional sin directrices de simulación ni de UAV. La actualización cierra esa brecha con marco nacional propio.</p>
+                </article>
+            </section>
+            <div class="anclaje-pie">Cap. IV, Tabla 38 · Cap. V, Rec. 4</div>
+        </main>
+
+        <!-- ==================================================
+             SLIDE 05 — CERTIFICACIÓN DUAL
+             ================================================== -->
+        <main class="glass-container desarrollo" id="slide-05">
+            <header class="slide-header">
+                <h1 class="slide-top-title">Propuesta · Certificación dual · MITIC y SNPP</h1>
+            </header>
+            <section class="grid-conclusion">
+                <h2 class="column-title col-a" style="grid-column:1;grid-row:1;">Qué se propone</h2>
+                <h2 class="column-title col-b" style="grid-column:2;grid-row:1;">Por qué es viable</h2>
+
+                <article class="card-conclusion" style="grid-column:1;grid-row:2;grid-row-end:4;">
+                    <span class="card-tag">Recomendación 5 · Cap. V</span>
+                    <p>Convenios interinstitucionales con el <strong>MITIC</strong> y el <strong>SNPP</strong> para que el conscripto obtenga, al finalizar el servicio, una <strong>certificación civil homologada</strong> en informática y operación técnica.</p>
+                    <p style="margin-top:1.2vh;">El SMO deja de interrumpir la trayectoria civil del joven y empieza a impulsarla.</p>
+                </article>
+
+                <article class="card-conclusion ambar" style="grid-column:2;grid-row:2;">
+                    <span class="card-tag amb">Instrumento N.º 3 · n = 300</span>
+                    <p>El <strong>82,7 %</strong> de los encuestados «totalmente de acuerdo» con que las competencias aprendidas sirvan también para conseguir trabajo en la vida civil (promedio <strong>4,82</strong>).</p>
+                </article>
+
+                <article class="card-conclusion ambar" style="grid-column:2;grid-row:3;">
+                    <span class="card-tag amb">Efecto de difusión potencial</span>
+                    <p>El <strong>86,7 %</strong> «totalmente de acuerdo» con recomendar el SMO a otros jóvenes si incluyera este tipo de entrenamiento (promedio <strong>4,86</strong>). La certificación dual refuerza ese efecto.</p>
+                </article>
+            </section>
+            <div class="anclaje-pie">Cap. IV, Tabla 42 · Cap. V, Rec. 5</div>
+        </main>
+
+        <!-- ==================================================
+             SLIDE 06 — PILOTO Y MÉTRICAS
+             ================================================== -->
+        <main class="glass-container desarrollo" id="slide-06">
+            <header class="slide-header">
+                <h1 class="slide-top-title">Propuesta · Piloto EPSOA y métricas de validación</h1>
+            </header>
+            <section class="grid-conclusion">
+                <h2 class="column-title col-a" style="grid-column:1;grid-row:1;">Parámetros del piloto</h2>
+                <h2 class="column-title col-b" style="grid-column:2;grid-row:1;">Indicadores a medir</h2>
+
+                <article class="card-conclusion" style="grid-column:1;grid-row:2;">
+                    <span class="card-tag">Recomendación 1 · Cap. V</span>
+                    <ul class="lista-recs">
+                        <li><span class="num">01</span><span class="txt-r"><strong>Duración:</strong> tres meses.</span></li>
+                        <li><span class="num">02</span><span class="txt-r"><strong>Modalidad:</strong> software comercial en modalidad local (offline).</span></li>
+                        <li><span class="num">03</span><span class="txt-r"><strong>Hardware:</strong> mandos estándar, sin periféricos especializados.</span></li>
+                        <li><span class="num">04</span><span class="txt-r"><strong>Contingente:</strong> reducido, conscriptos voluntarios.</span></li>
+                        <li><span class="num">05</span><span class="txt-r"><strong>Sede:</strong> EPSOA.</span></li>
+                    </ul>
+                </article>
+
+                <article class="card-conclusion destacado" style="grid-column:1;grid-row:3;">
+                    <span class="card-tag amb">Lo que se busca medir</span>
+                    <p>Tasa real de transferencia de habilidades motoras hacia vectores reales. Carga horaria óptima. Costos efectivos de mantenimiento y consumo energético.</p>
+                </article>
+
+                <article class="card-conclusion" style="grid-column:2;grid-row:2;grid-row-end:4;">
+                    <span class="card-tag">Recomendación 6 · Cap. V</span>
+                    <p>Indicadores de comparación seleccionados por los informantes clave (n = 116):</p>
+                    <ul class="lista-recs" style="margin-top:1.2vh;">
+                        <li><span class="num">01</span><span class="txt-r"><strong>Nivel de desempeño</strong> en pruebas prácticas reales — 100 %.</span></li>
+                        <li><span class="num">02</span><span class="txt-r"><strong>Cantidad de errores</strong> durante la práctica real — 100 %.</span></li>
+                        <li><span class="num">03</span><span class="txt-r"><strong>Cantidad de personas capacitadas</strong> por período — 83,6 %.</span></li>
+                        <li><span class="num">04</span><span class="txt-r"><strong>Satisfacción</strong> de participantes e instructores — 76,7 %.</span></li>
+                    </ul>
+                    <p style="margin-top:1.2vh;color:#fbbf24;font-style:italic;">El costo-beneficio no se supone: se mide.</p>
+                </article>
+            </section>
+            <div class="anclaje-pie">Cap. IV, Informantes clave · Cap. V, Recs. 1 y 6</div>
+        </main>
+
+        <!-- ==================================================
+             SLIDE 07 — SOLDADO-TECNÓLOGO
+             ================================================== -->
+        <main class="glass-container desarrollo" id="slide-07">
+            <header class="slide-header">
+                <h1 class="slide-top-title">Cierre · Soldado-tecnólogo y anclajes institucionales</h1>
+            </header>
+            <section class="grid-conclusion">
+                <h2 class="column-title col-a" style="grid-column:1;grid-row:1;">Identidad resultante</h2>
+                <h2 class="column-title col-b" style="grid-column:2;grid-row:1;">Qué la sostiene</h2>
+
+                <article class="card-conclusion" style="grid-column:1;grid-row:2;grid-row-end:4;">
+                    <span class="card-tag">El producto final</span>
+                    <p>El <strong>soldado-tecnólogo</strong> redefine al conscripto frente a la guerra híbrida y asimétrica. No opera un solo sistema: <strong>opera, diagnostica y adapta plataformas complejas</strong> en condiciones operativas.</p>
+                    <ul class="lista-recs" style="margin-top:1.2vh;">
+                        <li><span class="num">01</span><span class="txt-r">Pilotar plataformas FPV, también bajo guerra electrónica.</span></li>
+                        <li><span class="num">02</span><span class="txt-r">Diagnosticar fallas y mantener los equipos.</span></li>
+                        <li><span class="num">03</span><span class="txt-r">Modificar hardware y configurar radiofrecuencia.</span></li>
+                        <li><span class="num">04</span><span class="txt-r">Adaptar plataformas en el teatro de operaciones.</span></li>
+                    </ul>
+                </article>
+
+                <article class="card-conclusion" style="grid-column:2;grid-row:2;">
+                    <span class="card-tag">Anclaje 1 · Reserva tecnológica</span>
+                    <p><strong>Ley 6.723/2021, art. 2:</strong> la reserva se constituye también sobre base civil sin instrucción militar previa. <strong>93,3 %</strong> (280 de 300) quiere seguir vinculado como reservista.</p>
+                </article>
+
+                <article class="card-conclusion destacado-verde" style="grid-column:2;grid-row:3;">
+                    <span class="card-tag ver">Anclaje 2 · Certificación dual</span>
+                    <p>Convenios con MITIC y SNPP. El conscripto egresa con una <strong>certificación civil homologada</strong>.</p>
+                    <p style="margin-top:1vh;font-style:italic;">«El SMO deja de interrumpir la trayectoria civil del joven y empieza a impulsarla.»</p>
+                </article>
+            </section>
+            <div class="anclaje-pie">Ley 6.723/2021, art. 2 · Cap. IV, Tabla 45 · Cap. V, Rec. 5</div>
+        </main>
+
+        <!-- ==================================================
+             SLIDE 08 — PRECEDENTE HISTÓRICO
+             ================================================== -->
+        <main class="glass-container cartel" id="slide-08">
+            <div class="cartel-wrap">
+                <h1 class="cartel-title">Precedente histórico · Captación de talento civil</h1>
+                <p class="cartel-claim">«En 1939, Inglaterra no tenía un ejército de criptógrafos. Tenía matemáticos civiles. Los convocó, les dio un lugar, y eso cambió el curso de la guerra.»</p>
+
+                <div class="cartel-bloque cartel-que">
+                    <span class="bloque-label">Polonia · 1932</span>
+                    <p>Tres matemáticos civiles descifraron Enigma antes de la guerra.</p>
+                </div>
+
+                <div class="cartel-bloque cartel-que">
+                    <span class="bloque-label">Inglaterra · 1939–1945</span>
+                    <p>Bletchley Park reunió matemáticos, lingüistas y ajedrecistas civiles. Fueron convocados por el Estado.</p>
+                </div>
+
+                <div class="cartel-bloque cartel-que">
+                    <span class="bloque-label">EE.UU. · 1942–1945</span>
+                    <p>El Proyecto Manhattan reunió a los físicos y matemáticos más brillantes del país. Ninguno era militar de carrera.</p>
+                </div>
+
+                <div class="cartel-bloque cartel-como">
+                    <span class="bloque-label">Lo que el precedente demuestra</span>
+                    <p>Ninguno era militar. El Estado los convocó. <strong>La Armada Paraguaya tiene ese mismo talento en potencia en su población conscriptiva.</strong> La propuesta no inventa nada: propone hacer lo que esos Estados ya hicieron.</p>
+                </div>
             </div>
         </main>
 
         <!-- ==================================================
-             SLIDE 02 — RETORNO A LOS ROSTROS
+             SLIDE 09 — RETORNO A LOS ROSTROS con HUD Musk
              ================================================== -->
-        <main class="glass-container fullscreen" id="slide-02">
+        <main class="glass-container fullscreen" id="slide-09">
             <div class="retorno-wrap">
                 <div class="retorno-videos">
                     <video id="ret-sujeto1" muted playsinline loop preload="auto"></video>
-                    <video id="ret-sujeto2" muted playsinline loop preload="auto"></video>
+                    <div class="celda-sujeto2">
+                        <video id="ret-sujeto2" muted playsinline loop preload="auto"></video>
+                    </div>
                     <video id="ret-sujeto3" muted playsinline loop preload="auto"></video>
                 </div>
-                <p class="retorno-texto">Ahora sabemos qué mirar.</p>
+
+                <!-- HUD Sujeto 1 — Juan, ingeniero -->
+                <div id="hud-s1" class="hud hud-azul">
+                    <div class="hud-tag">
+                        <span>
+                            <i class="star">★</i><i class="star">★</i><i class="star">★</i><i class="star hueco">★</i><i class="star hueco">★</i>
+                        </span>
+                    </div>
+                    <div class="hud-frame">
+                        <div class="hud-text"><span class="txt">El Estado no lo vio.<br>El SMO sí puede.</span></div>
+                    </div>
+                </div>
+
+                <!-- HUD Sujeto 2 — Roberto, programador -->
+                <div id="hud-s2" class="hud hud-ambar">
+                    <div class="hud-tag">
+                        <span>
+                            <i class="star">★</i><i class="star">★</i><i class="star media">★</i><i class="star hueco">★</i><i class="star hueco">★</i>
+                        </span>
+                    </div>
+                    <div class="hud-frame">
+                        <div class="hud-text"><span class="txt">El sistema tradicional<br>lo dejó pasar.</span></div>
+                    </div>
+                </div>
+
+                <!-- HUD Sujeto 3 — Marcos, robótica -->
+                <div id="hud-s3" class="hud hud-verde">
+                    <div class="hud-tag">
+                        <span>
+                            <i class="star">★</i><i class="star media">★</i><i class="star hueco">★</i><i class="star hueco">★</i><i class="star hueco">★</i>
+                        </span>
+                    </div>
+                    <div class="hud-frame">
+                        <div class="hud-text"><span class="txt">Todavía no cumplió 18.<br>Todavía se puede.</span></div>
+                    </div>
+                </div>
+
+                <p class="retorno-cierre">Con esto, el Paraguay podría tener su propio Bletchley. Y más adelante, su propio Silicon Valley.</p>
             </div>
         </main>
 
         <!-- ==================================================
-             SLIDE 03 — SÍNTESIS
+             SLIDE 10 — GRACIAS
              ================================================== -->
-        <main class="glass-container" id="slide-03">
-            <div class="sintesis-wrap">
-                <p class="sintesis-titulo">
-                    Simulación para competencias STEAM<br>
-                    en el Servicio Militar Obligatorio<br>
-                    de la Armada Paraguaya (2026–2028)
-                </p>
-                <div class="sintesis-sep"></div>
-                <p class="sintesis-declaracion">
-                    Este trabajo constituye un estudio de viabilidad inicial, orientado a analizar la percepción de factibilidad y las condiciones institucionales para la eventual implementación del modelo. No es una evaluación de impacto con medición de resultados efectivos.
-                </p>
-                <p class="sintesis-firma">Cap C Maq Ignacio Gabriel Olmedo Mancuello</p>
-            </div>
-        </main>
-
-        <!-- ==================================================
-             SLIDE 04 — REMATE FINAL
-             ================================================== -->
-        <main class="glass-container fullscreen" id="slide-04">
-            <div class="remate-wrap">
-                <p class="remate-titulo">
-                    Señores: la ley no frena la modernización.<br>
-                    La habilita.
-                </p>
-                <p class="remate-linea">
-                    Lo que pido autorizar no es una reforma legal. Es un piloto de tres meses.
-                </p>
-            </div>
-        </main>
-
-        <!-- ==================================================
-             SLIDE 05 — GRACIAS / PREGUNTAS   (NUEVO)
-             ================================================== -->
-        <main class="glass-container fullscreen" id="slide-05">
+        <main class="glass-container fullscreen" id="slide-10">
             <div class="gracias-wrap">
                 <video class="gracias-video" id="gracias-video" muted loop playsinline preload="auto">
                     <source src="videos1/unitree1.mp4" type="video/mp4">
@@ -640,15 +1144,17 @@ filter: grayscale(25%) contrast(1.1) brightness(0.82) saturate(1.2);
 
     <div id="ui-layer">
         <button class="ui-btn" onclick="irAnterior()">← <span class="ui-key">P</span></button>
-        <span id="slide-indicator">Diapositiva 1 / 5</span>
+        <span id="slide-indicator">Diapositiva 1 / 10</span>
         <button class="ui-btn" onclick="irSiguiente()"><span class="ui-key">N</span> →</button>
+        <button class="ui-btn" id="btn-reiniciar" onclick="reiniciarCiclo()" title="Volver al inicio">↻ Reiniciar</button>
         <button class="ui-btn" onclick="toggleFullscreen()">⛶ <span class="ui-key">F</span></button>
     </div>
 
     <script>
         let currentSlide = 1;
         let isTransitioning = false;
-        const totalSlides = 5;                       /* NUEVO */
+        const totalSlides = 10;
+        const NEXT_FILE = '';
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
         const VIDEO_RETORNO = {
@@ -703,13 +1209,20 @@ filter: grayscale(25%) contrast(1.1) brightness(0.82) saturate(1.2);
         }, 3000);
 
         function salirAlSiguiente() {
+            if (!NEXT_FILE) return;
             const salida = document.createElement('div');
             salida.style.cssText = 'position:fixed;inset:0;background:#000;z-index:99999;opacity:0;pointer-events:none;transition:opacity 2s ease;';
             document.body.appendChild(salida);
             requestAnimationFrame(() => { salida.style.opacity = '1'; });
-            setTimeout(() => {
-                window.location.href = 'presentación1.html';
-            }, 2200);
+            setTimeout(() => { window.location.href = NEXT_FILE; }, 2200);
+        }
+
+        function reiniciarCiclo() {
+            const salida = document.createElement('div');
+            salida.style.cssText = 'position:fixed;inset:0;background:#000;z-index:99999;opacity:0;pointer-events:none;transition:opacity 0.9s ease;';
+            document.body.appendChild(salida);
+            requestAnimationFrame(() => { salida.style.opacity = '1'; });
+            setTimeout(() => { window.location.href = 'problema.html'; }, 1000);
         }
 
         function changeSlide(target) {
@@ -721,8 +1234,7 @@ filter: grayscale(25%) contrast(1.1) brightness(0.82) saturate(1.2);
             container.className = `listo state-${target} animaciones-activas`;
             document.getElementById('slide-indicator').textContent = `Diapositiva ${target} / ${totalSlides}`;
 
-            /* Play de los videos del retorno cuando entra el slide 2 */
-            if (target === 2) {
+            if (target === 9) {
                 Object.keys(VIDEO_RETORNO).forEach(id => {
                     const v = document.getElementById(id);
                     if (v && v.paused) { v.currentTime = 0; v.play().catch(() => {}); }
@@ -734,10 +1246,9 @@ filter: grayscale(25%) contrast(1.1) brightness(0.82) saturate(1.2);
                 });
             }
 
-            /* NUEVO — Play/pausa del video del slide de cierre */
             const graciasVideo = document.getElementById('gracias-video');
             if (graciasVideo) {
-                if (target === 5) {
+                if (target === 10) {
                     graciasVideo.currentTime = 0;
                     graciasVideo.play().catch(() => {});
                 } else if (!graciasVideo.paused) {
@@ -754,7 +1265,6 @@ filter: grayscale(25%) contrast(1.1) brightness(0.82) saturate(1.2);
             changeSlide(currentSlide + 1);
         }
 
-        /* Fullscreen */
         let primeraInteraccionHecha = false;
         function solicitarFullscreen() {
             if (document.fullscreenElement || document.webkitFullscreenElement) return;
@@ -776,20 +1286,18 @@ filter: grayscale(25%) contrast(1.1) brightness(0.82) saturate(1.2);
                 const video = document.getElementById('main-video');
                 if (video && video.paused) video.play().catch(() => {});
                 const gv = document.getElementById('gracias-video');
-                if (gv && currentSlide === 5 && gv.paused) gv.play().catch(() => {});
+                if (gv && currentSlide === 10 && gv.paused) gv.play().catch(() => {});
             }, { passive: true });
         });
 
-        /* Teclado */
         document.addEventListener('keydown', (e) => {
             const key = e.key.toLowerCase();
             if (key === 'n' || key === 'arrowright' || key === 'pagedown' || e.code === 'Space') { e.preventDefault(); irSiguiente(); }
             else if (key === 'p' || key === 'arrowleft' || key === 'pageup' || key === 'backspace') { e.preventDefault(); irAnterior(); }
             else if (key === 'f') { e.preventDefault(); toggleFullscreen(); }
-            else if (key === 'escape') { e.preventDefault(); salirAlSiguiente(); }
+            else if (key === 'escape') { e.preventDefault(); reiniciarCiclo(); }
         });
 
-        /* Swipe */
         let touchStartX = 0, touchStartY = 0, touchStartT = 0;
         document.addEventListener('touchstart', (e) => {
             const t = e.changedTouches[0];
@@ -803,7 +1311,6 @@ filter: grayscale(25%) contrast(1.1) brightness(0.82) saturate(1.2);
             }
         }, { passive: true });
 
-        /* Cursor */
         let cursorTimeout;
         function mostrarCursorTemporalmente() {
             document.documentElement.classList.add('cursor-visible');

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Carpeta de este script = carpeta de presentación1.html, presentación2.html, ...
+# Carpeta de este script = carpeta de presentación0.html, objetivos, ...
 AQUI="$(cd "$(dirname "$0")" && pwd)"
 cd "$AQUI" || exit 1
 LOG=/tmp/servidor_overlay.log
@@ -9,8 +9,8 @@ LOG=/tmp/servidor_overlay.log
 if [ ! -f "$AQUI/servidor_overlay.py" ]; then
     echo "ERROR: falta servidor_overlay.py junto a este script ($AQUI)"; exit 1
 fi
-if [ ! -f "$AQUI/presentación1.html" ]; then
-    echo "ERROR: no encuentro presentación1.html en $AQUI"; exit 1
+if [ ! -f "$AQUI/presentación0.html" ]; then
+    echo "ERROR: no encuentro presentación0.html en $AQUI"; exit 1
 fi
 
 # 0. Matar Brave Y servidor previos
@@ -42,16 +42,29 @@ if [ "$OK" != 1 ]; then
 fi
 cat "$LOG"
 
-# 4. Limpiar caché del perfil temporal de Brave
+# 4. FORZAR ALTO RENDIMIENTO EN HARDWARE (Solo si se ejecuta con sudo)
+if [ "$EUID" -eq 0 ]; then
+    # Forzar todos los núcleos de la CPU al máximo
+    echo "performance" | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor >/dev/null 2>&1
+    # Liberar potencia gráfica de la GPU
+    teectl set subslice all >/dev/null 2>&1
+    xrandr --output $(xrandr | grep " connected" | cut -f1 -d" ") --set "TearFree" "on" >/dev/null 2>&1
+    # Optimización de presión de caché
+    sysctl -w vm.vfs_cache_pressure=50 >/dev/null 2>&1
+fi
+
+# 5. Limpiar caché del perfil temporal de Brave
 rm -rf /tmp/brave-tesis
 
-# 5. Abrir Brave en kiosco
-brave --kiosk --user-data-dir=/tmp/brave-tesis "http://localhost:8000/presentación1.html" &
+# 6. Abrir Brave en kiosco
+brave --kiosk --user-data-dir=/tmp/brave-tesis "http://localhost:8000/presentación0.html" &
 
 echo "=========================================================="
 echo "Servidor y Brave iniciados. Caché limpia. Escudo CINAE activo."
 echo "Para cerrar: Alt+F4. Para apagar servidor: CTRL+C."
 echo "=========================================================="
 
-trap "kill $PID_UNCLUTTER $PID_SERVER 2>/dev/null; exit 0" INT TERM
+# Al presionar CTRL+C, apaga el servidor y regresa la CPU al modo equilibrado (powersave)
+trap "echo 'powersave' | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor >/dev/null 2>&1; kill $PID_UNCLUTTER $PID_SERVER 2>/dev/null; exit 0" INT TERM
 wait $PID_SERVER
+

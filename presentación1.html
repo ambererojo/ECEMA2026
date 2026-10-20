@@ -46,21 +46,185 @@
             width: 100%; height: 100%;
         }
 
-        #img-intro {
+        /* ============================================================
+           ESTADO 1 — GLASS CON GANCHO HISTÓRICO
+           Mismo lenguaje visual que marco.html y objetivos.html
+           ============================================================ */
+        #slide-01 {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 10;
-            transition: opacity 1.5s cubic-bezier(0.65, 0, 0.35, 1);
-            will-change: opacity;
-            pointer-events: none;
-        }
-        #img-intro img {
-            width: 100%; height: 100%;
-            object-fit: cover;
-            display: block;
+            top: 5vh; left: 4vw;
+            z-index: 60;
+            width: 92vw; height: 90vh;
+            background: rgba(15, 23, 42, 0.92);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+            padding: 3.4vh 38px max(14px, calc(92px - 5vh));
+            display: flex;
+            flex-direction: column;
+            visibility: hidden;
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+            transition: transform 0.9s cubic-bezier(0.7, 0, 0.3, 1),
+                        opacity 0.7s cubic-bezier(0.7, 0, 0.3, 1),
+                        visibility 0s linear 0.9s;
+            will-change: transform, opacity;
+            backface-visibility: hidden;
         }
 
+        /* Borde giratorio para el glass del estado 1 */
+        @property --ang { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+        #slide-01::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: 25px;
+            padding: 2px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.6s ease 0.9s;
+            background: conic-gradient(from var(--ang), transparent 0deg, transparent 240deg,
+                rgba(56, 189, 248, 0.15) 265deg, #38bdf8 315deg, #ffffff 340deg, transparent 360deg);
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+            mask-composite: exclude;
+        }
+        .state-1 #slide-01::before {
+            opacity: 1;
+            animation: borderSpin 5s linear infinite;
+        }
+        @keyframes borderSpin { to { --ang: 360deg; } }
+
+        .state-1 #slide-01 {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            transition-delay: 0.3s;
+        }
+        .state-2 #slide-01, .state-3 #slide-01, .state-4 #slide-01,
+        .state-5 #slide-01, .state-6 #slide-01, .state-7 #slide-01,
+        .state-8 #slide-01, .state-9 #slide-01, .state-10 #slide-01,
+        .state-11 #slide-01, .state-12 #slide-01, .state-13 #slide-01,
+        .state-14 #slide-01, .state-15 #slide-01, .state-16 #slide-01,
+        .state-17 #slide-01, .state-18 #slide-01, .state-19 #slide-01 {
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Header del estado 1 */
+        .slide-01-header {
+            margin-bottom: 2.4vh;
+            text-align: center;
+        }
+        .slide-01-title {
+            font-family: 'JetBrains Mono', 'Consolas', monospace;
+            font-size: clamp(1.43rem, 3.9vh, 2.08rem);
+            font-weight: 700;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            line-height: 1.3;
+        }
+
+        /* Contenido: tres tarjetas */
+        .intro-contenido {
+            flex: 1;
+            display: grid;
+            grid-template-rows: 1fr 1fr 1.15fr;
+            gap: 1.6vh;
+            min-height: 0;
+        }
+        .intro-card {
+            background: rgba(15, 23, 42, 0.88);
+            border: 1px solid rgba(56, 189, 248, 0.28);
+            border-left: 4px solid #38bdf8;
+            border-radius: 10px;
+            padding: 2.4vh 30px;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: 0;
+        }
+        .intro-card p {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            font-size: clamp(1.3rem, 3.1vh, 1.88rem);
+            font-weight: 600;
+            line-height: 1.5;
+            letter-spacing: -0.005em;
+        }
+        .intro-card-pregunta {
+            border-color: rgba(245, 158, 11, 0.4);
+            border-left: 5px solid #f59e0b;
+            background: rgba(245, 158, 11, 0.06);
+        }
+        .intro-card-pregunta p {
+            font-size: clamp(1.4rem, 3.4vh, 2.1rem);
+            font-style: italic;
+            font-weight: 600;
+        }
+
+        /* Anclaje al pie */
+        .anclaje-pie {
+            margin-top: 1.4vh;
+            font-size: clamp(.8rem, 1.75vh, 1.04rem);
+            font-family: 'JetBrains Mono', 'Consolas', monospace;
+            color: #64748b;
+            letter-spacing: 0.05em;
+            text-align: right;
+        }
+
+        /* Shine fuerte y suave (mismas clases que marco.html y objetivos.html) */
+        @keyframes shimmer {
+            0%   { background-position: 0% 0%; }
+            50%  { background-position: 100% 100%; }
+            100% { background-position: 0% 0%; }
+        }
+
+        .shine-azul-fuerte, .shine-ambar-fuerte, .shine-texto-claro {
+            background-size: 250% 250%;
+            background-position: 0% 0%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            animation: shimmer 2.5s linear 2.4s infinite;
+        }
+        .shine-azul-fuerte {
+            background-image: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 28%, #e0f2fe 50%, #38bdf8 72%, #0ea5e9 100%);
+            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.45));
+        }
+        .shine-ambar-fuerte {
+            background-image: linear-gradient(135deg, #f59e0b 0%, #fbbf24 28%, #fef3c7 50%, #fbbf24 72%, #f59e0b 100%);
+            filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.45));
+        }
+        .shine-texto-claro {
+            background-image: linear-gradient(135deg, #cbd5e1 0%, #e2e8f0 28%, #f8fafc 50%, #e2e8f0 72%, #cbd5e1 100%);
+            filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.2));
+        }
+
+        /* Animaciones de entrada del estado 1, con retraso de 1 s */
+        @keyframes slideInDown { from { opacity: 0; transform: translateY(-18px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInScale { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: scale(1); } }
+
+        .state-1 .slide-01-title {
+            animation: slideInDown .6s cubic-bezier(.2,.75,.25,1) 1.25s both, shimmer 2.5s linear 2.4s infinite;
+        }
+        .state-1 .intro-card:nth-child(1) {
+            animation: fadeInScale .62s ease 1.38s both;
+        }
+        .state-1 .intro-card:nth-child(2) {
+            animation: slideInUp .62s ease 1.52s both;
+        }
+        .state-1 .intro-card:nth-child(3) {
+            animation: slideInUp .62s ease 1.68s both;
+        }
+
+        /* Clips de los estados 2–19 */
         .clip-wrapper {
             transition: clip-path 1.5s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.5s ease;
             will-change: clip-path, opacity;
@@ -109,16 +273,22 @@
         #clip-juramento { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 0; }
         #trans-juramento { transform: translateX(0%); }
 
-        .state-1 #img-intro { opacity: 1; pointer-events: auto; }
-        .state-1 #clip-s1, .state-1 #clip-s2, .state-1 #clip-s3 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
-        .state-1 #trans-s1, .state-1 #trans-s2, .state-1 #trans-s3 { transform: translateX(0%); }
+        .state-1 #clip-s1, .state-1 #clip-s2, .state-1 #clip-s3 { clip-path: polygon(0 0, 0 0, 0 100%, 0 100%); }
+        .state-1 #clip-c1, .state-1 #clip-p1, .state-1 #clip-p2, .state-1 #clip-p3,
+        .state-1 #clip-col1, .state-1 #clip-bandera, .state-1 #clip-juramento { opacity: 0; }
 
-        .state-2 #img-intro, .state-3 #img-intro, .state-4 #img-intro,
-        .state-5 #img-intro, .state-6 #img-intro, .state-7 #img-intro,
-        .state-8 #img-intro, .state-9 #img-intro, .state-10 #img-intro,
-        .state-11 #img-intro, .state-12 #img-intro, .state-13 #img-intro,
-        .state-14 #img-intro, .state-15 #img-intro, .state-16 #img-intro,
-        .state-17 #img-intro, .state-18 #img-intro, .state-19 #img-intro { opacity: 0; pointer-events: none; }
+        /* FIX FLASH: mantener ocultos los clips que aún no deben verse */
+        .state-2 #clip-c1, .state-3 #clip-c1, .state-4 #clip-c1 { opacity: 0; }
+        .state-2 #clip-p1, .state-2 #clip-p2, .state-2 #clip-p3,
+        .state-3 #clip-p1, .state-3 #clip-p2, .state-3 #clip-p3,
+        .state-4 #clip-p1, .state-4 #clip-p2, .state-4 #clip-p3,
+        .state-5 #clip-p1, .state-5 #clip-p2, .state-5 #clip-p3 { opacity: 0; }
+        .state-2 #clip-col1, .state-3 #clip-col1, .state-4 #clip-col1,
+        .state-5 #clip-col1, .state-6 #clip-col1, .state-7 #clip-col1, .state-8 #clip-col1 { opacity: 0; }
+        .state-2 #clip-bandera, .state-3 #clip-bandera, .state-4 #clip-bandera,
+        .state-5 #clip-bandera, .state-6 #clip-bandera, .state-7 #clip-bandera, .state-8 #clip-bandera,
+        .state-9 #clip-bandera, .state-10 #clip-bandera, .state-11 #clip-bandera,
+        .state-12 #clip-bandera, .state-13 #clip-bandera { opacity: 0; }
 
         .state-2 #clip-s1, .state-2 #clip-s2, .state-2 #clip-s3 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
         .state-2 #trans-s1, .state-2 #trans-s2, .state-2 #trans-s3 { transform: translateX(0%); }
@@ -241,9 +411,7 @@
             transform: scale(1.1);
         }
 
-        /* ============================================================
-           CUADROS DE TEXTO HUD — FORMATO MUSK
-           ============================================================ */
+        /* HUD — formato Musk */
         .hud {
             --k: calc(var(--u) * 2.8);
             --b: calc(var(--u) * .3);
@@ -308,7 +476,6 @@
             animation: shineSweep 2.5s ease-in-out infinite;
         }
 
-        /* Cuadro pequeño con estrellas */
         .hud-tag {
             position: absolute;
             z-index: 2;
@@ -344,7 +511,6 @@
             color: var(--ink);
         }
 
-        /* Estrella dorada (por defecto) */
         .hud-tag .star {
             display: inline-block;
             font-style: normal;
@@ -369,17 +535,17 @@
         .hud-tag .star:nth-child(4) { animation-delay: .24s; }
         .hud-tag .star:nth-child(5) { animation-delay: .32s; }
 
-        /* Estrella plateada */
+        /* Plateado subido: de #6b7280 a #94a3b8 para que se vea más brillante
+           cuando el shine no está en el centro del barrido */
         .hud-tag .star.plata {
             background-image: linear-gradient(108deg,
-                #6b7280 0%, #6b7280 30%, #cbd5e1 42%, #ffffff 46%, #f9fafb 49%,
-                #e5e7eb 51%, #f9fafb 53%, #ffffff 56%, #cbd5e1 60%, #6b7280 72%, #6b7280 100%);
+                #94a3b8 0%, #94a3b8 30%, #cbd5e1 42%, #ffffff 46%, #f9fafb 49%,
+                #e5e7eb 51%, #f9fafb 53%, #ffffff 56%, #cbd5e1 60%, #94a3b8 72%, #94a3b8 100%);
             filter: drop-shadow(0 0 1px rgba(0,0,0,1)) drop-shadow(0 0 2px rgba(0,0,0,.9))
                     drop-shadow(0 0 4px rgba(0,0,0,.7)) drop-shadow(0 0 .5px rgba(220,230,240,.9))
                     drop-shadow(0 0 3px rgba(200,210,230,.6));
         }
 
-        /* Media estrella (mitad llena, mitad apagada) */
         .hud-tag .star.media {
             background-image: linear-gradient(90deg,
                 #b8860b 0%, #fbbf24 20%, #fde047 35%, #ffffff 45%,
@@ -392,11 +558,10 @@
         }
         .hud-tag .star.media.plata {
             background-image: linear-gradient(90deg,
-                #6b7280 0%, #cbd5e1 20%, #ffffff 35%,
+                #94a3b8 0%, #cbd5e1 20%, #ffffff 35%,
                 #475569 50%, #475569 100%);
         }
 
-        /* Cuarto de estrella (25% llena) */
         .hud-tag .star.cuarto {
             background-image: linear-gradient(90deg,
                 #b8860b 0%, #fbbf24 12%, #fde047 20%, #ffffff 25%,
@@ -409,11 +574,10 @@
         }
         .hud-tag .star.cuarto.plata {
             background-image: linear-gradient(90deg,
-                #6b7280 0%, #cbd5e1 12%, #ffffff 25%,
+                #94a3b8 0%, #cbd5e1 12%, #ffffff 25%,
                 #475569 30%, #475569 100%);
         }
 
-        /* Estrella vacía */
         .hud-tag .star.hueco {
             background-image: none;
             -webkit-text-fill-color: transparent;
@@ -451,7 +615,6 @@
             --ink: #eafff4;
         }
 
-        /* ============ SUJETOS 1-3 (states 2, 3, 4) ============ */
         .state-2 #hud-s1 { opacity: 1; left: 50%; width: calc(var(--u) * 50); }
 
         .state-3 #hud-s1 { opacity: 1; left: 28%; width: calc(var(--u) * 32); }
@@ -467,10 +630,8 @@
             animation: hudAparece 0.6s ease 0.8s forwards;
         }
 
-        /* ============ COHETERO (state 5) ============ */
         .state-5 #hud-coh { opacity: 1; left: 50%; width: calc(var(--u) * 50); }
 
-        /* ============ PELOTEROS 1-3 (states 6, 7, 8) ============ */
         .state-6 #hud-p1 { opacity: 1; left: 50%; width: calc(var(--u) * 50); }
 
         .state-7 #hud-p1 { opacity: 1; left: 28%; width: calc(var(--u) * 32); }
@@ -763,9 +924,26 @@
 
     <div id="presentation-container" class="state-1">
 
-        <div id="img-intro">
-            <img id="img-sujeto1" src="sujeto1.png" alt="Sujeto 1 Imagen Portada">
-        </div>
+        <!-- ============================================================
+             ESTADO 1 — GLASS CON GANCHO HISTÓRICO
+             ============================================================ -->
+        <main id="slide-01">
+            <header class="slide-01-header">
+                <h1 class="slide-01-title shine-azul-fuerte">Apertura · Precedente histórico</h1>
+            </header>
+            <section class="intro-contenido">
+                <article class="intro-card">
+                    <p class="shine-texto-claro">Los Estados que ganaron la Segunda Guerra Mundial no ganaron por tener más soldados.</p>
+                </article>
+                <article class="intro-card">
+                    <p class="shine-texto-claro">Ganaron porque convocaron a civiles que sabían matemática, física y criptografía, y les dieron un lugar en el sistema de defensa.</p>
+                </article>
+                <article class="intro-card intro-card-pregunta">
+                    <p class="shine-ambar-fuerte">¿La Armada Paraguaya tiene ese mismo tipo de talento hoy, en su población conscripta?</p>
+                </article>
+            </section>
+            <div class="anclaje-pie">Cap. I, Planteamiento · Cap. II, Factor Estratégico</div>
+        </main>
 
         <div class="clip-wrapper" id="clip-s1">
             <div class="translate-wrapper" id="trans-s1">
@@ -849,11 +1027,6 @@
             </div>
         </div>
 
-        <!-- ============================================================
-             CUADROS HUD
-             ============================================================ -->
-
-        <!-- SUJETO 1 — Juan, 3 doradas + 2 huecos -->
         <div id="hud-s1" class="hud hud-azul">
             <div class="hud-tag">
                 <span>
@@ -865,7 +1038,6 @@
             </div>
         </div>
 
-        <!-- SUJETO 2 — Roberto, 2 doradas + 1 media + 2 huecos -->
         <div id="hud-s2" class="hud hud-ambar">
             <div class="hud-tag">
                 <span>
@@ -877,7 +1049,6 @@
             </div>
         </div>
 
-        <!-- SUJETO 3 — Marcos, 1 dorada + 1 media + 3 huecos -->
         <div id="hud-s3" class="hud hud-verde">
             <div class="hud-tag">
                 <span>
@@ -889,7 +1060,6 @@
             </div>
         </div>
 
-        <!-- COHETERO — Pedro, 4 doradas + 1 hueco -->
         <div id="hud-coh" class="hud hud-azul">
             <div class="hud-tag">
                 <span>
@@ -901,7 +1071,6 @@
             </div>
         </div>
 
-        <!-- PELOTERO 1 — Rogelio, 4.5 plateadas -->
         <div id="hud-p1" class="hud hud-ambar">
             <div class="hud-tag">
                 <span>
@@ -913,7 +1082,6 @@
             </div>
         </div>
 
-        <!-- PELOTERO 2 — Ricardo, 3.25 plateadas -->
         <div id="hud-p2" class="hud hud-verde">
             <div class="hud-tag">
                 <span>
@@ -925,7 +1093,6 @@
             </div>
         </div>
 
-        <!-- PELOTERO 3 — Andrés, 1.5 plateadas -->
         <div id="hud-p3" class="hud hud-azul">
             <div class="hud-tag">
                 <span>
@@ -976,8 +1143,6 @@
     <div id="debug-layer"></div>
 
     <script>
-        const IMAGE_SOURCE = 'sujeto1.png';
-
         const VIDEO_SOURCES = {
             sujeto1: 'videos1/sujeto1.mp4',
             sujeto2: 'videos1/sujeto2.mp4',
@@ -1036,11 +1201,6 @@
         };
 
         document.addEventListener('DOMContentLoaded', () => {
-            const imgEl = document.getElementById('img-sujeto1');
-            imgEl.addEventListener('error', () => {
-                reportError(`✖ No se pudo cargar la imagen "${IMAGE_SOURCE}"`);
-            });
-
             ['sujeto1', 'sujeto2', 'sujeto3', 'cohetero1', 'pelotero1', 'pelotero2', 'pelotero3', 'colectivo1', 'bandera', 'juramento'].forEach(id => {
                 const conf = SUBJECT_CONFIG[id];
                 const videoEl = document.getElementById(id);
@@ -1077,7 +1237,7 @@
                 });
 
                 videoEl.addEventListener('canplay', () => {
-                    if (id.startsWith('sujeto')) {
+                    if (id.startsWith('sujeto') && videoVisibleEn(id, currentSlide)) {
                         videoEl.play().catch(() => {});
                     }
                 });
@@ -1103,6 +1263,42 @@
                 document.getElementById('fadeout-negro').style.opacity = '1';
             });
         });
+
+        const VIDEO_VISIBLE = {
+            sujeto1:    [1, 4],
+            sujeto2:    [3, 4],
+            sujeto3:    [4, 4],
+            cohetero1:  [5, 5],
+            pelotero1:  [6, 8],
+            pelotero2:  [7, 8],
+            pelotero3:  [8, 8],
+            colectivo1: [9, 13],
+            bandera:    [14, 16]
+        };
+        const VIDEO_PAUSA_MS = 3000;
+        const pausaTimers = {};
+
+        function videoVisibleEn(id, estado) {
+            const r = VIDEO_VISIBLE[id];
+            return !!r && estado >= r[0] && estado <= r[1];
+        }
+
+        function sincronizarVideos(estado) {
+            Object.keys(VIDEO_VISIBLE).forEach(id => {
+                const v = videosState[id] && videosState[id].element;
+                if (!v) return;
+                clearTimeout(pausaTimers[id]);
+                if (videoVisibleEn(id, estado)) {
+                    if (v.paused) v.play().catch(() => {});
+                } else if (!v.paused) {
+                    pausaTimers[id] = setTimeout(() => {
+                        if (!videoVisibleEn(id, currentSlide)) v.pause();
+                    }, VIDEO_PAUSA_MS);
+                }
+            });
+            const j = videosState.juramento.element;
+            if (j && estado < 17 && !j.paused) j.pause();
+        }
 
         let currentSlide = 1;
         let isTransitioning = false;
@@ -1171,6 +1367,8 @@
                 const v = videosState.juramento.element;
                 if (v && !v.paused) { v.pause(); }
             }
+
+            sincronizarVideos(target);
 
             setTimeout(() => { isTransitioning = false; }, 1500);
         }
@@ -1259,26 +1457,13 @@
         function kickVideos() {
             if (currentSlide === 18 || currentSlide === 19) return;
 
-            if (currentSlide <= 4) {
-                ['sujeto1', 'sujeto2', 'sujeto3'].forEach(id => {
-                    const st = videosState[id];
-                    if (st.element && st.element.paused) st.element.play().catch(() => {});
-                });
-            } else if (currentSlide === 5) {
-                const st = videosState.cohetero1;
+            Object.keys(VIDEO_VISIBLE).forEach(id => {
+                if (!videoVisibleEn(id, currentSlide)) return;
+                const st = videosState[id];
                 if (st.element && st.element.paused) st.element.play().catch(() => {});
-            } else if (currentSlide >= 6 && currentSlide <= 8) {
-                ['pelotero1', 'pelotero2', 'pelotero3'].forEach(id => {
-                    const st = videosState[id];
-                    if (st.element && st.element.paused) st.element.play().catch(() => {});
-                });
-            } else if (currentSlide >= 9 && currentSlide <= 13) {
-                const st = videosState.colectivo1;
-                if (st.element && st.element.paused) st.element.play().catch(() => {});
-            } else if (currentSlide >= 14 && currentSlide <= 16) {
-                const st = videosState.bandera;
-                if (st.element && st.element.paused) st.element.play().catch(() => {});
-            } else if (currentSlide === 17) {
+            });
+
+            if (currentSlide === 17) {
                 const st = videosState.juramento;
                 if (st.element && st.element.paused) {
                     st.element.volume = 1.0;

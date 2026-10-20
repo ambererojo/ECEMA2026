@@ -1,0 +1,2402 @@
+<!DOCTYPE html>
+<html lang="es" style="background:#000">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Problema, Objetivos, Marco y Metodología</title>
+
+    <style>
+        html { background: #000 !important; }
+        body { background: #000 !important; margin: 0; padding: 0; overflow: hidden; }
+        #black-cover {
+            position: fixed; inset: 0; background: #000;
+            z-index: 2147483647; pointer-events: none; opacity: 1;
+        }
+        #black-cover.quitar { transition: opacity 0.5s ease; opacity: 0; }
+        #presentation-container { display: none; }
+        #presentation-container.listo { display: block; }
+    </style>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body {
+            width: 100vw; height: 100vh; overflow: hidden;
+            background-color: #050811;
+            font-family: 'Inter', sans-serif;
+            color: #f8fafc;
+        }
+        html, body, #presentation-container {
+            touch-action: none; overscroll-behavior: none;
+            -webkit-user-select: none; user-select: none;
+            -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
+        }
+        #presentation-container { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+        #entrada-fade {
+            position: fixed; inset: 0; background: #000;
+            z-index: 9999; pointer-events: none; opacity: 1;
+            will-change: opacity;
+        }
+#entrada-fade.arrancar {
+            animation: entradaFade 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+        }
+@keyframes entradaFade {
+            0%   { opacity: 1; }
+            37.5% { opacity: 1; }
+            100% { opacity: 0; visibility: hidden; }
+        }
+
+        /* Capa de cada presentación (apila las 4 y solo una tiene estado activo) */
+        .deck { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+
+        /* Video de fondo compartido por las 4 presentaciones */
+        .bg-video-wrap {
+            position: absolute; inset: 0; z-index: 1; overflow: hidden;
+            transform: scale(1.06);
+            transition: transform 1.8s cubic-bezier(0.7, 0, 0.3, 1);
+            will-change: transform;
+        }
+        .bg-video-wrap.oculto { opacity: 0; visibility: hidden; }
+        .bg-video-wrap::after {
+            content: ''; position: absolute; inset: 0; z-index: 2;
+            pointer-events: none;
+            background: radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.75) 100%);
+        }
+.bg-video {
+            position: absolute; top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            object-fit: cover;
+            filter: grayscale(100%) contrast(1.15) brightness(0.45);
+            animation: bgDrift 40s ease-in-out infinite alternate;
+            will-change: transform;
+        }
+@keyframes bgDrift { from { transform: scale(1); } to { transform: scale(1.07); } }
+
+        #ui-layer {
+            position: absolute;
+            bottom: 20px; left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 22px;
+            border-radius: 30px;
+            color: #fff;
+            display: flex; align-items: center; gap: 14px;
+            z-index: 1000;
+            font-size: 1.02rem;
+            transition: opacity 0.6s ease;
+            opacity: 1;
+            pointer-events: auto;
+        }
+.ui-btn {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.02rem;
+            font-family: inherit;
+            cursor: pointer;
+            min-width: 44px; min-height: 44px;
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 6px;
+        }
+.ui-btn:hover, .ui-btn:active { background: rgba(255,255,255,0.35); }
+.ui-key {
+            background: #ffffff; color: #000000;
+            padding: 3px 8px; border-radius: 5px;
+            font-weight: 700; font-size: 0.9rem;
+        }
+#slide-indicator {
+            font-size: 0.98rem;
+            font-weight: 600;
+            min-width: 110px; text-align: center;
+        }
+        @media (hover: none) and (pointer: coarse) {
+#ui-layer { bottom: 12px; padding: 6px 14px; gap: 10px; }
+.ui-btn { padding: 10px 14px; font-size: 1.08rem; }
+}
+        @property --ang { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+
+        html, body, #presentation-container, button, a { cursor: none; }
+        html.cursor-visible, html.cursor-visible body,
+        html.cursor-visible #presentation-container,
+        html.cursor-visible button, html.cursor-visible a { cursor: default; }
+
+/* ===== PROBLEMA ===== */
+#deck-problema .slide-portada {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.9s cubic-bezier(0.7, 0, 0.3, 1),
+                        visibility 0s linear 0.9s;
+        }
+#deck-problema.state-1 .slide-portada {
+            visibility: visible;
+            opacity: 1;
+            transition-delay: 0.3s;
+        }
+#deck-problema .slide-portada img {
+            position: absolute;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+        }
+#deck-problema .glass-container {
+            position: absolute;
+            top: 5vh; left: 4vw;
+            z-index: 2;
+            width: 92vw; height: 90vh;
+            background: rgba(15, 23, 42, 0.86);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+            padding: 0;
+            visibility: hidden;
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+            pointer-events: none;
+            transition: transform 0.9s cubic-bezier(0.7, 0, 0.3, 1),
+                        opacity 0.7s cubic-bezier(0.7, 0, 0.3, 1),
+                        visibility 0s linear 0.9s;
+            will-change: transform, opacity;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 3.4vh 38px max(14px, calc(92px - 5vh));
+        }
+#deck-problema.state-2 #problema-slide-02,
+#deck-problema.state-3 #problema-slide-03,
+#deck-problema.state-4 #problema-slide-04,
+#deck-problema.state-5 #problema-slide-05,
+#deck-problema.state-6 #problema-slide-06 {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+            visibility: visible;
+            transition-delay: 0.3s;
+        }
+@keyframes problema-shimmer {
+            0%   { background-position: 0% 0%; }
+            50%  { background-position: 100% 100%; }
+            100% { background-position: 0% 0%; }
+        }
+#deck-problema .shine-azul {
+            background-image: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 35%, #bae6fd 50%, #38bdf8 65%, #0ea5e9 100%);
+            background-size: 250% 250%;
+            background-position: 0% 0%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            animation: problema-shimmer 2.5s linear 2.4s infinite;
+        }
+#deck-problema .shine-ambar {
+            background-image: linear-gradient(135deg, #d97706 0%, #fbbf24 35%, #fde68a 50%, #fbbf24 65%, #d97706 100%);
+            background-size: 250% 250%;
+            background-position: 0% 0%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            animation: problema-shimmer 2.5s linear 2.4s infinite;
+        }
+#deck-problema .shine-ambar-fuerte {
+            background-image: linear-gradient(135deg, #f59e0b 0%, #fbbf24 30%, #fef3c7 50%, #fbbf24 70%, #f59e0b 100%);
+            background-size: 250% 250%;
+            background-position: 0% 0%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            animation: problema-shimmer 2.5s linear 2.4s infinite;
+            filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.4));
+        }
+@keyframes problema-slideInDown {
+            from { opacity: 0; transform: translateY(-18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+@keyframes problema-slideInUp {
+            from { opacity: 0; transform: translateY(22px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+@keyframes problema-fadeInScale {
+            from { opacity: 0; transform: scale(0.95); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+#deck-problema .slide-header { margin-bottom: 2vh; text-align: center; }
+#deck-problema .slide-top-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(1.43rem, 3.9vh, 2.08rem);
+            font-weight: 700;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            line-height: 1.3;
+            filter: drop-shadow(0 0 18px rgba(56, 189, 248, 0.35));
+        }
+#deck-problema .grid-blueprint {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.4vh 28px;
+        }
+#deck-problema .left-column,
+#deck-problema .right-column {
+            display: flex; flex-direction: column; gap: 1.4vh;
+            width: 100%;
+            justify-content: center;
+        }
+#deck-problema .column-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(.95rem, 2.2vh, 1.25rem);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 4px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+        }
+#deck-problema .blueprint-card {
+            background: rgba(15, 23, 42, 0.88);
+            border: 1px solid rgba(56, 189, 248, 0.28);
+            border-left: 4px solid #38bdf8;
+            border-radius: 10px;
+            padding: 1.6vh 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 1vh;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+        }
+#deck-problema .blueprint-card p {
+            font-size: clamp(1.14rem, 2.6vh, 1.56rem);
+            line-height: 1.55;
+            color: #e2e8f0;
+        }
+#deck-problema .blueprint-card strong { color: #f1f5f9; font-weight: 700; }
+#deck-problema .blueprint-card.ambar { border-left-color: #f59e0b; border-color: rgba(245, 158, 11, 0.4); }
+#deck-problema .blueprint-card.verde { border-left-color: #10b981; border-color: rgba(16, 185, 129, 0.4); }
+#deck-problema .blueprint-card.lista ul { padding-left: 16px; margin-top: 2px; }
+#deck-problema .blueprint-card.lista li {
+            font-size: clamp(1.14rem, 2.6vh, 1.56rem);
+            color: #e2e8f0;
+            line-height: 1.5;
+            margin-bottom: 4px;
+        }
+#deck-problema #problema-slide-02 {
+            padding: 3.4vh 44px max(14px, calc(92px - 5vh));
+        }
+#deck-problema .sumario-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2.0vh;
+            text-align: center;
+            width: 100%;
+            height: 100%;
+        }
+#deck-problema .sumario-rotulo {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(1.4rem, 3.3vh, 1.95rem);
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            filter: drop-shadow(0 0 8px rgba(0,0,0,0.85));
+        }
+#deck-problema .sumario-subtitulo {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(1.05rem, 2.2vh, 1.35rem);
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #94a3b8;
+            margin-top: -1.2vh;
+        }
+#deck-problema .sumario-pregunta {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(2.0rem, 4.4vh, 2.95rem);
+            font-weight: 600;
+            font-style: italic;
+            line-height: 1.38;
+            max-width: 1250px;
+            letter-spacing: 0.005em;
+        }
+#deck-problema .sumario-sep {
+            width: 160px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #38bdf8, transparent);
+            margin: 0.2vh 0;
+        }
+#deck-problema .sumario-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.1vh 5vw;
+            text-align: left;
+            width: 100%;
+            max-width: 1250px;
+        }
+#deck-problema .sumario-estacion {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(1.5rem, 3.25vh, 2.0rem);
+            line-height: 1.32;
+        }
+#deck-problema .sumario-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(1.25rem, 2.6vh, 1.55rem);
+            font-weight: 700;
+            min-width: 62px;
+            flex-shrink: 0;
+            padding-top: 0.15vh;
+        }
+#deck-problema .sumario-nombre {
+            font-weight: 600;
+        }
+#deck-problema .sumario-anclaje {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(.9rem, 1.85vh, 1.15rem);
+            color: #64748b;
+            letter-spacing: 0.05em;
+            text-align: right;
+            width: 100%;
+            margin-top: 0.4vh;
+        }
+#deck-problema.state-2 #problema-slide-02 .sumario-rotulo {
+            animation: problema-slideInDown 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both;
+        }
+#deck-problema.state-2 #problema-slide-02 .sumario-pregunta {
+            animation: problema-fadeInScale 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.45s both;
+        }
+#deck-problema.state-2 #problema-slide-02 .sumario-grid {
+            animation: problema-fadeInScale 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.7s both;
+        }
+#deck-problema.state-3 #problema-slide-03 .slide-top-title,
+#deck-problema.state-4 #problema-slide-04 .slide-top-title,
+#deck-problema.state-5 #problema-slide-05 .slide-top-title,
+#deck-problema.state-6 #problema-slide-06 .slide-top-title {
+            animation: problema-slideInDown 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both;
+        }
+#deck-problema.state-3 #problema-slide-03 .left-column .blueprint-card,
+#deck-problema.state-4 #problema-slide-04 .left-column .blueprint-card,
+#deck-problema.state-5 #problema-slide-05 .left-column .blueprint-card,
+#deck-problema.state-6 #problema-slide-06 .left-column .blueprint-card {
+            animation: problema-slideInUp 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.45s both;
+        }
+#deck-problema.state-3 #problema-slide-03 .left-column .blueprint-card:nth-child(2),
+#deck-problema.state-4 #problema-slide-04 .left-column .blueprint-card:nth-child(2),
+#deck-problema.state-5 #problema-slide-05 .left-column .blueprint-card:nth-child(2),
+#deck-problema.state-6 #problema-slide-06 .left-column .blueprint-card:nth-child(2) {
+            animation-delay: 0.65s;
+        }
+#deck-problema.state-3 #problema-slide-03 .right-column .blueprint-card,
+#deck-problema.state-4 #problema-slide-04 .right-column .blueprint-card,
+#deck-problema.state-5 #problema-slide-05 .right-column .blueprint-card,
+#deck-problema.state-6 #problema-slide-06 .right-column .blueprint-card {
+            animation: problema-slideInUp 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both;
+        }
+#deck-problema.state-3 #problema-slide-03 .right-column .blueprint-card:nth-child(2),
+#deck-problema.state-4 #problema-slide-04 .right-column .blueprint-card:nth-child(2),
+#deck-problema.state-5 #problema-slide-05 .right-column .blueprint-card:nth-child(2),
+#deck-problema.state-6 #problema-slide-06 .right-column .blueprint-card:nth-child(2) {
+            animation-delay: 0.8s;
+        }
+#deck-problema .anclaje-pie {
+            margin-top: 1vh;
+            font-size: clamp(.8rem, 1.75vh, 1.04rem);
+            font-family: 'JetBrains Mono', monospace;
+            color: #64748b;
+            letter-spacing: 0.05em;
+            text-align: right;
+        }
+#deck-problema .glass-container::before {
+            content: ''; position: absolute; inset: -1px;
+            border-radius: 25px; padding: 2px; pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.6s ease 0.9s;
+            background: conic-gradient(from var(--ang), transparent 0deg, transparent 240deg,
+                rgba(56, 189, 248, 0.15) 265deg, #38bdf8 315deg, #ffffff 340deg, transparent 360deg);
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+            mask-composite: exclude;
+        }
+#deck-problema.animaciones-activas .glass-container::before {
+            opacity: 1;
+            animation: problema-borderSpin 5s linear infinite;
+        }
+@keyframes problema-borderSpin { to { --ang: 360deg; } }
+#deck-problema button,
+#deck-problema a { cursor: none; }
+/* ===== OBJETIVOS ===== */
+#deck-objetivos .glass-container {
+            position: absolute;
+            top: 5vh; left: 4vw;
+            z-index: 2;
+            width: 92vw; height: 90vh;
+            background: rgba(15, 23, 42, 0.86);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+            padding: 0;
+            visibility: hidden;
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+            pointer-events: none;
+            transition: transform 0.9s cubic-bezier(0.7, 0, 0.3, 1),
+                        opacity 0.7s cubic-bezier(0.7, 0, 0.3, 1),
+                        visibility 0s linear 0.9s;
+            will-change: transform, opacity;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 3.4vh 38px max(14px, calc(92px - 5vh));
+        }
+#deck-objetivos.state-1 #objetivos-slide-01,
+#deck-objetivos.state-2 #objetivos-slide-02,
+#deck-objetivos.state-3 #objetivos-slide-03,
+#deck-objetivos.state-4 #objetivos-slide-04 {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+            visibility: visible;
+            transition-delay: 0.3s;
+        }
+@keyframes objetivos-shimmer {
+            0%   { background-position: 0% 0%; }
+            50%  { background-position: 100% 100%; }
+            100% { background-position: 0% 0%; }
+        }
+#deck-objetivos .shine-azul-fuerte {
+            background-image: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 28%, #e0f2fe 50%, #38bdf8 72%, #0ea5e9 100%);
+            background-size: 250% 250%;
+            background-position: 0% 0%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            animation: objetivos-shimmer 2.5s linear 2.4s infinite;
+            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.45));
+        }
+#deck-objetivos .shine-ambar-fuerte {
+            background-image: linear-gradient(135deg, #f59e0b 0%, #fbbf24 28%, #fef3c7 50%, #fbbf24 72%, #f59e0b 100%);
+            background-size: 250% 250%;
+            background-position: 0% 0%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            animation: objetivos-shimmer 2.5s linear 2.4s infinite;
+            filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.45));
+        }
+#deck-objetivos .shine-verde-fuerte {
+            background-image: linear-gradient(135deg, #059669 0%, #34d399 28%, #d1fae5 50%, #34d399 72%, #059669 100%);
+            background-size: 250% 250%;
+            background-position: 0% 0%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            animation: objetivos-shimmer 2.5s linear 2.4s infinite;
+            filter: drop-shadow(0 0 10px rgba(52, 211, 153, 0.45));
+        }
+@keyframes objetivos-slideInDown {
+            from { opacity: 0; transform: translateY(-18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+@keyframes objetivos-slideInUp {
+            from { opacity: 0; transform: translateY(22px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+@keyframes objetivos-slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+@keyframes objetivos-slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+@keyframes objetivos-fadeInScale {
+            from { opacity: 0; transform: scale(0.94); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+#deck-objetivos .slide-header { margin-bottom: 2vh; text-align: center; }
+#deck-objetivos .slide-top-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(1.43rem, 3.9vh, 2.08rem);
+            font-weight: 700;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            line-height: 1.3;
+        }
+#deck-objetivos .grid-blueprint {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.4vh 28px;
+        }
+#deck-objetivos .grid-blueprint.una-columna {
+            grid-template-columns: 1fr;
+        }
+#deck-objetivos .left-column,
+#deck-objetivos .right-column {
+            display: flex; flex-direction: column; gap: 1.4vh;
+            width: 100%;
+            justify-content: center;
+        }
+#deck-objetivos .blueprint-card {
+            background: rgba(15, 23, 42, 0.88);
+            border: 1px solid rgba(56, 189, 248, 0.28);
+            border-left: 4px solid #38bdf8;
+            border-radius: 10px;
+            padding: 1.6vh 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 1vh;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+        }
+#deck-objetivos .blueprint-card p {
+            font-size: clamp(1.14rem, 2.6vh, 1.56rem);
+            line-height: 1.55;
+            color: #e2e8f0;
+        }
+#deck-objetivos .blueprint-card strong { color: #f1f5f9; font-weight: 700; }
+#deck-objetivos .blueprint-card.ambar { border-left-color: #f59e0b; border-color: rgba(245, 158, 11, 0.4); }
+#deck-objetivos .blueprint-card.verde { border-left-color: #10b981; border-color: rgba(16, 185, 129, 0.4); }
+#deck-objetivos .blueprint-card.enunciado {
+            padding: 2.8vh 32px;
+            background: rgba(14, 165, 233, 0.10);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            border-left: 5px solid #0ea5e9;
+        }
+#deck-objetivos .blueprint-card.enunciado p {
+            font-size: clamp(1.3rem, 3.1vh, 1.88rem);
+            line-height: 1.6;
+            font-style: italic;
+        }
+#deck-objetivos .hipotesis-card {
+            padding: 2.6vh 28px;
+        }
+#deck-objetivos .hipotesis-card p {
+            font-size: clamp(1.23rem, 2.86vh, 1.69rem);
+            line-height: 1.6;
+        }
+#deck-objetivos .pie-salvedad {
+            margin-top: 1.6vh;
+            padding: 1.4vh 22px;
+            background: rgba(14, 165, 233, 0.10);
+            border-left: 4px solid #0ea5e9;
+            border-radius: 8px;
+            font-size: clamp(1.06rem, 2.27vh, 1.36rem);
+            line-height: 1.5;
+            color: #cbd5e1;
+            font-style: italic;
+        }
+#deck-objetivos .pie-salvedad strong { color: #f1f5f9; font-weight: 700; font-style: normal; }
+#deck-objetivos .triangulo-wrap {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+#deck-objetivos .triangulo-svg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+#deck-objetivos .triangulo-svg polygon {
+            fill: rgba(56, 189, 248, 0.08);
+            stroke: #38bdf8;
+            stroke-width: 2;
+            stroke-opacity: 0.8;
+            filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.6));
+        }
+#deck-objetivos .tri-card {
+            position: absolute;
+            z-index: 3;
+            width: 32%;
+            max-width: 460px;
+        }
+#deck-objetivos .tri-card .blueprint-card {
+            background: rgba(15, 23, 42, 0.94);
+            border: 1px solid rgba(56, 189, 248, 0.45);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
+        }
+#deck-objetivos .tri-card p {
+            font-size: clamp(1.1rem, 2.47vh, 1.43rem);
+            line-height: 1.5;
+            color: #e2e8f0;
+        }
+#deck-objetivos .tri-card strong { color: #f1f5f9; font-weight: 700; }
+#deck-objetivos .tri-oe1 { top: 0; left: 50%; transform: translateX(-50%); }
+#deck-objetivos .tri-oe2 { bottom: 0; left: 0; }
+#deck-objetivos .tri-oe3 { bottom: 0; right: 0; }
+#deck-objetivos.state-1 #objetivos-slide-01 .slide-top-title,
+#deck-objetivos.state-2 #objetivos-slide-02 .slide-top-title,
+#deck-objetivos.state-3 #objetivos-slide-03 .slide-top-title,
+#deck-objetivos.state-4 #objetivos-slide-04 .slide-top-title {
+            animation: objetivos-slideInDown 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both;
+        }
+#deck-objetivos.state-1 #objetivos-slide-01 .blueprint-card.enunciado,
+#deck-objetivos.state-2 #objetivos-slide-02 .blueprint-card.enunciado {
+            animation: objetivos-fadeInScale 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.45s both;
+        }
+#deck-objetivos.state-4 #objetivos-slide-04 .left-column .hipotesis-card {
+            animation: objetivos-slideInLeft 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
+        }
+#deck-objetivos.state-4 #objetivos-slide-04 .right-column .hipotesis-card {
+            animation: objetivos-slideInRight 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.65s both;
+        }
+#deck-objetivos.state-4 #objetivos-slide-04 .pie-salvedad {
+            animation: objetivos-slideInUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 1.0s both;
+        }
+#deck-objetivos .anclaje-pie {
+            margin-top: 1vh;
+            font-size: clamp(.8rem, 1.75vh, 1.04rem);
+            font-family: 'JetBrains Mono', monospace;
+            color: #64748b;
+            letter-spacing: 0.05em;
+            text-align: right;
+        }
+#deck-objetivos .glass-container::before {
+            content: ''; position: absolute; inset: -1px;
+            border-radius: 25px; padding: 2px; pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.6s ease 0.9s;
+            background: conic-gradient(from var(--ang), transparent 0deg, transparent 240deg,
+                rgba(56, 189, 248, 0.15) 265deg, #38bdf8 315deg, #ffffff 340deg, transparent 360deg);
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+            mask-composite: exclude;
+        }
+#deck-objetivos.animaciones-activas .glass-container::before {
+            opacity: 1;
+            animation: objetivos-borderSpin 5s linear infinite;
+        }
+@keyframes objetivos-borderSpin { to { --ang: 360deg; } }
+#deck-objetivos button,
+#deck-objetivos a { cursor: none; }
+/* ===== MARCO ===== */
+#deck-marco .glass-container {
+            position: absolute;
+            top: 5vh; left: 4vw;
+            z-index: 2;
+            width: 92vw; height: 90vh;
+            background: rgba(15, 23, 42, 0.86);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+            padding: 0;
+            visibility: hidden;
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+            pointer-events: none;
+            transition: transform 0.9s cubic-bezier(0.7, 0, 0.3, 1),
+                        opacity 0.7s cubic-bezier(0.7, 0, 0.3, 1),
+                        visibility 0s linear 0.9s;
+            will-change: transform, opacity;
+            backface-visibility: hidden;
+        }
+#deck-marco .glass-container.cartel {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            border-radius: 0;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+#deck-marco .glass-container.cartel::before { display: none; }
+#deck-marco.state-1 #marco-slide-01,
+#deck-marco.state-2 #marco-slide-02,
+#deck-marco.state-3 #marco-slide-03,
+#deck-marco.state-4 #marco-slide-04,
+#deck-marco.state-5 #marco-slide-05 {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+            visibility: visible;
+            transition-delay: 0.3s;
+        }
+#deck-marco .cartel-wrap {
+            max-width: 1240px;
+            width: 100%;
+            padding: 5vh 6vw;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 3.6vh;
+            background: radial-gradient(ellipse 92% 88% at 50% 50%,
+                        rgba(3, 6, 14, 0.88) 0%,
+                        rgba(3, 6, 14, 0.74) 55%,
+                        transparent 88%);
+            border-radius: 28px;
+        }
+#deck-marco .cartel-title {
+            font-size: clamp(2.4rem, 6.5vh, 4.2rem);
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            line-height: 1.15;
+            text-align: center;
+            background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 35%, #bae6fd 50%, #38bdf8 65%, #0ea5e9 100%);
+            background-size: 250% 250%;
+            background-position: 0% 0%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: marco-shimmer 2.5s linear 2.4s infinite;
+            filter: drop-shadow(0 0 6px rgba(0,0,0,0.85)) drop-shadow(0 0 2px rgba(0,0,0,0.9));
+        }
+#deck-marco .cartel-claim {
+            font-size: clamp(1.4rem, 3.4vh, 2.1rem);
+            font-weight: 500;
+            color: #e2e8f0;
+            text-align: center;
+            line-height: 1.4;
+            margin-top: -1.2vh;
+            text-shadow: 0 0 8px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.95);
+        }
+#deck-marco .cartel-bloque {
+            padding-left: 26px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2vh;
+        }
+#deck-marco .cartel-bloque .bloque-label {
+            font-size: clamp(.9rem, 2.1vh, 1.25rem);
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #94a3b8;
+        }
+#deck-marco .cartel-bloque p {
+            font-size: clamp(1.2rem, 2.8vh, 1.7rem);
+            line-height: 1.6;
+            text-shadow: 0 0 8px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.95);
+        }
+#deck-marco .cartel-bloque p strong { color: #ffffff; font-weight: 700; }
+#deck-marco .cartel-bloque.cartel-que { border-left: 4px solid #38bdf8; }
+#deck-marco .cartel-bloque.cartel-que .bloque-label { color: #38bdf8; }
+#deck-marco .cartel-bloque.cartel-que p { color: #cbd5e1; font-style: italic; }
+#deck-marco .cartel-bloque.cartel-como { border-left: 4px solid #f59e0b; }
+#deck-marco .cartel-bloque.cartel-como .bloque-label { color: #fbbf24; }
+#deck-marco .cartel-bloque.cartel-como p { color: #f8fafc; }
+#deck-marco .glass-container.desarrollo { display: flex; flex-direction: column; padding: 3.4vh 38px max(14px, calc(92px - 5vh)); }
+#deck-marco #marco-slide-01 {
+    padding: 3.4vh 38px max(14px, calc(92px - 5vh));
+}
+#deck-marco .slide-top-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(1.43rem, 3.9vh, 2.08rem);
+            font-weight: 700;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            line-height: 1.3;
+            margin-inline: auto;
+            max-width: 100%;
+        }
+#deck-marco .grid-blueprint { position: static; flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 1vh 28px; min-height: 0; }
+#deck-marco .left-column,
+#deck-marco .right-column { display: contents; }
+#deck-marco .left-column > * { grid-column: 1; }
+#deck-marco .right-column > * { grid-column: 2; }
+#deck-marco .left-column > :nth-child(1),
+#deck-marco .right-column > :nth-child(1) { grid-row: 1; }
+#deck-marco .left-column > :nth-child(2),
+#deck-marco .right-column > :nth-child(2) { grid-row: 2; }
+#deck-marco .left-column > :nth-child(3),
+#deck-marco .right-column > :nth-child(3) { grid-row: 3; }
+#deck-marco .left-column > :nth-child(4),
+#deck-marco .right-column > :nth-child(4) { grid-row: 4; }
+#deck-marco #marco-slide-05 .grid-blueprint { grid-template-rows: auto repeat(3, minmax(0, 1fr)); }
+#deck-marco .column-title {
+            font-size: clamp(.95rem, 2.2vh, 1.25rem);
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 4px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.28);
+        }
+#deck-marco .blueprint-card {
+            background: rgba(15, 23, 42, 0.88);
+            border: 1px solid rgba(56, 189, 248, 0.28);
+            border-left: 4px solid #38bdf8;
+            border-radius: 10px;
+            padding: 1.25vh 20px;
+            display: flex;
+            flex-direction: column;
+            gap: .7vh;
+            justify-content: center;
+            min-width: 0;
+            box-shadow: 0 8px 22px rgba(0,0,0,0.35);
+        }
+#deck-marco .blueprint-card p {
+            font-size: clamp(1.14rem, 2.6vh, 1.56rem);
+            line-height: 1.42;
+        }
+#deck-marco .blueprint-card strong { color: #f1f5f9; font-weight: 700; }
+#deck-marco .blueprint-card em { color: #fbbf24; font-style: normal; font-weight: 600; }
+#deck-marco .blueprint-card.ambar { border-left-color: #f59e0b; border-color: rgba(245, 158, 11, 0.32); }
+#deck-marco .blueprint-card.verde { border-left-color: #10b981; border-color: rgba(16, 185, 129, 0.32); }
+#deck-marco .blueprint-card.destacado { background: rgba(15, 23, 42, 0.94); border: 1px solid rgba(245, 158, 11, 0.4); border-left: 4px solid #f59e0b; }
+#deck-marco .blueprint-card.lista ul { padding-left: 18px; margin-top: 2px; }
+#deck-marco .blueprint-card.lista li { font-size: clamp(1.14rem, 2.6vh, 1.56rem); line-height: 1.42; margin-bottom: 4px; }
+#deck-marco .card-tag {
+            font-size: clamp(.9rem, 1.75vh, 1.1rem);
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: #38bdf8;
+        }
+#deck-marco .card-tag.amb { color: #fbbf24; }
+#deck-marco .frase-cierre {
+            font-style: italic;
+            font-size: clamp(1.06rem, 2.27vh, 1.36rem);
+            color: #e2e8f0;
+            text-align: center;
+            padding: 1vh;
+            border-top: 1px dashed rgba(148, 163, 184, 0.28);
+            margin-top: 4px;
+        }
+#deck-marco .anclaje-pie {
+            margin-top: .8vh;
+            font-size: clamp(.8rem, 1.75vh, 1.04rem);
+            font-family: 'JetBrains Mono', monospace;
+            color: #64748b;
+            letter-spacing: 0.05em;
+            text-align: right;
+            flex-shrink: 0;
+        }
+#deck-marco .conceptual-lista {
+            position: absolute;
+            top: 2.5cm;
+            left: 5vw; right: 5vw;
+            bottom: 58px;
+            display: grid;
+            grid-template-rows: repeat(5, 1fr);
+            gap: 1.2vh;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+#deck-marco .conceptual-card {
+            background: rgba(15, 23, 42, 0.92);
+            border: 1px solid rgba(56, 189, 248, 0.28);
+            border-left: 5px solid #38bdf8;
+            border-radius: 10px;
+            padding: 1vh 22px;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.42);
+            display: grid;
+            grid-template-columns: minmax(180px, 215px) 1fr;
+            gap: 18px;
+            align-items: center;
+            height: 100%;
+            min-height: 0;
+        }
+#deck-marco .conceptual-card.ambar { border-left-color: #f59e0b; border-color: rgba(245, 158, 11, 0.32); }
+#deck-marco .conceptual-card.verde { border-left-color: #10b981; border-color: rgba(16, 185, 129, 0.32); }
+#deck-marco .conceptual-card .autor {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(.95rem, 2vh, 1.2rem);
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #38bdf8;
+            line-height: 1.3;
+        }
+#deck-marco .conceptual-card.ambar .autor { color: #fbbf24; }
+#deck-marco .conceptual-card.verde .autor { color: #34d399; }
+#deck-marco .conceptual-card p {
+            font-size: clamp(1.14rem, 2.6vh, 1.56rem);
+            line-height: 1.42;
+        }
+#deck-marco .conceptual-card strong { color: #f1f5f9; font-weight: 700; }
+@media (max-height: 650px) {
+#deck-marco .conceptual-lista { top: 2.2cm; bottom: 48px; gap: .6vh; }
+#deck-marco .conceptual-card { padding: .5vh 16px; grid-template-columns: 160px 1fr; gap: 12px; }
+#deck-marco .conceptual-card p { font-size: clamp(1rem, 2.3vh, 1.18rem); line-height: 1.3; }
+#deck-marco .conceptual-card .autor { font-size: clamp(.85rem, 1.8vh, 1rem); }
+}
+#deck-marco .grid-blueprint.dos-columnas {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+            align-items: center;
+            flex: 1;
+            position: static;
+        }
+#deck-marco .grid-blueprint.dos-columnas > .left-column,
+#deck-marco .grid-blueprint.dos-columnas > .right-column {
+            display: flex; flex-direction: column; gap: 16px;
+            width: 100%;
+        }
+#deck-marco .blueprint-card .autor {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(.95rem, 2vh, 1.2rem);
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #38bdf8;
+            margin-bottom: 2px;
+            line-height: 1.3;
+        }
+#deck-marco .blueprint-card.ambar .autor { color: #fbbf24; }
+#deck-marco .blueprint-card.verde .autor { color: #34d399; }
+#deck-marco .blueprint-card .funcion {
+            margin-top: 5px;
+            padding-top: 6px;
+            border-top: 1px dashed rgba(148, 163, 184, 0.3);
+            font-size: clamp(1.14rem, 2.6vh, 1.56rem);
+            line-height: 1.38;
+            font-style: italic;
+        }
+#deck-marco .timeline-wrap {
+            position: relative;
+            width: 100%;
+            max-width: 1400px;
+            padding: 28px 0 16px 0;
+            margin: 0 auto;
+        }
+#deck-marco .timeline-line {
+            position: absolute;
+            top: 65px;
+            left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(to right,
+                rgba(56, 189, 248, 0.1) 0%,
+                rgba(56, 189, 248, 0.6) 15%,
+                rgba(56, 189, 248, 0.6) 85%,
+                rgba(56, 189, 248, 0.1) 100%);
+            z-index: 1;
+        }
+#deck-marco .timeline-items {
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            z-index: 2;
+        }
+#deck-marco .timeline-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+#deck-marco .timeline-dot {
+            width: 18px; height: 18px;
+            border-radius: 50%;
+            background: #38bdf8;
+            border: 3px solid #0f172a;
+            box-shadow: 0 0 16px rgba(56, 189, 248, 0.8);
+            flex-shrink: 0;
+        }
+#deck-marco .timeline-item.ambar .timeline-dot { background: #f59e0b; box-shadow: 0 0 16px rgba(245, 158, 11, 0.8); }
+#deck-marco .timeline-item.verde .timeline-dot { background: #10b981; box-shadow: 0 0 16px rgba(16, 185, 129, 0.8); }
+#deck-marco .timeline-year {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(1.1rem, 2.4vh, 1.45rem);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: #38bdf8;
+        }
+#deck-marco .timeline-item.ambar .timeline-year { color: #f59e0b; }
+#deck-marco .timeline-item.verde .timeline-year { color: #10b981; }
+#deck-marco .timeline-card {
+            background: rgba(15, 23, 42, 0.92);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            border-radius: 10px;
+            padding: 14px 15px;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.42);
+            width: 100%;
+        }
+#deck-marco .timeline-item.ambar .timeline-card { border-color: rgba(245, 158, 11, 0.3); }
+#deck-marco .timeline-item.verde .timeline-card { border-color: rgba(16, 185, 129, 0.3); }
+#deck-marco .timeline-card p { font-size: clamp(1.14rem, 2.6vh, 1.56rem); line-height: 1.42; }
+#deck-marco .timeline-card strong { color: #f1f5f9; font-weight: 600; }
+#deck-marco .glass-container.desarrollo::before {
+            content: ''; position: absolute; inset: -1px;
+            border-radius: 25px; padding: 2px; pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.6s ease 0.9s;
+            background: conic-gradient(from var(--ang), transparent 0deg, transparent 240deg,
+                rgba(56, 189, 248, 0.15) 265deg, #38bdf8 315deg, #ffffff 340deg, transparent 360deg);
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+            mask-composite: exclude;
+        }
+#deck-marco.animaciones-activas .glass-container.desarrollo::before {
+            opacity: 1;
+            animation: marco-borderSpin 5s linear infinite;
+        }
+@keyframes marco-borderSpin { to { --ang: 360deg; } }
+@keyframes marco-shimmer {
+            0%   { background-position: 0% 0%; }
+            50%  { background-position: 100% 100%; }
+            100% { background-position: 0% 0%; }
+        }
+#deck-marco .shine-azul-fuerte,
+#deck-marco .shine-ambar-fuerte,
+#deck-marco .shine-verde-fuerte {
+            background-size: 250% 250%;
+            background-position: 0% 0%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            animation: marco-shimmer 2.5s linear 2.4s infinite;
+        }
+#deck-marco .shine-azul-fuerte {
+            background-image: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 28%, #e0f2fe 50%, #38bdf8 72%, #0ea5e9 100%);
+            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.45));
+        }
+#deck-marco .shine-ambar-fuerte {
+            background-image: linear-gradient(135deg, #f59e0b 0%, #fbbf24 28%, #fef3c7 50%, #fbbf24 72%, #f59e0b 100%);
+            filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.45));
+        }
+#deck-marco .shine-verde-fuerte {
+            background-image: linear-gradient(135deg, #059669 0%, #34d399 28%, #d1fae5 50%, #34d399 72%, #059669 100%);
+            filter: drop-shadow(0 0 10px rgba(52, 211, 153, 0.45));
+        }
+#deck-marco .shine-texto-claro {
+            background-image: linear-gradient(135deg, #cbd5e1 0%, #e2e8f0 28%, #f8fafc 50%, #e2e8f0 72%, #cbd5e1 100%);
+            background-size: 250% 250%;
+            background-position: 0% 0%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            animation: marco-shimmer 2.5s linear 2.4s infinite;
+            filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.2));
+        }
+#deck-marco .shine-texto-blanco {
+            background-image: linear-gradient(135deg, #f1f5f9 0%, #f8fafc 28%, #ffffff 50%, #f8fafc 72%, #f1f5f9 100%);
+            background-size: 250% 250%;
+            background-position: 0% 0%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            animation: marco-shimmer 2.5s linear 2.4s infinite;
+            filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.2));
+        }
+#deck-marco .shine-texto-ambar {
+            background-image: linear-gradient(135deg, #fbbf24 0%, #fcd34d 28%, #fef3c7 50%, #fcd34d 72%, #fbbf24 100%);
+            background-size: 250% 250%;
+            background-position: 0% 0%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            animation: marco-shimmer 2.5s linear 2.4s infinite;
+            filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.25));
+        }
+#deck-marco .shine-texto-verde {
+            background-image: linear-gradient(135deg, #34d399 0%, #6ee7b7 28%, #d1fae5 50%, #6ee7b7 72%, #34d399 100%);
+            background-size: 250% 250%;
+            background-position: 0% 0%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            animation: marco-shimmer 2.5s linear 2.4s infinite;
+            filter: drop-shadow(0 0 4px rgba(52, 211, 153, 0.25));
+        }
+@keyframes marco-slideInDown { from { opacity: 0; transform: translateY(-18px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes marco-slideInUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes marco-slideInLeft { from { opacity: 0; transform: translateX(-22px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes marco-slideInRight { from { opacity: 0; transform: translateX(22px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes marco-fadeInScale { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: scale(1); } }
+#deck-marco.state-1 .slide-top-title {
+            animation: marco-slideInDown .6s cubic-bezier(.2,.75,.25,1) .25s both, marco-shimmer 2.5s linear 2.4s infinite;
+        }
+#deck-marco.state-2 .slide-top-title,
+#deck-marco.state-3 .slide-top-title,
+#deck-marco.state-4 .slide-top-title,
+#deck-marco.state-5 .slide-top-title {
+            animation: marco-slideInDown .6s cubic-bezier(.2,.75,.25,1) .25s both, marco-shimmer 2.5s linear 2.4s infinite;
+        }
+#deck-marco.state-1 .conceptual-card:nth-child(1) { animation: marco-slideInUp .62s ease .45s both; }
+#deck-marco.state-1 .conceptual-card:nth-child(2) { animation: marco-slideInUp .62s ease .57s both; }
+#deck-marco.state-1 .conceptual-card:nth-child(3) { animation: marco-slideInUp .62s ease .69s both; }
+#deck-marco.state-1 .conceptual-card:nth-child(4) { animation: marco-slideInUp .62s ease .81s both; }
+#deck-marco.state-1 .conceptual-card:nth-child(5) { animation: marco-slideInUp .62s ease .93s both; }
+#deck-marco.state-2 .left-column > :nth-child(1),
+#deck-marco.state-3 .left-column > :nth-child(1) { animation: marco-slideInLeft .72s ease .43s both; }
+#deck-marco.state-2 .left-column > :nth-child(2),
+#deck-marco.state-3 .left-column > :nth-child(2) { animation: marco-slideInLeft .72s ease .60s both; }
+#deck-marco.state-2 .right-column > :nth-child(1),
+#deck-marco.state-3 .right-column > :nth-child(1) { animation: marco-slideInRight .72s ease .50s both; }
+#deck-marco.state-2 .right-column > :nth-child(2),
+#deck-marco.state-3 .right-column > :nth-child(2) { animation: marco-slideInRight .72s ease .67s both; }
+#deck-marco.state-4 .timeline-item:nth-child(1) { animation: marco-fadeInScale .62s ease .4s both; }
+#deck-marco.state-4 .timeline-item:nth-child(2) { animation: marco-fadeInScale .62s ease .56s both; }
+#deck-marco.state-4 .timeline-item:nth-child(3) { animation: marco-fadeInScale .62s ease .72s both; }
+#deck-marco.state-4 .timeline-item:nth-child(4) { animation: marco-fadeInScale .62s ease .88s both; }
+#deck-marco.state-5 .left-column > :nth-child(1) { animation: marco-fadeInScale .55s ease .36s both; }
+#deck-marco.state-5 .left-column > :nth-child(2) { animation: marco-slideInLeft .68s ease .43s both; }
+#deck-marco.state-5 .left-column > :nth-child(3) { animation: marco-slideInLeft .68s ease .55s both; }
+#deck-marco.state-5 .left-column > :nth-child(4) { animation: marco-slideInLeft .68s ease .67s both; }
+#deck-marco.state-5 .right-column > :nth-child(1) { animation: marco-fadeInScale .55s ease .4s both; }
+#deck-marco.state-5 .right-column > :nth-child(2) { animation: marco-slideInRight .68s ease .48s both; }
+#deck-marco.state-5 .right-column > :nth-child(3) { animation: marco-slideInRight .68s ease .60s both; }
+#deck-marco.state-5 .right-column > :nth-child(4) { animation: marco-slideInRight .68s ease .72s both; }
+@media (prefers-reduced-motion: reduce) {
+#deck-marco *::before,
+#deck-marco *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+#deck-marco button,
+#deck-marco a { cursor: none; }
+/* ===== METODOLOGIA ===== */
+#deck-metodologia .glass-container {
+            position: absolute;
+            top: 5vh; left: 4vw;
+            z-index: 2;
+            width: 92vw; height: 90vh;
+            background: rgba(15, 23, 42, 0.86);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+            padding: 0;
+            visibility: hidden;
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+            pointer-events: none;
+            transition: transform 0.9s cubic-bezier(0.7, 0, 0.3, 1),
+                        opacity 0.7s cubic-bezier(0.7, 0, 0.3, 1),
+                        visibility 0s linear 0.9s;
+            will-change: transform, opacity;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 3.4vh 38px max(14px, calc(92px - 5vh));
+        }
+#deck-metodologia.state-1 #metodologia-slide-01,
+#deck-metodologia.state-2 #metodologia-slide-02,
+#deck-metodologia.state-3 #metodologia-slide-03 {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+            visibility: visible;
+            transition-delay: 0.3s;
+        }
+#deck-metodologia .slide-header { margin-bottom: 2vh; text-align: center; }
+#deck-metodologia .slide-top-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(1.43rem, 3.9vh, 2.08rem);
+            font-weight: 700;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            line-height: 1.3;
+            background-image: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 28%, #e0f2fe 50%, #38bdf8 72%, #0ea5e9 100%);
+            background-size: 250% 250%;
+            background-position: 0% 0%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            animation: metodologia-shimmer 2.5s linear 2.4s infinite;
+            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.45));
+        }
+#deck-metodologia .grid-blueprint {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.4vh 28px;
+        }
+#deck-metodologia .grid-blueprint.una-columna {
+            grid-template-columns: 1fr;
+        }
+#deck-metodologia .left-column,
+#deck-metodologia .right-column {
+            display: flex; flex-direction: column; gap: 1.4vh;
+            width: 100%;
+            justify-content: center;
+        }
+#deck-metodologia .blueprint-card {
+            background: rgba(15, 23, 42, 0.88);
+            border: 1px solid rgba(56, 189, 248, 0.28);
+            border-left: 4px solid #38bdf8;
+            border-radius: 10px;
+            padding: 1.4vh 22px;
+            display: flex;
+            flex-direction: column;
+            gap: .8vh;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+        }
+#deck-metodologia .blueprint-card p {
+            font-size: clamp(1.14rem, 2.6vh, 1.56rem);
+            line-height: 1.45;
+            color: #cbd5e1;
+        }
+#deck-metodologia .blueprint-card strong { color: #f1f5f9; font-weight: 600; }
+#deck-metodologia .blueprint-card.ambar { border-left-color: #f59e0b; border-color: rgba(245, 158, 11, 0.3); }
+#deck-metodologia .blueprint-card.verde { border-left-color: #10b981; border-color: rgba(16, 185, 129, 0.3); }
+#deck-metodologia .blueprint-card.destacado {
+            background: rgba(15, 23, 42, 0.94);
+            border: 1px solid rgba(245, 158, 11, 0.45);
+            border-left: 4px solid #f59e0b;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+        }
+#deck-metodologia .card-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(.92rem, 1.95vh, 1.2rem);
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: #38bdf8;
+        }
+#deck-metodologia .blueprint-card.ambar .card-tag { color: #f59e0b; }
+#deck-metodologia .blueprint-card.verde .card-tag { color: #10b981; }
+#deck-metodologia .chips-metodo {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 14px;
+            margin-bottom: 2.2vh;
+        }
+#deck-metodologia .chip-metodo {
+            background: rgba(15, 23, 42, 0.92);
+            border: 1px solid rgba(56, 189, 248, 0.28);
+            border-top: 3px solid #38bdf8;
+            border-radius: 10px;
+            padding: 1.2vh 14px;
+            display: flex; flex-direction: column; gap: .6vh;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3);
+        }
+#deck-metodologia .chip-metodo.ambar { border-top-color: #f59e0b; border-color: rgba(245, 158, 11, 0.32); }
+#deck-metodologia .chip-metodo.verde { border-top-color: #10b981; border-color: rgba(16, 185, 129, 0.32); }
+#deck-metodologia .chip-metodo.ambar .card-tag { color: #f59e0b; }
+#deck-metodologia .chip-metodo.verde .card-tag { color: #10b981; }
+#deck-metodologia .chip-metodo p { font-size: clamp(1.05rem, 2.25vh, 1.35rem); line-height: 1.38; color: #e2e8f0; }
+#deck-metodologia .chips-metodo + .grid-blueprint { flex: 0 1 auto; }
+#deck-metodologia .tabla-metodo {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(.82rem, 1.8vh, 1.05rem);
+        }
+#deck-metodologia .tabla-metodo thead th {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(.72rem, 1.5vh, .9rem);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #38bdf8;
+            text-align: left;
+            padding: 1.2vh 16px;
+            border-bottom: 2px solid rgba(56, 189, 248, 0.4);
+            background: rgba(14, 165, 233, 0.06);
+        }
+#deck-metodologia .tabla-metodo tbody td {
+            padding: 1.2vh 16px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+            color: #cbd5e1;
+            line-height: 1.45;
+            vertical-align: middle;
+        }
+#deck-metodologia .tabla-metodo tbody tr:nth-child(even) td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+#deck-metodologia .tabla-metodo tbody td:first-child {
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+#deck-metodologia .tabla-metodo tbody td.num {
+            font-family: 'JetBrains Mono', monospace;
+            color: #38bdf8; /* respaldo sólido: siempre visible */
+            font-weight: 800;
+            text-align: center;
+            white-space: nowrap;
+        }
+#deck-metodologia .tabla-metodo tbody td.num .num-grad {
+            display: inline-block;
+            background-image: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 28%, #e0f2fe 50%, #38bdf8 72%, #0ea5e9 100%);
+            background-size: 250% 250%;
+            background-position: 0% 0%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.3));
+            animation: metodologia-shimmer 2.5s linear 2.4s infinite;
+        }
+#deck-metodologia .tabla-metodo tbody tr.total td {
+            border-top: 2px solid rgba(56, 189, 248, 0.4);
+            border-bottom: none;
+            background: rgba(14, 165, 233, 0.06);
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+#deck-metodologia .tabla-metodo tbody tr.total td.num { color: #38bdf8; }
+#deck-metodologia #metodologia-slide-01 .chips-metodo { margin-bottom: 4vh; margin-top: 1vh; }
+#deck-metodologia #metodologia-slide-01 .chip-metodo { padding: 2vh 18px; gap: 1vh; }
+#deck-metodologia #metodologia-slide-01 .chip-metodo p { font-size: clamp(1.14rem, 2.6vh, 1.56rem); line-height: 1.38; }
+#deck-metodologia #metodologia-slide-01 .chip-metodo .card-tag { font-size: clamp(.95rem, 2vh, 1.25rem); }
+#deck-metodologia #metodologia-slide-01 .grid-blueprint.una-columna { flex: 0 0 auto; }
+#deck-metodologia #metodologia-slide-01 .tabla-metodo { font-size: clamp(1.14rem, 2.6vh, 1.56rem); }
+#deck-metodologia #metodologia-slide-01 .tabla-metodo thead th { padding: 1.5vh 14px; font-size: clamp(1rem, 2.2vh, 1.3rem); }
+#deck-metodologia #metodologia-slide-01 .tabla-metodo tbody td { padding: 1.8vh 14px; }
+#deck-metodologia #metodologia-slide-01 .anclaje-pie { margin-top: auto; }
+@media (max-height: 950px) {
+#deck-metodologia #metodologia-slide-01 .chips-metodo { margin-bottom: 2.4vh; }
+#deck-metodologia #metodologia-slide-01 .chip-metodo { padding: 1.4vh 14px; }
+#deck-metodologia #metodologia-slide-01 .tabla-metodo tbody td { padding: 1.5vh 14px; }
+}
+#deck-metodologia .stats-destacadas {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.4vh;
+            margin-top: .6vh;
+        }
+#deck-metodologia .stat-box {
+            background: rgba(15, 23, 42, 0.94);
+            border: 1px solid rgba(56, 189, 248, 0.32);
+            border-radius: 8px;
+            padding: 1.4vh 16px;
+            display: flex;
+            flex-direction: column;
+            gap: .4vh;
+        }
+#deck-metodologia .stat-box .stat-valor {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(1.15rem, 2.65vh, 1.62rem);
+            font-weight: 800;
+            background-image: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 28%, #e0f2fe 50%, #38bdf8 72%, #0ea5e9 100%);
+            background-size: 250% 250%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: #38bdf8;
+            line-height: 1.2;
+            animation: metodologia-shimmer 2.5s linear 2.4s infinite;
+            filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.3));
+        }
+#deck-metodologia .stat-box.ambar .stat-valor {
+            background-image: linear-gradient(135deg, #f59e0b 0%, #fbbf24 28%, #fef3c7 50%, #fbbf24 72%, #f59e0b 100%);
+            filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.3));
+        }
+#deck-metodologia .stat-box.verde .stat-valor {
+            background-image: linear-gradient(135deg, #059669 0%, #34d399 28%, #d1fae5 50%, #34d399 72%, #059669 100%);
+            filter: drop-shadow(0 0 5px rgba(52, 211, 153, 0.3));
+        }
+#deck-metodologia .stat-box .stat-label {
+            font-size: clamp(.92rem, 1.7vh, 1.12rem);
+            color: #94a3b8;
+            line-height: 1.35;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+#deck-metodologia .stat-box.ambar { background: rgba(15, 23, 42, 0.96); border-color: rgba(245, 158, 11, 0.4); }
+#deck-metodologia .stat-box.ambar .stat-valor { color: #f59e0b; }
+#deck-metodologia .stat-box.verde { background: rgba(15, 23, 42, 0.96); border-color: rgba(16, 185, 129, 0.4); }
+#deck-metodologia .stat-box.verde .stat-valor { color: #10b981; }
+#deck-metodologia .pie-hallazgo {
+            margin-top: 1.4vh;
+            padding: 1.3vh 22px;
+            background: rgba(15, 23, 42, 0.94);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-left: 4px solid #0ea5e9;
+            border-radius: 10px;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+            font-size: clamp(1.05rem, 2.27vh, 1.36rem);
+            line-height: 1.4;
+            color: #e2e8f0;
+            font-style: italic;
+        }
+#deck-metodologia .pie-hallazgo strong { color: #38bdf8; font-weight: 700; font-style: normal; }
+#deck-metodologia .anclaje-pie {
+            margin-top: 1vh;
+            font-size: clamp(.8rem, 1.75vh, 1.04rem);
+            font-family: 'JetBrains Mono', monospace;
+            color: #64748b;
+            letter-spacing: 0.05em;
+            text-align: right;
+        }
+@media (max-width: 1000px) {
+#deck-metodologia .glass-container { left: 2vw; width: 96vw; padding-left: 22px; padding-right: 22px; }
+#deck-metodologia .chips-metodo { gap: 8px; }
+#deck-metodologia .chip-metodo { padding-left: 10px; padding-right: 10px; }
+#deck-metodologia .tabla-metodo thead th,
+#deck-metodologia .tabla-metodo tbody td { padding-left: 9px; padding-right: 9px; }
+}
+@media (max-width: 760px) {
+#deck-metodologia .chips-metodo { grid-template-columns: repeat(2, minmax(0, 1fr)); overflow-y: auto; }
+#deck-metodologia #metodologia-slide-01 { overflow-y: auto; }
+#deck-metodologia #metodologia-slide-01 .grid-blueprint { min-height: 36vh; overflow-x: auto; }
+#deck-metodologia .tabla-metodo { min-width: 850px; }
+#deck-metodologia .grid-blueprint { gap: 1vh 12px; }
+#deck-metodologia .blueprint-card { padding: 1vh 12px; }
+#deck-metodologia .blueprint-card p { font-size: clamp(1rem, 2vh, 1.2rem); }
+}
+#deck-metodologia .glass-container::before {
+            content: ''; position: absolute; inset: -1px;
+            border-radius: 25px; padding: 2px; pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.6s ease 0.9s;
+            background: conic-gradient(from var(--ang), transparent 0deg, transparent 240deg,
+                rgba(56, 189, 248, 0.15) 265deg, #38bdf8 315deg, #ffffff 340deg, transparent 360deg);
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+            mask-composite: exclude;
+        }
+#deck-metodologia.animaciones-activas .glass-container::before {
+            opacity: 1;
+            animation: metodologia-borderSpin 5s linear infinite;
+        }
+@keyframes metodologia-borderSpin { to { --ang: 360deg; } }
+@keyframes metodologia-shimmer {
+            0%   { background-position: 0% 0%; }
+            50%  { background-position: 100% 100%; }
+            100% { background-position: 0% 0%; }
+        }
+@keyframes metodologia-slideInDown {
+            from { opacity: 0; transform: translateY(-24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+@keyframes metodologia-slideInUp {
+            from { opacity: 0; transform: translateY(22px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+@keyframes metodologia-slideInLeft {
+            from { opacity: 0; transform: translateX(-24px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+@keyframes metodologia-slideInRight {
+            from { opacity: 0; transform: translateX(24px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+@keyframes metodologia-fadeInScale {
+            from { opacity: 0; transform: scale(.97); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+#deck-metodologia.state-1 #metodologia-slide-01 .slide-header,
+#deck-metodologia.state-2 #metodologia-slide-02 .slide-header,
+#deck-metodologia.state-3 #metodologia-slide-03 .slide-header {
+            animation: metodologia-slideInDown .6s .25s both;
+        }
+#deck-metodologia.state-1 #metodologia-slide-01 .chips-metodo { animation: metodologia-fadeInScale .8s .45s both; }
+#deck-metodologia.state-1 #metodologia-slide-01 .grid-blueprint { animation: metodologia-slideInUp .75s .65s both; }
+#deck-metodologia.state-2 #metodologia-slide-02 .left-column > :nth-child(1),
+#deck-metodologia.state-3 #metodologia-slide-03 .left-column > :nth-child(1) { animation: metodologia-slideInLeft .75s .45s both; }
+#deck-metodologia.state-2 #metodologia-slide-02 .left-column > :nth-child(2),
+#deck-metodologia.state-3 #metodologia-slide-03 .left-column > :nth-child(2) { animation: metodologia-slideInLeft .75s .62s both; }
+#deck-metodologia.state-2 #metodologia-slide-02 .left-column > :nth-child(3) { animation: metodologia-slideInLeft .75s .79s both; }
+#deck-metodologia.state-2 #metodologia-slide-02 .right-column > :nth-child(1),
+#deck-metodologia.state-3 #metodologia-slide-03 .right-column > :nth-child(1) { animation: metodologia-slideInRight .75s .52s both; }
+#deck-metodologia.state-2 #metodologia-slide-02 .right-column > :nth-child(2),
+#deck-metodologia.state-3 #metodologia-slide-03 .right-column > :nth-child(2) { animation: metodologia-slideInRight .75s .69s both; }
+#deck-metodologia.state-2 #metodologia-slide-02 .right-column > :nth-child(3) { animation: metodologia-slideInRight .75s .86s both; }
+#deck-metodologia.state-3 #metodologia-slide-03 .pie-hallazgo { animation: metodologia-slideInUp .7s 1s both; }
+@media (prefers-reduced-motion: reduce) {
+#deck-metodologia *::before,
+#deck-metodologia *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+}
+#deck-metodologia button,
+#deck-metodologia a { cursor: none; }
+    </style>
+</head>
+<body>
+
+    <div id="black-cover"></div>
+    <div id="entrada-fade"></div>
+
+    <div id="presentation-container">
+
+        <!-- FONDO: video compartido por todas las presentaciones -->
+        <div class="bg-video-wrap" id="bg-wrap">
+            <video class="bg-video" id="main-video" autoplay loop muted playsinline preload="auto">
+                <source src="videos1/asimetria1.mp4" type="video/mp4">
+            </video>
+        </div>
+
+<div class="deck" id="deck-problema">
+
+
+        <div class="slide-portada">
+            <img src="portada1.png" alt="">
+        </div>
+
+        <!-- SLIDE 02 — SUMARIO · MAPA DE LA DEFENSA -->
+        <main class="glass-container" id="problema-slide-02">
+            <div class="sumario-wrap">
+                <h1 class="sumario-rotulo shine-azul">Mapa de la defensa</h1>
+                <p class="sumario-subtitulo">10 estaciones</p>
+                <p class="sumario-pregunta shine-ambar-fuerte">
+                    ¿De qué manera la simulación y la gamificación en el SMO<br>
+                    pueden contribuir a la formación de competencias<br>
+                    tecnológicas en la Armada Paraguaya (2026–2028)?
+                </p>
+                <div class="sumario-sep"></div>
+                <div class="sumario-grid">
+                    <div class="sumario-estacion">
+                        <span class="sumario-num shine-azul">I.</span>
+                        <span class="sumario-nombre shine-azul">Problema</span>
+                    </div>
+                    <div class="sumario-estacion">
+                        <span class="sumario-num shine-azul">VI.</span>
+                        <span class="sumario-nombre shine-azul">Evidencia</span>
+                    </div>
+                    <div class="sumario-estacion">
+                        <span class="sumario-num shine-azul">II.</span>
+                        <span class="sumario-nombre shine-azul">Objetivos</span>
+                    </div>
+                    <div class="sumario-estacion">
+                        <span class="sumario-num shine-azul">VII.</span>
+                        <span class="sumario-nombre shine-azul">Conclusiones</span>
+                    </div>
+                    <div class="sumario-estacion">
+                        <span class="sumario-num shine-azul">III.</span>
+                        <span class="sumario-nombre shine-azul">Marco</span>
+                    </div>
+                    <div class="sumario-estacion">
+                        <span class="sumario-num shine-azul">VIII.</span>
+                        <span class="sumario-nombre shine-azul"><span class="shine-ambar">Metáfora</span> · El talento invisible</span>
+                    </div>
+                    <div class="sumario-estacion">
+                        <span class="sumario-num shine-azul">IV.</span>
+                        <span class="sumario-nombre shine-azul">Metodología</span>
+                    </div>
+                    <div class="sumario-estacion">
+                        <span class="sumario-num shine-azul">IX.</span>
+                        <span class="sumario-nombre shine-azul">Propuesta</span>
+                    </div>
+                    <div class="sumario-estacion">
+                        <span class="sumario-num shine-azul">V.</span>
+                        <span class="sumario-nombre shine-azul"><span class="shine-ambar">Metáfora</span> · El talento visible</span>
+                    </div>
+                    <div class="sumario-estacion">
+                        <span class="sumario-num shine-azul">X.</span>
+                        <span class="sumario-nombre shine-azul">Cierre</span>
+                    </div>
+                </div>
+                <p class="sumario-anclaje">Cap. I · Cap. V</p>
+            </div>
+        </main>
+
+        <!-- SLIDE 03 — LA TRANSFORMACIÓN DEL CONFLICTO -->
+        <main class="glass-container" id="problema-slide-03">
+            <header class="slide-header">
+                <h1 class="slide-top-title shine-azul">La transformación del conflicto</h1>
+            </header>
+
+            <section class="grid-blueprint">
+                <div class="left-column">
+                    <h2 class="column-title shine-azul">La nueva naturaleza de la guerra</h2>
+                    <article class="blueprint-card">
+                        <p>La guerra contemporánea se ha transformado hacia formas <strong>híbridas y asimétricas</strong>, donde la superioridad tecnológica es un factor de disuasión de primer orden.</p>
+                    </article>
+                    <article class="blueprint-card ambar">
+                        <p>Los <strong>drones FPV (First Person View)</strong> reconfiguran la letalidad y la transparencia del campo de batalla moderno. Su operación exige competencias tecnológicas específicas que no forman parte de la instrucción militar tradicional.</p>
+                    </article>
+                </div>
+
+                <div class="right-column">
+                    <h2 class="column-title shine-azul">El referente operacional</h2>
+                    <article class="blueprint-card verde">
+                        <p>La guerra ruso-ucraniana registra tasas de atrición cercanas a <strong>10.000 vectores aéreos mensuales</strong> por interferencia de señales y contramedida radioelectrónica.</p>
+                    </article>
+                    <article class="blueprint-card">
+                        <p>La efectividad de los UAV depende de la <strong>guerra electrónica</strong> del adversario. La simulación intensiva se consolidó como pilar de la preparación básica de operadores calificados.</p>
+                    </article>
+                </div>
+            </section>
+
+            <div class="anclaje-pie">Watling &amp; Reynolds (2023), RUSI · Cap. I — Descripción del problema</div>
+        </main>
+
+        <!-- SLIDE 04 — EL SMO PARAGUAYO -->
+        <main class="glass-container" id="problema-slide-04">
+            <header class="slide-header">
+                <h1 class="slide-top-title shine-azul">El Servicio Militar Obligatorio paraguayo</h1>
+            </header>
+
+            <section class="grid-blueprint">
+                <div class="left-column">
+                    <h2 class="column-title shine-azul">La institución</h2>
+                    <article class="blueprint-card">
+                        <p><strong>Ley N.º 569/75</strong> — casi 50 años de vigencia. El marco legal de la conscripción interactúa con una juventud nativa digital.</p>
+                    </article>
+                    <article class="blueprint-card ambar">
+                        <p>La instrucción, implementada en <strong>COMIN, COMANFLOT y EPSOA</strong>, se estructura bajo un modelo predominantemente presencial y analógico, sin integrar simulación remota.</p>
+                    </article>
+                </div>
+
+                <div class="right-column">
+                    <h2 class="column-title shine-azul">La juventud</h2>
+                    <article class="blueprint-card verde">
+                        <p><strong>INE (2022):</strong> más del 80 % de los jóvenes de 15 a 19 años utiliza internet habitualmente, tanto en entornos urbanos como rurales.</p>
+                    </article>
+                    <article class="blueprint-card">
+                        <p>Han desarrollado, de manera autodidacta, habilidades como <strong>resolución de problemas en interfaces digitales, reflejos rápidos y coordinación visomotora</strong>. Este caudal de competencias permanece inexplorado en el sistema de conscripción.</p>
+                    </article>
+                </div>
+            </section>
+
+            <div class="anclaje-pie">Ley N.º 569/1975 · INE (2022) · Cap. I — Descripción del problema</div>
+        </main>
+
+        <!-- SLIDE 05 — LA BRECHA INSTITUCIONAL -->
+        <main class="glass-container" id="problema-slide-05">
+            <header class="slide-header">
+                <h1 class="slide-top-title shine-azul">La brecha institucional</h1>
+            </header>
+
+            <section class="grid-blueprint">
+                <div class="left-column">
+                    <h2 class="column-title shine-azul">Lo que el joven trae</h2>
+                    <article class="blueprint-card lista">
+                        <ul>
+                            <li>Coordinación visomotora fina y reflejos rápidos.</li>
+                            <li>Resolución de problemas en interfaces digitales.</li>
+                            <li>Familiaridad con videojuegos y entornos virtuales.</li>
+                            <li>Afinidad con dispositivos electrónicos.</li>
+                        </ul>
+                    </article>
+                </div>
+
+                <div class="right-column">
+                    <h2 class="column-title shine-azul">Lo que el cuartel pide</h2>
+                    <article class="blueprint-card lista ambar">
+                        <ul>
+                            <li>Formación teórica y física tradicional.</li>
+                            <li>Sin simulación remota ni gamificación táctica.</li>
+                            <li>Sin puente pedagógico hacia lo táctico y técnico.</li>
+                            <li>Sin aprovechamiento del capital digital preexistente.</li>
+                        </ul>
+                    </article>
+                </div>
+            </section>
+
+            <div class="anclaje-pie">Cap. I — Descripción del problema</div>
+        </main>
+
+        <!-- SLIDE 06 — EL DILEMA ESTRATÉGICO -->
+        <main class="glass-container" id="problema-slide-06">
+            <header class="slide-header">
+                <h1 class="slide-top-title shine-azul">El dilema estratégico</h1>
+            </header>
+
+            <section class="grid-blueprint">
+                <div class="left-column">
+                    <h2 class="column-title shine-azul">Sostener el modelo actual</h2>
+                    <article class="blueprint-card lista">
+                        <ul>
+                            <li>Desmotivación creciente de los convocados.</li>
+                            <li>Fuga de capital humano tecnológico.</li>
+                            <li>Desconexión progresiva del perfil sociotecnológico.</li>
+                            <li>Pérdida de oportunidad para la defensa nacional.</li>
+                        </ul>
+                    </article>
+                </div>
+
+                <div class="right-column">
+                    <h2 class="column-title shine-azul">Actualizar los métodos</h2>
+                    <article class="blueprint-card lista verde">
+                        <ul>
+                            <li>Potenciar competencias preexistentes de los jóvenes.</li>
+                            <li>Orientar el SMO hacia especialización técnica.</li>
+                            <li>Generar valor operativo y valor civil simultáneos.</li>
+                            <li>Construir una reserva tecnológica desplegable.</li>
+                        </ul>
+                    </article>
+                </div>
+            </section>
+
+            <div class="anclaje-pie">Cap. I — El dilema estratégico</div>
+        </main>
+
+    
+</div>
+<div class="deck" id="deck-objetivos">
+
+
+        
+
+        <!-- SLIDE 01 — PREGUNTA GENERAL -->
+        <main class="glass-container" id="objetivos-slide-01">
+            <header class="slide-header">
+                <h1 class="slide-top-title shine-azul-fuerte">Pregunta general</h1>
+            </header>
+
+            <section class="grid-blueprint una-columna">
+                <div class="left-column">
+                    <article class="blueprint-card enunciado">
+                        <p class="shine-ambar-fuerte">¿De qué manera la implementación de tecnologías de simulación y gamificación en el Servicio Militar Obligatorio de la Armada Paraguaya puede contribuir a la formación de competencias tecnológicas en los ciudadanos que prestan el servicio militar, según el análisis de viabilidad para el período (2026–2028)?</p>
+                    </article>
+                </div>
+            </section>
+
+            <div class="anclaje-pie">Cap. I — Formulación del problema</div>
+        </main>
+
+        <!-- SLIDE 02 — OBJETIVO GENERAL -->
+        <main class="glass-container" id="objetivos-slide-02">
+            <header class="slide-header">
+                <h1 class="slide-top-title shine-azul-fuerte">Objetivo general</h1>
+            </header>
+
+            <section class="grid-blueprint una-columna">
+                <div class="left-column">
+                    <article class="blueprint-card enunciado">
+                        <p class="shine-ambar-fuerte">Analizar el potencial de contribución de las tecnologías de simulación y gamificación en el Servicio Militar Obligatorio de la Armada Paraguaya para la formación de competencias tecnológicas en la operación de drones FPV, período (2026–2028).</p>
+                    </article>
+                </div>
+            </section>
+
+            <div class="anclaje-pie">Cap. I — Objetivo general</div>
+        </main>
+
+        <!-- SLIDE 03 — OBJETIVOS ESPECÍFICOS (triángulo de fuego) -->
+        <main class="glass-container" id="objetivos-slide-03">
+            <header class="slide-header">
+                <h1 class="slide-top-title shine-azul-fuerte">Objetivos específicos</h1>
+            </header>
+
+            <div class="triangulo-wrap">
+                <svg class="triangulo-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <polygon points="50,6 94,92 6,92" />
+                </svg>
+
+                <div class="tri-card tri-oe1">
+                    <article class="blueprint-card">
+                        <p><strong class="shine-azul-fuerte">OE1.</strong> Diagnosticar el nivel actual de competencias tecnológicas y la disposición hacia el uso de simuladores tácticos que presentan los ciudadanos convocados al Servicio Militar Obligatorio.</p>
+                    </article>
+                </div>
+
+                <div class="tri-card tri-oe2">
+                    <article class="blueprint-card ambar">
+                        <p><strong class="shine-ambar-fuerte">OE2.</strong> Identificar los requerimientos técnicos y pedagógicos que debe cumplir una plataforma de simulación para favorecer la transferencia de habilidades reales a los ciudadanos que prestan el servicio militar obligatorio.</p>
+                    </article>
+                </div>
+
+                <div class="tri-card tri-oe3">
+                    <article class="blueprint-card verde">
+                        <p><strong class="shine-verde-fuerte">OE3.</strong> Proyectar analíticamente el impacto potencial en la reducción de costos operativos y el incremento de la capacidad de la Armada mediante la adopción de este modelo.</p>
+                    </article>
+                </div>
+            </div>
+
+            <div class="anclaje-pie">Cap. I — Objetivos específicos · Cap. IV — Resultados</div>
+        </main>
+
+        <!-- SLIDE 04 — HIPÓTESIS H1 / H0 -->
+        <main class="glass-container" id="objetivos-slide-04">
+            <header class="slide-header">
+                <h1 class="slide-top-title shine-azul-fuerte">Hipótesis de trabajo (H1) / Hipótesis nula (H0)</h1>
+            </header>
+
+            <section class="grid-blueprint">
+                <div class="left-column">
+                    <article class="blueprint-card hipotesis-card">
+                        <p><strong class="shine-azul-fuerte">H1.</strong> El modelo de instrucción basado en simulación y gamificación <strong>es percibido como una alternativa viable</strong> para formar competencias tecnológicas y presenta una expectativa favorable de reducción de costos y tiempos de instrucción, siempre que existan plataformas accesibles y viabilidad institucional para la modalidad remota.</p>
+                    </article>
+                </div>
+
+                <div class="right-column">
+                    <article class="blueprint-card ambar hipotesis-card">
+                        <p><strong class="shine-ambar-fuerte">H0.</strong> El modelo <strong>no es percibido como una alternativa viable</strong> para formar competencias tecnológicas ni para reducir costos y tiempos de instrucción, en función de la disponibilidad de plataformas comerciales y la viabilidad institucional de la modalidad remota.</p>
+                    </article>
+                </div>
+            </section>
+
+            <div class="pie-salvedad">
+                <strong>Salvedad:</strong> la reducción de costos se plantea como proyección prospectiva y expectativa de los actores relevados, no como resultado medido experimentalmente en esta fase del estudio.
+            </div>
+
+            <div class="anclaje-pie">Cap. I — Hipótesis · Cap. V — Contrastación H1/H0</div>
+        </main>
+
+    
+</div>
+<div class="deck" id="deck-marco">
+
+
+        
+
+        <!-- SLIDE 01 — MARCO CONCEPTUAL -->
+        <main class="glass-container" id="marco-slide-01">
+            <header class="slide-header">
+                <h1 class="slide-top-title shine-azul-fuerte">Marco conceptual</h1>
+            </header>
+
+            <section class="conceptual-lista">
+                <article class="conceptual-card">
+                    <div class="autor">Simulación</div>
+                    <p class="shine-texto-claro">Permite <strong>practicar tareas críticas en un entorno controlado</strong> antes de emplear equipos reales, repetir ejercicios y aprender del error con menor riesgo y desgaste.</p>
+                </article>
+                <article class="conceptual-card ambar">
+                    <div class="autor shine-texto-ambar">Gamificación</div>
+                    <p class="shine-texto-claro">Convierte el progreso en retos medibles —puntajes, niveles e insignias— para sostener la motivación y registrar el desempeño de cada participante.</p>
+                </article>
+                <article class="conceptual-card verde">
+                    <div class="autor shine-texto-verde">Competencias tecnológicas</div>
+                    <p class="shine-texto-claro">Son capacidades verificables para operar, diagnosticar y configurar sistemas UAV/FPV. <strong>Usar tecnología a diario no equivale, por sí solo, a dominarla técnicamente.</strong></p>
+                </article>
+                <article class="conceptual-card">
+                    <div class="autor">Filtro STEAM</div>
+                    <p class="shine-texto-claro">Categoría analítica propia: detecta aptitudes demostrables y orienta la selección técnica. Quien aún no alcanza el umbral requiere <strong>nivelación</strong>, no exclusión automática.</p>
+                </article>
+                <article class="conceptual-card ambar">
+                    <div class="autor shine-texto-ambar">Perfil STEAM</div>
+                    <p class="shine-texto-claro">Incluye trayectorias formales y autodidactas en ciencia, tecnología, ingeniería, artes y matemática: un posible caudal de talento que el sistema debe identificar y desarrollar.</p>
+                </article>
+            </section>
+
+            <div class="anclaje-pie">Cap. II — Base conceptual</div>
+        </main>
+
+        <!-- SLIDE 02 — MARCO TEÓRICO -->
+        <main class="glass-container desarrollo" id="marco-slide-02">
+            <header class="slide-header">
+                <h1 class="slide-top-title shine-azul-fuerte">Marco teórico</h1>
+            </header>
+
+            <section class="grid-blueprint dos-columnas">
+                <div class="left-column">
+                    <article class="blueprint-card">
+                        <div class="autor">Deci y Ryan · 1985/2000</div>
+                        <p class="shine-texto-claro">La motivación se fortalece cuando la persona experimenta <strong>competencia, autonomía y vínculo social</strong>.</p>
+                        <div class="funcion shine-texto-claro">Implicación: el simulador debe ofrecer práctica, retroalimentación y progreso visible; los puntos no sustituyen el aprendizaje.</div>
+                    </article>
+                    <article class="blueprint-card ambar">
+                        <div class="autor shine-texto-ambar">Becker · 1964</div>
+                        <p class="shine-texto-claro">La formación desarrolla capacidades que pueden incrementar el valor productivo de las personas.</p>
+                        <div class="funcion shine-texto-claro">Implicación: el SMO podría generar valor institucional y habilidades transferibles al joven; esta tesis estudia viabilidad, no impacto demostrado.</div>
+                    </article>
+                </div>
+
+                <div class="right-column">
+                    <article class="blueprint-card verde">
+                        <div class="autor shine-texto-verde">Arrow y Spence · 1973</div>
+                        <p class="shine-texto-claro">La educación y las credenciales actúan como <strong>señales de aptitud</strong> cuando las capacidades aún no se conocen.</p>
+                        <div class="funcion shine-texto-claro">Implicación: el filtro STEAM propone evaluar competencias verificables y ofrecer nivelación a quien todavía no las acredita.</div>
+                    </article>
+                    <article class="blueprint-card">
+                        <div class="autor">Rogers · 2003</div>
+                        <p class="shine-texto-claro">Adoptar una innovación depende tanto de la tecnología como de la organización y su cultura.</p>
+                        <div class="funcion shine-texto-claro">Implicación: la viabilidad exige personal técnico dedicado, reglas claras y gestión de la resistencia al cambio.</div>
+                    </article>
+                </div>
+            </section>
+
+            <div class="anclaje-pie">Cap. II — Fundamentación teórica</div>
+        </main>
+
+        <!-- SLIDE 03 — MARCO REFERENCIAL -->
+        <main class="glass-container desarrollo" id="marco-slide-03">
+            <header class="slide-header">
+                <h1 class="slide-top-title shine-azul-fuerte">Marco referencial</h1>
+            </header>
+
+            <section class="grid-blueprint dos-columnas">
+                <div class="left-column">
+                    <article class="blueprint-card">
+                        <div class="autor">Chile · simulación previa</div>
+                        <p class="shine-texto-claro">Los antecedentes revisados describen entrenamiento con simuladores y fases virtuales antes del vuelo real.</p>
+                        <div class="funcion shine-texto-claro">Lección para la Armada: avanzar de la práctica controlada al equipo real, sin asumir que el caso chileno se transfiere automáticamente.</div>
+                    </article>
+                    <article class="blueprint-card ambar">
+                        <div class="autor shine-texto-ambar">Hirst · 2022</div>
+                        <p class="shine-texto-claro">Estudia el uso militar de videojuegos y eSports en contextos de reclutamiento y modernización pedagógica.</p>
+                        <div class="funcion shine-texto-claro">Lección: los entornos lúdicos pueden apoyar la instrucción; por sí solos no prueban transferencia de habilidades operativas.</div>
+                    </article>
+                </div>
+
+                <div class="right-column">
+                    <article class="blueprint-card verde">
+                        <div class="autor shine-texto-verde">Garay y Reyes · 2012</div>
+                        <p class="shine-texto-claro">La simulación permite ensayar decisiones complejas, recibir retroalimentación y aprender del error sin exponer al personal al riesgo del terreno real.</p>
+                        <div class="funcion shine-texto-claro">Lección: es un complemento para practicar y evaluar, no un reemplazo integral del entrenamiento real.</div>
+                    </article>
+                    <article class="blueprint-card">
+                        <div class="autor">Talpiot · Israel</div>
+                        <p class="shine-texto-claro">Referencia de selección y formación prolongada de talento STEM para funciones tecnológicas de defensa.</p>
+                        <div class="funcion shine-texto-claro">Lección: identificar aptitudes temprano ayuda a orientar trayectorias; su modelo no puede trasladarse sin ajustes al SMO paraguayo.</div>
+                    </article>
+                </div>
+            </section>
+
+            <div class="anclaje-pie">Cap. II — Contexto referencial</div>
+        </main>
+
+        <!-- SLIDE 04 — MARCO HISTÓRICO -->
+        <main class="glass-container desarrollo" id="marco-slide-04">
+            <header class="slide-header">
+                <h1 class="slide-top-title shine-azul-fuerte">Marco histórico</h1>
+            </header>
+
+            <section class="grid-blueprint una-columna" style="display:flex;align-items:center;justify-content:center;flex:1;position:static;min-height:0;">
+                <div class="timeline-wrap">
+                    <div class="timeline-line"></div>
+                    <div class="timeline-items">
+                        <div class="timeline-item">
+                            <div class="timeline-year shine-azul-fuerte">1930</div>
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-card">
+                                <p class="shine-texto-claro"><strong>Link Trainer.</strong> Trasladó parte de la instrucción de vuelo a tierra: practicar procedimientos sin exponer una aeronave real.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item ambar">
+                            <div class="timeline-year shine-ambar-fuerte">Años 1990</div>
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-card">
+                                <p class="shine-texto-claro"><strong>Marine Doom.</strong> Adaptó un videojuego comercial para ejercitar decisiones tácticas y cooperación, mostrando que una plataforma existente puede tener uso formativo.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item verde">
+                            <div class="timeline-year shine-verde-fuerte">2015–2026</div>
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-card">
+                                <p class="shine-texto-claro"><strong>Simuladores FPV.</strong> Los programas para ordenadores personales facilitaron repetir maniobras antes de emplear drones físicos; la práctica real sigue siendo necesaria para validar destrezas.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-year shine-azul-fuerte">Paraguay</div>
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-card">
+                                <p class="shine-texto-claro"><strong>Brecha por explorar.</strong> La revisión no identificó antecedentes formales de simulación FPV en el SMO. Esta ausencia justifica estudiar la viabilidad, pero no demuestra de antemano que el modelo funcione.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="anclaje-pie">Cap. II — Antecedentes históricos</div>
+        </main>
+
+        <!-- SLIDE 05 — MARCO LEGAL -->
+        <main class="glass-container desarrollo" id="marco-slide-05">
+            <header class="slide-header">
+                <h1 class="slide-top-title shine-azul-fuerte">Marco legal · CN art. 129 y legislación complementaria</h1>
+            </header>
+
+            <section class="grid-blueprint">
+                <div class="left-column">
+                    <h2 class="column-title shine-texto-claro">Bases normativas</h2>
+                    <article class="blueprint-card">
+                        <p class="shine-texto-claro"><strong>Constitución, art. 129; Ley 569/1975.</strong> Fijan el deber de defensa y el marco del SMO. Cualquier modalidad debe conservar la finalidad del servicio y ajustarse a la ley.</p>
+                    </article>
+                    <article class="blueprint-card ambar">
+                        <p class="shine-texto-claro"><strong>Ley 1.337/1999 y Ley 6.723/2021.</strong> Enmarcan la defensa nacional y la reserva; ofrecen referencias para analizar cómo identificar y formar capacidades útiles para la institución.</p>
+                    </article>
+                    <article class="blueprint-card verde">
+                        <p class="shine-texto-claro"><strong>Ley 1.115/1997, art. 57.</strong> Regula condiciones de acceso a cuadros complementarios y permite observar rutas de incorporación distintas según la situación jurídica del aspirante.</p>
+                    </article>
+                </div>
+
+                <div class="right-column">
+                    <h2 class="column-title shine-texto-claro">Implicación para el modelo</h2>
+                    <article class="blueprint-card">
+                        <p class="shine-texto-claro">La propuesta explora una <strong>vía formativa orientada a competencias STEAM</strong>; la normativa citada no debe presentarse, por sí sola, como autorización automática de un SMO virtual.</p>
+                    </article>
+                    <article class="blueprint-card ambar">
+                        <p class="shine-texto-claro">La eventual reserva tecnológica requeriría definir selección, nivelación, certificación y responsabilidades institucionales, además de validar su encuadre jurídico.</p>
+                    </article>
+                    <article class="blueprint-card verde">
+                        <p class="shine-texto-claro">La implementación deberá contemplar la <strong>Ley 7.593/2025 de protección de datos</strong>, la seguridad de la información y la adecuación reglamentaria. Por ahora, el estudio evalúa viabilidad inicial, no autorización ni impacto medido.</p>
+                    </article>
+                </div>
+            </section>
+
+            <div class="anclaje-pie">CN 1992, art. 129 · Leyes 569/1975, 1.115/1997, 1.337/1999, 6.723/2021 y 7.593/2025</div>
+        </main>
+
+    
+</div>
+<div class="deck" id="deck-metodologia">
+
+
+        
+
+        <!-- ==================================================
+             SLIDE 01 — DISEÑO Y MUESTRA
+             ================================================== -->
+        <main class="glass-container" id="metodologia-slide-01">
+            <header class="slide-header">
+                <h1 class="slide-top-title">Diseño y muestra</h1>
+            </header>
+
+            <section class="chips-metodo">
+                <div class="chip-metodo">
+                    <span class="card-tag">Enfoque</span>
+                    <p>Mixto, con predominio cuantitativo</p>
+                </div>
+                <div class="chip-metodo ambar">
+                    <span class="card-tag">Diseño</span>
+                    <p>No experimental y transversal</p>
+                </div>
+                <div class="chip-metodo verde">
+                    <span class="card-tag">Nivel</span>
+                    <p>Descriptivo con elementos exploratorios</p>
+                </div>
+                <div class="chip-metodo">
+                    <span class="card-tag">Alcance</span>
+                    <p>Viabilidad inicial; no mide impacto</p>
+                </div>
+                <div class="chip-metodo ambar">
+                    <span class="card-tag">Análisis</span>
+                    <p>Estadística descriptiva, χ², prueba binomial y triangulación</p>
+                </div>
+            </section>
+
+            <section class="grid-blueprint una-columna">
+                <table class="tabla-metodo">
+                    <thead>
+                        <tr>
+                            <th>Fase</th>
+                            <th>Instrumento</th>
+                            <th>Grupo consultado</th>
+                            <th style="text-align:center;">Registros</th>
+                            <th>Muestreo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>I</td>
+                            <td>Interés y motivación (Likert, 5 puntos)</td>
+                            <td>Jóvenes en edad militar y conscriptos/grumetes</td>
+                            <td class="num"><span class="num-grad">300</span></td>
+                            <td>Conveniencia</td>
+                        </tr>
+                        <tr>
+                            <td>II</td>
+                            <td>Perfil tecnológico de entrada</td>
+                            <td>Jóvenes y conscriptos/grumetes de COMIN, COMANFLOT y EPSOA</td>
+                            <td class="num"><span class="num-grad">74</span></td>
+                            <td>Conveniencia</td>
+                        </tr>
+                        <tr>
+                            <td>III</td>
+                            <td>Requerimientos técnicos</td>
+                            <td>Personal militar instructor de COMIN, COMANFLOT y EPSOA</td>
+                            <td class="num"><span class="num-grad">116</span></td>
+                            <td>Conveniencia</td>
+                        </tr>
+                        <tr class="total">
+                            <td colspan="3">Participaciones registradas acumuladas</td>
+                            <td class="num"><span class="num-grad">490</span></td>
+                            <td>—</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <div class="anclaje-pie">Cap. III — Enfoque, diseño, población y muestra</div>
+        </main>
+
+        <!-- ==================================================
+             SLIDE 02 — LIMITACIONES
+             ================================================== -->
+        <main class="glass-container" id="metodologia-slide-02">
+            <header class="slide-header">
+                <h1 class="slide-top-title">Limitaciones</h1>
+            </header>
+
+            <section class="grid-blueprint">
+                <div class="left-column">
+                    <article class="blueprint-card">
+                        <span class="card-tag">Muestreo</span>
+                        <p>En las tres fases se usó <strong>muestreo no probabilístico por conveniencia</strong>, en lugar del estratificado previsto. Los resultados describen a los participantes; no se generalizan estadísticamente a toda la población.</p>
+                    </article>
+                    <article class="blueprint-card ambar">
+                        <span class="card-tag">Efecto techo</span>
+                        <p>Más del 95 % respondió en categorías 4–5; el α fue ≈ 0,11 en los instrumentos N.º 2 y 3. La concentración restringe la variabilidad y exige interpretar la consistencia con cautela; se desarrolla en la lámina siguiente.</p>
+                    </article>
+                    <article class="blueprint-card verde">
+                        <span class="card-tag">Cobertura</span>
+                        <p>La observación directa se realizó solo en la <strong>EPSOA (N=1)</strong>. La equivalencia con COMIN y COMANFLOT se asumió por similitud de infraestructura y régimen; no fue comprobada allí mediante observación directa.</p>
+                    </article>
+                </div>
+
+                <div class="right-column">
+                    <article class="blueprint-card">
+                        <span class="card-tag">Segmento femenino</span>
+                        <p>El levantamiento se limitó al universo masculino elegible según el marco normativo considerado. La viabilidad para mujeres es una <strong>inferencia normativa</strong>, no un resultado medido en la muestra.</p>
+                    </article>
+                    <article class="blueprint-card ambar">
+                        <span class="card-tag">Costos no cuantificados</span>
+                        <p>No se dispuso de registros suficientes para calcular el ahorro real. La posible reducción de costos es una expectativa que debe contrastarse en un <strong>piloto</strong>, no un resultado demostrado.</p>
+                    </article>
+                    <article class="blueprint-card destacado">
+                        <span class="card-tag">Condiciones emergentes no medidas</span>
+                        <p>La necesidad de personal técnico, nivelación inicial y gestión de la resistencia cultural surgió de la convergencia de técnicas. Al no contar con instrumentos independientes, se presentan como <strong>condiciones emergentes por validar</strong>.</p>
+                    </article>
+                </div>
+            </section>
+
+            <div class="anclaje-pie">Cap. III — Limitaciones</div>
+        </main>
+
+        <!-- ==================================================
+             SLIDE 03 — HALLAZGO METODOLÓGICO · EFECTO TECHO
+             ================================================== -->
+        <main class="glass-container" id="metodologia-slide-03">
+            <header class="slide-header">
+                <h1 class="slide-top-title">Hallazgo metodológico · Efecto techo</h1>
+            </header>
+
+            <section class="grid-blueprint">
+                <div class="left-column">
+                    <article class="blueprint-card">
+                        <span class="card-tag">El problema aparente</span>
+                        <p>En los instrumentos N.º 2 y 3, el <strong>α de Cronbach ≈ 0,11</strong>. A la vez, más del <strong>95 % de las respuestas</strong> se concentra en categorías 4–5. Este efecto techo restringe la variabilidad y puede reducir el alfa; por tanto, el coeficiente bajo debe reconocerse como una limitación.</p>
+                    </article>
+                    <article class="blueprint-card ambar">
+                        <span class="card-tag">La pregunta del tribunal</span>
+                        <p>¿La concentración favorable basta para validar el instrumento? <strong>No por sí sola.</strong> Se contrasta la distribución y la proporción de respuestas mediante pruebas inferenciales. Estas respaldan la favorabilidad observada, pero no sustituyen una validación psicométrica completa.</p>
+                    </article>
+                </div>
+
+                <div class="right-column">
+                    <article class="blueprint-card verde">
+                        <span class="card-tag">Contraste inferencial</span>
+                        <div class="stats-destacadas">
+                            <div class="stat-box">
+                                <span class="stat-valor">χ² 573,90–1102,63</span>
+                                <span class="stat-label">Bondad de ajuste · 14 ítems</span>
+                            </div>
+                            <div class="stat-box verde">
+                                <span class="stat-valor">p &lt; 0,001</span>
+                                <span class="stat-label">En los ítems evaluados</span>
+                            </div>
+                            <div class="stat-box ambar">
+                                <span class="stat-valor">97,3 % – 99,3 %</span>
+                                <span class="stat-label">Respuestas 4 y 5 · n=300</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-valor">Binomial unilateral</span>
+                                <span class="stat-label">Favorabilidad &gt; 50 % · p &lt; 0,001</span>
+                            </div>
+                        </div>
+                    </article>
+                    <article class="blueprint-card">
+                        <span class="card-tag">La interpretación</span>
+                        <p>La distribución difiere significativamente de la uniforme y la favorabilidad supera el 50 %. Los resultados respaldan una <strong>actitud ampliamente favorable en esta muestra</strong>; no demuestran, por sí solos, transferencia de habilidades ni impacto del modelo.</p>
+                    </article>
+                </div>
+            </section>
+
+            <div class="pie-hallazgo">
+                <strong>Conclusión defendible:</strong> las pruebas respaldan una favorabilidad muy alta en la muestra; el efecto techo sigue siendo una limitación de discriminación y el α bajo no debe descartarse. La metodología permite describir disposición, no demostrar eficacia.
+            </div>
+
+            <div class="anclaje-pie">Cap. IV — Contraste inferencial complementario · Cap. III — Limitaciones</div>
+        </main>
+
+    
+</div>
+
+    </div>
+
+    <div id="ui-layer">
+        <button class="ui-btn" onclick="irAnterior()">← <span class="ui-key">P</span></button>
+        <span id="slide-indicator">Diapositiva 1 / 18</span>
+        <button class="ui-btn" onclick="irSiguiente()"><span class="ui-key">N</span> →</button>
+        <button class="ui-btn" onclick="toggleFullscreen()">⛶ <span class="ui-key">F</span></button>
+    </div>
+
+    <script>
+
+        const DECKS = [{"key": "problema", "n": 6, "portada": true, "video": {"2": "scale(1.12) translateX(-3%)", "3": "scale(1.05) translateX(3%)", "4": "scale(1.15) translateX(-4%)", "5": "scale(1.10) translateX(2%)", "6": "scale(1.08) translateX(-2%)"}}, {"key": "objetivos", "n": 4, "portada": false, "video": {"1": "scale(1.08) translateX(0)", "2": "scale(1.12) translateX(-3%)", "3": "scale(1.05) translateX(3%)", "4": "scale(1.15) translateX(-4%)"}}, {"key": "marco", "n": 5, "portada": false, "video": {"1": "scale(1.08) translateX(0)", "2": "scale(1.12) translateX(-3%)", "3": "scale(1.05) translateX(3%)", "4": "scale(1.15) translateX(-4%)", "5": "scale(1.10) translateX(2%)"}}, {"key": "metodologia", "n": 3, "portada": false, "video": {"1": "scale(1.08) translateX(0)", "2": "scale(1.12) translateX(-3%)", "3": "scale(1.05) translateX(3%)"}}];
+        const NEXT_FILE = 'presentación1.html';           // destino tras la última lámina (igual que en metodologia1.html)
+        const totalSlides = DECKS.reduce((a, d) => a + d.n, 0);
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        const video = document.getElementById('main-video');
+        const bgWrap = document.getElementById('bg-wrap');
+        const indicator = document.getElementById('slide-indicator');
+        const deckEls = DECKS.map(d => document.getElementById('deck-' + d.key));
+        let currentSlide = 1;
+        let isTransitioning = false;
+
+        function reproducirVideo() {
+            if (!video) return;
+            video.muted = true; video.defaultMuted = true; video.volume = 0;
+            const p = video.play();
+            if (p && p.catch) p.catch(() => {});
+        }
+
+        /* lámina global -> {deck, estado local} */
+        function locate(g) {
+            let acc = 0;
+            for (let i = 0; i < DECKS.length; i++) {
+                if (g <= acc + DECKS[i].n) return { i, s: g - acc };
+                acc += DECKS[i].n;
+            }
+            return { i: DECKS.length - 1, s: DECKS[DECKS.length - 1].n };
+        }
+
+        function render(g) {
+            const { i, s } = locate(g);
+            deckEls.forEach((el, k) => {
+                el.className = 'deck' + (k === i ? ' state-' + s : '') + ' animaciones-activas';
+            });
+            const d = DECKS[i];
+            const portada = d.portada && s === 1;
+            bgWrap.classList.toggle('oculto', portada);
+            bgWrap.style.transform = d.video[String(s)] || '';
+            indicator.textContent = `Diapositiva ${g} / ${totalSlides}`;
+        }
+
+        function arrancarPresentacion() {
+            const container = document.getElementById('presentation-container');
+            const entrada   = document.getElementById('entrada-fade');
+            const cover     = document.getElementById('black-cover');
+
+            container.classList.add('listo');
+            render(1);
+            entrada.classList.add('arrancar');
+
+            reproducirVideo();
+            setTimeout(reproducirVideo, 300);
+
+            function onFadeEnd(e) {
+                if (e.animationName !== 'entradaFade') return;
+                entrada.removeEventListener('animationend', onFadeEnd);
+                cover.classList.add('quitar');
+                setTimeout(() => { if (cover.parentNode) cover.remove(); }, 600);
+            }
+            entrada.addEventListener('animationend', onFadeEnd);
+
+            setTimeout(() => {
+                if (document.getElementById('black-cover')) {
+                    cover.classList.add('quitar');
+                    setTimeout(() => { if (cover.parentNode) cover.remove(); }, 600);
+                }
+            }, 2000);
+        }
+
+        window.addEventListener('load', () => {
+            reproducirVideo();
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => { arrancarPresentacion(); });
+            });
+        });
+
+        setTimeout(() => {
+            const container = document.getElementById('presentation-container');
+            if (!container.classList.contains('listo')) { arrancarPresentacion(); }
+        }, 3000);
+
+        /* Salida final (después de la última lámina de metodología) */
+        function salirAlSiguiente() {
+            const salida = document.createElement('div');
+            salida.style.cssText = 'position:fixed;inset:0;background:#000;z-index:99999;opacity:0;pointer-events:none;transition:opacity 0.4s ease;';
+            document.body.appendChild(salida);
+            requestAnimationFrame(() => { salida.style.opacity = '1'; });
+            setTimeout(() => { window.location.href = NEXT_FILE; }, 450);
+        }
+
+        function changeSlide(target) {
+            if (isTransitioning || target === currentSlide) return;
+            if (target < 1 || target > totalSlides) return;
+            isTransitioning = true;
+            currentSlide = target;
+            render(target);
+            setTimeout(() => { isTransitioning = false; }, reducedMotion.matches ? 50 : 1200);
+        }
+
+        function irAnterior() { if (currentSlide > 1) changeSlide(currentSlide - 1); }
+        function irSiguiente() {
+            if (currentSlide === totalSlides) { salirAlSiguiente(); return; }
+            changeSlide(currentSlide + 1);
+        }
+
+        /* Escape: salta a la primera lámina de la siguiente presentación (o sale si es la última) */
+        function saltarPresentacion() {
+            const { i } = locate(currentSlide);
+            if (i === DECKS.length - 1) { salirAlSiguiente(); return; }
+            let first = 1;
+            for (let k = 0; k <= i; k++) first += DECKS[k].n;
+            changeSlide(first);
+        }
+
+        /* Fullscreen */
+        let primeraInteraccionHecha = false;
+        function solicitarFullscreen() {
+            if (document.fullscreenElement || document.webkitFullscreenElement) return;
+            const el = document.documentElement;
+            const requestFn = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+            if (requestFn) { try { requestFn.call(el); } catch (e) {} }
+        }
+        function toggleFullscreen() {
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                if (document.exitFullscreen) document.exitFullscreen();
+            } else { solicitarFullscreen(); }
+        }
+        ['click', 'touchstart', 'pointerdown'].forEach(ev => {
+            document.addEventListener(ev, () => {
+                if (!primeraInteraccionHecha) {
+                    primeraInteraccionHecha = true;
+                    solicitarFullscreen();
+                }
+                reproducirVideo();
+            }, { passive: true });
+        });
+
+        /* Teclado */
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (key === 'n' || key === 'arrowright' || key === 'pagedown' || e.code === 'Space') { e.preventDefault(); irSiguiente(); }
+            else if (key === 'p' || key === 'arrowleft' || key === 'pageup' || key === 'backspace') { e.preventDefault(); irAnterior(); }
+            else if (key === 'f') { e.preventDefault(); toggleFullscreen(); }
+            else if (key === 'escape') { e.preventDefault(); saltarPresentacion(); }
+        });
+
+        /* Swipe */
+        let touchStartX = 0, touchStartY = 0, touchStartT = 0;
+        document.addEventListener('touchstart', (e) => {
+            const t = e.changedTouches[0];
+            touchStartX = t.screenX; touchStartY = t.screenY; touchStartT = Date.now();
+        }, { passive: true });
+        document.addEventListener('touchend', (e) => {
+            const t = e.changedTouches[0];
+            const dx = t.screenX - touchStartX, dy = t.screenY - touchStartY, dt = Date.now() - touchStartT;
+            if (dt < 600 && Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+                if (dx < 0) irSiguiente(); else irAnterior();
+            }
+        }, { passive: true });
+
+        /* Cursor */
+        let cursorTimeout;
+        function mostrarCursorTemporalmente() {
+            document.documentElement.classList.add('cursor-visible');
+            clearTimeout(cursorTimeout);
+            cursorTimeout = setTimeout(() => { document.documentElement.classList.remove('cursor-visible'); }, 2000);
+        }
+        document.addEventListener('mousemove', mostrarCursorTemporalmente);
+        document.addEventListener('mousedown', mostrarCursorTemporalmente);
+
+    </script>
+</body>
+</html>
