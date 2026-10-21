@@ -1001,7 +1001,13 @@
             100% { opacity: 0; transform: scale(2.6); filter: blur(12px); }
         }
         #final-boxA { left: calc(50% - var(--u) * 32); width: calc(var(--u) * 64); }
-        #final-boxA.show, #final-boxB.show, #final-boxT.show { transform: none; }
+         #final-boxA.show, #final-boxB.show, #final-boxT.show { transform: none; }
+
+        /* Acercamiento de los dos textos finales antes del hiperespacio */
+        #final-bt.acercar {
+            gap: calc(var(--u) * 0.8);
+            transition: gap .7s cubic-bezier(.16,.8,.2,1);
+        }
     </style>
 </head>
 <body>
@@ -1681,7 +1687,7 @@
             { focusZ: -100,
               z:  [[0, 880], [1, -100], [2, -520]],
               op: [[0, 1],   [1, 1],    [2, 0.45]],
-              x:  [[0, 29.5], [1, 0],   [2, 2]],
+              x:  [[0, 29.5], [1, 14],   [2, 4]],
               y:  [[0, 0],   [1, 0],    [2, 3]] },
             { focusZ: -111,
               z:  [[0, 880], [1, 880],  [2, -111]],
@@ -2237,7 +2243,7 @@
             const cv = $('final-stars'), ctx = cv.getContext('2d');
             const boxA = $('final-boxA'), boxB = $('final-boxB'), boxT = $('final-boxT');
             const flash = $('final-flash');
-            const boxes = [boxA, $('final-bt')];
+            const boxes = [$('final-bt')];
 
             const N = 520;
             const stars = [];
@@ -2325,18 +2331,33 @@
                 requestAnimationFrame(frame);
             }
 
-            function reiniciar() {
+                     function reiniciar() {
                 clearTimeout(timer);
                 hyper = null; leaving = false; target = 0;
                 flash.style.opacity = 0;
                 boxes.forEach(b => { b.classList.remove('show', 'hiper'); });
+                boxA.classList.remove('show', 'hiper');
+                boxA.style.transition = '';
+                boxA.style.opacity = '';
                 boxB.classList.remove('show'); boxT.classList.remove('show');
+                const bt = $('final-bt');
+                if (bt) bt.classList.remove('acercar');
                 stars.forEach(st => seed(st));
                 ctx.clearRect(0, 0, W, H);
             }
 
-            function hiperespacio() {
+                       function hiperespacio() {
                 clearTimeout(timer);
+
+                // Ocultar "Este trabajo no propone comprar drones" al instante, sin fade
+                boxA.style.transition = 'none';
+                boxA.style.opacity = '0';
+                boxA.classList.remove('show');
+
+                // Acercar los dos textos finales antes del salto
+                const bt = $('final-bt');
+                if (bt) bt.classList.add('acercar');
+
                 hyper = { t0: performance.now() };
                 boxes.forEach(b => { b.classList.add('hiper'); });
             }
