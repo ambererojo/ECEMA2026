@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
+    <!-- Meta tags para modo app en iOS/Android -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -12,7 +13,8 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Presentación 4 - Conclusiones</title>
+
+    <title>Presentación de Tesis - Sección 3</title>
 
     <style>
         html { background: #000 !important; }
@@ -22,13 +24,14 @@
             z-index: 2147483647; pointer-events: none; opacity: 1;
         }
         #black-cover.quitar { transition: opacity 0.5s ease; opacity: 0; }
-        #presentation-container { display: none; }
-        #presentation-container.listo { display: block; }
+        #contenido { display: none; }
+        #contenido.listo { display: block; }
     </style>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,500;1,600;1,700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Rajdhani:wght@500;600&display=swap" rel="stylesheet">
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -40,7 +43,8 @@
             color: #f8fafc;
         }
 
-        html, body, #presentation-container {
+        /* FIX MÓVIL: desactivar gestos del navegador */
+        html, body, #contenido {
             touch-action: none;
             overscroll-behavior: none;
             -webkit-user-select: none;
@@ -49,10 +53,23 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        #presentation-container {
+        :root {
+            --navy: #050811;
+            --cian: #0ea5e9;
+            --cian-suave: #38bdf8;
+            --ambar: #f59e0b;
+            --ambar-suave: #fbbf24;
+            --gris: #94a3b8;
+            --gris-oscuro: #475569;
+            --borde: rgba(148, 163, 184, 0.15);
+            --u: min(1vw, 1.7778vh);
+        }
+
+        #contenido {
             position: relative;
             width: 100vw; height: 100vh;
             overflow: hidden;
+            background: #000;
         }
 
         #entrada-fade {
@@ -69,289 +86,547 @@
             100% { opacity: 0; visibility: hidden; }
         }
 
-        /* VIDEO DE FONDO */
-        .bg-parallax {
-            position: absolute; inset: 0; z-index: 1;
-            overflow: hidden;
-            transform: scale(1.06);
-            transition: transform 1.8s cubic-bezier(0.7, 0, 0.3, 1);
-            will-change: transform;
-        }
-        .bg-parallax::after {
-            content: ''; position: absolute; inset: 0; z-index: 2;
-            pointer-events: none;
-            background: radial-gradient(ellipse at center, transparent 45%, rgba(0, 0, 0, 0.65) 100%);
-        }
-        .bg-video {
-            position: absolute; top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            object-fit: cover;
-            filter: grayscale(100%) contrast(1.12) brightness(0.34);
-            animation: bgDrift 40s ease-in-out infinite alternate;
-            will-change: transform;
-        }
-        .state-1 .bg-parallax { transform: scale(1.06) translateX(0); }
-        .state-2 .bg-parallax { transform: scale(1.12) translateX(-3%); }
-        .state-3 .bg-parallax { transform: scale(1.18) translateX(3%); }
-        .state-4 .bg-parallax { transform: scale(1.10) translateX(-2%); }
-        .state-5 .bg-parallax { transform: scale(1.15) translateX(-5%); }
-        .state-6 .bg-parallax { transform: scale(1.20) translateX(4%); }
-        @keyframes bgDrift { from { transform: scale(1); } to { transform: scale(1.07); } }
-
-        /* BASE DEL SLIDE (glass) */
-        .glass-container {
+        /* ============ SISTEMA DE SLIDES ============ */
+        .slide {
             position: absolute;
-            top: 5vh; left: 4vw;
-            z-index: 2;
-            width: 92vw; height: 90vh;
-            background: rgba(15, 23, 42, 0.86);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 24px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-            padding: 0;
-            visibility: hidden;
+            inset: 0;
+            padding: 4vh 5vw;
+            display: none;
+            flex-direction: column;
+            overflow-y: auto;
             opacity: 0;
-            transform: translateY(20px) scale(0.98);
-            pointer-events: none;
-            transition: transform 0.9s cubic-bezier(0.7, 0, 0.3, 1),
-                        opacity 0.7s cubic-bezier(0.7, 0, 0.3, 1),
-                        visibility 0s linear 0.9s;
-            will-change: transform, opacity;
-            backface-visibility: hidden;
+            transition: opacity 1.2s ease;
+        }
+        .slide.activo { display: flex; opacity: 1; }
+
+        .slide.slide-video {
+            padding: 0;
+            overflow: hidden;
+            background: #000;
+            transition: opacity 1.8s ease;
         }
 
-        /* CARTEL — variante a pantalla completa, sin fondo negro */
-        .glass-container.cartel {
-            background: transparent;
-            border: none;
-            box-shadow: none;
-            border-radius: 0;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .glass-container.cartel::before { display: none; }
-
-        /* ESTADOS ACTIVOS */
-        .state-1 #slide-01, .state-2 #slide-02,
-        .state-3 #slide-03, .state-4 #slide-04,
-        .state-5 #slide-05, .state-6 #slide-06 {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-            pointer-events: auto;
-            visibility: visible;
-            transition-delay: 0.3s;
+        .slide.slide-musk,
+        .slide.slide-palmer,
+        .slide.slide-wald {
+            padding: 0;
+            overflow: hidden;
+            background: #000;
+            transition: opacity 1.8s ease;
+            user-select: none;
         }
 
-        /* RÓTULO ACADÉMICO — header mono cian centrado */
-        .slide-header {
+        /* ============ VIDEO FULLSCREEN (slide 1) ============ */
+        .video-fullscreen {
             position: absolute;
-            top: 1.5cm;
-            left: 38px;
-            right: 38px;
-            text-align: center;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: #000;
+            z-index: 1;
+        }
+
+        .video-fade-out {
+            position: absolute;
+            inset: 0;
+            background: #000;
+            opacity: 0;
+            z-index: 5;
+            pointer-events: none;
+            transition: opacity 2s ease;
+        }
+        .video-fade-out.activar { opacity: 1; }
+
+        /* ============ OVERLAYS DE TEXTO DEL VIDEO ============ */
+        .texto-wrap {
+            position: absolute;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            pointer-events: none;
+            padding: 0 6vw;
+        }
+        .texto-wrap.pos-abajo { bottom: 8vh; }
+        .texto-wrap.pos-arriba { top: 8vh; }
+
+        .texto-box {
+            max-width: 82vw;
+            padding: 14px 20px;
+            background: rgba(14, 165, 233, 0.08);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-left: 3px solid #0ea5e9;
+            border-radius: 4px;
+
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            font-style: italic;
+            font-weight: 500;
+            font-size: clamp(1rem, 1.7vw, 1.4rem);
+            line-height: 1.6;
+            text-align: left;
+            letter-spacing: 0.01em;
+
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+
+            opacity: 0;
+            transition: opacity 0.7s ease;
+            will-change: opacity, transform;
+        }
+
+        .texto-box.visible { opacity: 1; }
+
+        .texto-box.mover-izquierda {
+            animation: moverIzquierda 5s ease-in-out infinite alternate;
+        }
+        .texto-box.mover-derecha {
+            animation: moverDerecha 5s ease-in-out infinite alternate;
+        }
+
+        @keyframes moverIzquierda {
+            from { transform: translateX(14px); }
+            to   { transform: translateX(-14px); }
+        }
+        @keyframes moverDerecha {
+            from { transform: translateX(-14px); }
+            to   { transform: translateX(14px); }
+        }
+
+        /* Aviso de audio bloqueado */
+        #aviso-audio {
+            position: fixed; left: 50%; top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9998;
+            padding: 14px 26px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            color: #fff;
+            background: rgba(0,0,0,.7);
+            border: 1px solid rgba(255,255,255,.35);
+            border-radius: 4px;
+            backdrop-filter: blur(6px);
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+        #aviso-audio.show { opacity: 1; }
+
+        /* ============================================================
+           SLIDES CINEMATOGRÁFICOS (Musk y Palmer)
+           ============================================================ */
+
+        #starship-wrap,
+        #palmer-video-wrap {
+            position: absolute; inset: 0;
+            z-index: 0;
+            opacity: 0;
+            transform-origin: 50% 50%;
+            will-change: transform;
+            transition: opacity 1.2s ease;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        #starship-wrap.on,
+        #palmer-video-wrap.on { opacity: 1; }
+
+        #starship,
+        #palmer-video {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            background: #000;
+            display: block;
+        }
+
+        #dim, #palmer-dim {
+            position: absolute; inset: 0; z-index: 1;
+            pointer-events: none; background: #000; opacity: 0;
+        }
+        #vignette, #palmer-vignette {
+            position: absolute; inset: 0; z-index: 1; pointer-events: none;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0) 40%, rgba(0,0,0,.75) 100%);
+        }
+
+        #warm, #palmer-warm {
+            position: absolute; inset: 0; z-index: 2;
+            pointer-events: none; opacity: 0;
+            mix-blend-mode: screen;
+        }
+        #warm::before, #palmer-warm::before {
+            content: ""; position: absolute; inset: 0;
+            background: radial-gradient(ellipse 55% 60% at 52% 34%, rgba(255,150,40,.42), rgba(255,90,10,.14) 55%, transparent 80%);
+            animation: flicker 0.18s infinite alternate steps(2, end);
+        }
+
+        #stage, #palmer-stage {
+            position: absolute; left: 50%; top: 50%;
+            width: calc(var(--u) * 100);
+            height: calc(var(--u) * 56.25);
+            transform: translate(-50%, -50%);
+            perspective: 1000px;
             z-index: 3;
         }
-        .slide-top-title {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: clamp(0.92rem, 2vh, 1.15rem);
-            font-weight: 700;
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 0.10em;
-            line-height: 1.35;
-            color: #38bdf8;
-            filter: drop-shadow(0 0 6px rgba(0,0,0,0.85));
+        #camera, #palmer-camera {
+            position: absolute; inset: 0;
+            transform-style: preserve-3d;
         }
 
-        /* CARTEL — layout interno */
-        .cartel-wrap {
-            max-width: 1240px;
-            width: 100%;
-            padding: 5vh 6vw;
-            text-align: left;
-            display: flex;
-            flex-direction: column;
-            gap: 3.4vh;
-            background: radial-gradient(ellipse 92% 88% at 50% 50%,
-                        rgba(3, 6, 14, 0.88) 0%,
-                        rgba(3, 6, 14, 0.74) 55%,
-                        transparent 88%);
-            border-radius: 28px;
+        .actor {
+            position: absolute;
+            opacity: 0;
+            will-change: transform, filter, opacity;
+            pointer-events: none;
         }
-        .cartel-title {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: clamp(1.4rem, 3.6vh, 2.2rem);
-            font-weight: 700;
-            letter-spacing: 0.10em;
+        .actor img {
+            width: 100%; height: 100%; display: block;
+            -webkit-mask-image: linear-gradient(to bottom, #000 94%, transparent 100%);
+                    mask-image: linear-gradient(to bottom, #000 94%, transparent 100%);
+        }
+
+        /* Musk */
+        #actor1 {
+            height: calc(var(--u) * 51);
+            width:  calc(var(--u) * 113.2);
+            left:   calc(var(--u) * 6.8);
+            top:    calc(var(--u) * 9);
+        }
+        #actor2 {
+            height: calc(var(--u) * 59.5);
+            width:  calc(var(--u) * 90.3);
+            left:   calc(var(--u) * -8);
+            top:    calc(var(--u) * -0.2);
+        }
+
+        /* Palmer 1 (cosplay) */
+        #palmer-actor1 {
+            height: calc(var(--u) * 61.7);
+            width:  calc(var(--u) * 82.3);
+            left:   calc(var(--u) * 29.7);
+            top:    calc(var(--u) * -2.6);
+        }
+        #palmer-actor1 img {
+            -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent 96%);
+                    mask-image: linear-gradient(to bottom, #000 78%, transparent 96%);
+            filter: drop-shadow(0 0 calc(var(--u) * 1.2) rgba(255, 255, 210, 0.85)) 
+                    drop-shadow(0 0 calc(var(--u) * 2.8) rgba(255, 245, 180, 0.5));
+        }
+
+        /* Palmer 2 (VR headset) */
+        #palmer-actor2 {
+            height: calc(var(--u) * 59.5);
+            width:  calc(var(--u) * 105.8);
+            left:   calc(var(--u) * -23);
+            top:    calc(var(--u) * -0.2);
+        }
+        #palmer-actor2 img {
+            filter: drop-shadow(0 0 calc(var(--u) * 1.2) rgba(255, 255, 210, 0.85)) 
+                    drop-shadow(0 0 calc(var(--u) * 2.8) rgba(255, 245, 180, 0.5));
+        }
+
+        #muzzle, #palmer-muzzle {
+            position: absolute;
+            left: 66%; top: 31%;
+            width: 55%; height: 75%;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle, rgba(255,210,120,.75) 0%, rgba(255,140,30,.35) 30%, rgba(255,90,0,0) 65%);
+            mix-blend-mode: screen;
+            animation: flicker 0.14s infinite alternate steps(2, end);
+            pointer-events: none;
+        }
+        #palmer-muzzle { display: none; }
+
+        #title, #palmer-title {
+            position: absolute; left: 50%; top: 50%;
+            z-index: 5; pointer-events: none;
+            transform: translate(-50%, -50%);
+            perspective: 700px;
+            opacity: 0;
+        }
+        #titleWrap.enter { animation: titleIn 2.6s cubic-bezier(.16,.8,.2,1) both; }
+        #palmer-titleWrap.enter { animation: palmerTitleIn 2.6s cubic-bezier(.16,.8,.2,1) both; }
+
+        #titleText, #palmer-titleText {
+            font-family: 'Anton', 'Impact', 'Haettenschweiler', sans-serif;
+            font-size: calc(var(--u) * 12.5);
+            line-height: 1;
+            letter-spacing: .09em;
+            white-space: nowrap;
             text-transform: uppercase;
-            line-height: 1.25;
-            text-align: center;
-            color: #38bdf8;
-            filter: drop-shadow(0 0 8px rgba(0,0,0,0.9));
+            color: #ffe81f;
+            transform: rotateX(18deg) scaleX(1.12);
+            -webkit-text-stroke: calc(var(--u) * .16) #b8860b;
+            text-shadow:
+                0 0 calc(var(--u) * 1.2) rgba(255,232,31,.55),
+                0 calc(var(--u) * .25) 0 #c9a100,
+                0 calc(var(--u) * .5) 0 #9a7a00,
+                0 calc(var(--u) * .75) 0 #6e5600,
+                0 calc(var(--u) * 1.1) calc(var(--u) * 1.4) rgba(0,0,0,.9);
         }
-        .cartel-claim {
-            font-size: clamp(1.3rem, 3.2vh, 2.0rem);
+        #palmer-titleText {
+            font-size: calc(var(--u) * 10.5);
+        }
+
+        /* ============================================================
+           HUD — CUADROS DE TEXTO
+           ============================================================ */
+        .hud {
+            --k: calc(var(--u) * 2.8);
+            --b: calc(var(--u) * .3);
+            --hud-font: calc(var(--u) * 1.5);
+            position: absolute; z-index: 6;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .7s ease, transform .9s cubic-bezier(.16,.8,.2,1);
+        }
+        #box1.show, #box2.show,
+        #palmer-box1.show, #palmer-box2.show { opacity: 1; transform: translateX(0); }
+
+        .hud-frame {
+            position: relative;
+            min-height: calc(var(--u) * 13);
+            background: var(--edge);
+            clip-path: polygon(var(--k) 0, 100% 0, calc(100% - var(--k)) 100%, 0 100%);
+        }
+        .hud-frame::before {
+            content: ""; position: absolute; inset: var(--b);
+            background: var(--fill);
+            clip-path: polygon(var(--k) 0, 100% 0, calc(100% - var(--k)) 100%, 0 100%);
+        }
+        .hud-text {
+            position: relative;
+            display: flex;
+            align-items: center;
+            min-height: calc(var(--u) * 13);
+            padding: calc(var(--u) * 2.5) calc(var(--k) + var(--u) * 3.6);
+            font-size: var(--hud-font);
+            line-height: 1.45;
             font-weight: 600;
-            color: #e2e8f0;
-            text-align: center;
-            line-height: 1.4;
-            margin-top: -0.8vh;
-            text-shadow: 0 0 8px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.95);
+            letter-spacing: .01em;
         }
-        .cartel-bloque {
-            padding-left: 26px;
-            display: flex;
-            flex-direction: column;
-            gap: 1.0vh;
+
+        /* ============ EFECTO PLATEADO + SHINE INTENSO ============ */
+        .hud-text .txt {
+            display: inline-block;
+            font-style: italic;
+            background-image: linear-gradient(
+                108deg,
+                #8d9298 0%,
+                #8d9298 30%,
+                #f0f2f5 42%,
+                #ffffff 46%,
+                #fffde6 49%,
+                #ffe98a 51%,
+                #fffde6 53%,
+                #ffffff 56%,
+                #f0f2f5 60%,
+                #8d9298 72%,
+                #8d9298 100%
+            );
+            background-size: 350% 100%;
+            background-position: 100% 0;
+            background-repeat: no-repeat;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            filter:
+                drop-shadow(0 0 1px rgba(0,0,0,1))
+                drop-shadow(0 0 2px rgba(0,0,0,0.95))
+                drop-shadow(0 0 4px rgba(0,0,0,0.85))
+                drop-shadow(0 0 8px rgba(0,0,0,0.65))
+                drop-shadow(0 0 16px rgba(0,0,0,0.4));
+            animation: shineSweep 2.5s ease-in-out infinite;
         }
-        .cartel-bloque .bloque-label {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: clamp(.85rem, 1.9vh, 1.15rem);
+
+        /* Estrellas del cuadro pequeño */
+        .hud-tag .stars {
+            display: inline-flex;
+            gap: calc(var(--u) * .5);
+            font-size: calc(var(--u) * 1.8);
+            line-height: 1;
+            font-style: normal;
             font-weight: 700;
-            letter-spacing: 0.16em;
-            text-transform: uppercase;
-            color: #94a3b8;
-        }
-        .cartel-bloque p {
-            font-size: clamp(1.15rem, 2.6vh, 1.6rem);
-            line-height: 1.55;
-            text-shadow: 0 0 8px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.95);
-        }
-        .cartel-bloque p strong { color: #ffffff; font-weight: 700; }
-
-        .cartel-bloque.cartel-que { border-left: 4px solid #38bdf8; }
-        .cartel-bloque.cartel-que .bloque-label { color: #38bdf8; }
-        .cartel-bloque.cartel-que p { color: #cbd5e1; font-style: italic; }
-
-        .cartel-bloque.cartel-como { border-left: 4px solid #f59e0b; }
-        .cartel-bloque.cartel-como .bloque-label { color: #fbbf24; }
-        .cartel-bloque.cartel-como p { color: #f8fafc; }
-
-        .cartel-bloque.cartel-verde { border-left: 4px solid #10b981; }
-        .cartel-bloque.cartel-verde .bloque-label { color: #34d399; }
-        .cartel-bloque.cartel-verde p { color: #f8fafc; }
-
-        /* DESARROLLO — layout interno */
-        .glass-container.desarrollo {
-            display: flex; flex-direction: column;
-            padding: 3.2vh 38px max(14px, calc(80px - 5vh));
-        }
-        .glass-container.desarrollo .slide-header { position: static; margin-bottom: 1.8vh; }
-        .glass-container.desarrollo .slide-top-title { font-size: clamp(1rem, 2.4vh, 1.3rem); }
-
-        .grid-conclusion {
-            flex: 1;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: auto 1fr 1fr;
-            gap: 1.4vh 28px;
-        }
-        .column-title {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: clamp(.72rem, 1.6vh, .92rem);
-            font-weight: 700;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
-            padding-bottom: 6px;
-            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-            margin-bottom: 2px;
-        }
-        .column-title.col-a { color: #38bdf8; }
-        .column-title.col-b { color: #fbbf24; }
-
-        .card-conclusion {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-left: 4px solid #38bdf8;
-            border-radius: 8px;
-            padding: 1.3vh 18px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: .8vh;
-        }
-        .card-conclusion p {
-            font-size: clamp(.9rem, 2.0vh, 1.2rem);
-            line-height: 1.55;
-            color: #cbd5e1;
-        }
-        .card-conclusion strong { color: #f1f5f9; font-weight: 600; }
-        .card-conclusion em { color: #fbbf24; font-style: normal; font-weight: 600; }
-        .card-conclusion.ambar { border-left-color: #f59e0b; }
-        .card-conclusion.verde { border-left-color: #10b981; }
-        .card-conclusion.destacado {
-            background: rgba(245, 158, 11, 0.08);
-            border: 1px solid rgba(245, 158, 11, 0.25);
-            border-left: 4px solid #f59e0b;
-        }
-        .card-conclusion.destacado-verde {
-            background: rgba(16, 185, 129, 0.08);
-            border: 1px solid rgba(16, 185, 129, 0.25);
-            border-left: 4px solid #10b981;
         }
 
-        .card-tag {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: clamp(.68rem, 1.5vh, .85rem);
-            font-weight: 700;
-            letter-spacing: .10em;
-            text-transform: uppercase;
-            color: #38bdf8;
-            display: block;
-            margin-bottom: 2px;
+        .hud-tag .star {
+            display: inline-block;
+            font-style: normal;
+            background-image: linear-gradient(
+                108deg,
+                #b8860b 0%,
+                #b8860b 30%,
+                #fbbf24 40%,
+                #fde047 45%,
+                #ffffff 49%,
+                #fffbe0 51%,
+                #ffffff 53%,
+                #fde047 57%,
+                #fbbf24 65%,
+                #b8860b 75%,
+                #b8860b 100%
+            );
+            background-size: 350% 100%;
+            background-position: 100% 0;
+            background-repeat: no-repeat;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            filter:
+                drop-shadow(0 0 1px rgba(0,0,0,1))
+                drop-shadow(0 0 2px rgba(0,0,0,0.9))
+                drop-shadow(0 0 4px rgba(0,0,0,0.7))
+                drop-shadow(0 0 0.5px rgba(255,200,50,0.9))
+                drop-shadow(0 0 3px rgba(255,180,30,0.6));
+            animation: shineSweep 2.5s ease-in-out infinite;
         }
-        .card-tag.amb { color: #fbbf24; }
-        .card-tag.ver { color: #34d399; }
 
-        .mini-row { display: flex; gap: 22px; }
-        .mini { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .4vh; }
-        .mini b { font-size: clamp(1.25rem, 3.2vh, 2.0rem); font-weight: 800; line-height: 1.1; }
-        .mini small { font-size: clamp(.72rem, 1.6vh, .95rem); color: #94a3b8; }
+        /* Pequeño desfase por estrella para que el shine recorra el grupo */
+        .hud-tag .star:nth-child(1) { animation-delay: 0s; }
+        .hud-tag .star:nth-child(2) { animation-delay: 0.08s; }
+        .hud-tag .star:nth-child(3) { animation-delay: 0.16s; }
+        .hud-tag .star:nth-child(4) { animation-delay: 0.24s; }
+        .hud-tag .star:nth-child(5) { animation-delay: 0.32s; }
 
-        /* ANCLAJE AL PIE */
-        .anclaje-pie {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: clamp(.62rem, 1.35vh, .78rem);
-            color: #64748b;
-            letter-spacing: 0.05em;
-            text-align: right;
-            margin-top: 1vh;
+        @keyframes shineSweep {
+            0%, 18%   { background-position: 100% 0; }
+            82%, 100% { background-position: 0% 0; }
         }
 
-        /* UI DE NAVEGACIÓN */
+        /* Cuadro pequeño (contador de estrellas) — más ancho, misma inclinación */
+        .hud-tag {
+            position: absolute; z-index: 2;
+            top: calc(var(--u) * -3.6);
+            left: calc(var(--u) * 3);
+            width: calc(var(--u) * 17);
+            height: calc(var(--u) * 5);
+            background: var(--edge);
+            /* Altura 5u → factor 5/13 para igualar la inclinación del frame (13u) */
+            clip-path: polygon(calc(var(--k) * (5 / 13)) 0, 100% 0, calc(100% - var(--k) * (5 / 13)) 100%, 0 100%);
+            opacity: 0;
+            transition: opacity .5s ease .25s;
+        }
+        .hud-tag::before {
+            content: ""; position: absolute; inset: var(--b);
+            background: var(--fill);
+            clip-path: polygon(calc(var(--k) * (5 / 13)) 0, 100% 0, calc(100% - var(--k) * (5 / 13)) 100%, 0 100%);
+        }
+        .hud-tag span {
+            position: relative;
+            display: flex; align-items: center; justify-content: center;
+            width: 100%; height: 100%;
+            color: var(--ink);
+            font-weight: 600;
+            letter-spacing: .12em;
+        }
+        #box1.show .hud-tag, #box2.show .hud-tag,
+        #palmer-box1.show .hud-tag, #palmer-box2.show .hud-tag { opacity: 1; }
+
+        #box1, #palmer-box1 {
+            --edge: linear-gradient(135deg, #b4e8ff, #2f86c4 55%, #8fdcff);
+            --fill: repeating-linear-gradient(to bottom, rgba(130,205,255,.06) 0 1px, transparent 1px 4px),
+                    linear-gradient(160deg, rgba(6,22,42,.9), rgba(3,10,22,.92));
+            --glow: rgba(80,180,255,.6);
+            --ink: #eaf6ff;
+            left: calc(50% - var(--u) * 47);
+            top:  calc(50% - var(--u) * 8);
+            width: calc(var(--u) * 34);
+            transform: translateX(calc(var(--u) * -3));
+        }
+
+        #box2, #palmer-box2 {
+            --edge: linear-gradient(135deg, #fff0c4, #ff9a1f 50%, #ffd27a);
+            --fill: radial-gradient(ellipse 110% 140% at -8% -25%, rgba(255,195,80,.65), rgba(255,120,20,.22) 50%, transparent 80%),
+                    linear-gradient(160deg, rgba(48,20,6,.92), rgba(14,7,3,.94));
+            --glow: rgba(255,160,40,.7);
+            --ink: #fff3d6;
+            left: calc(50% + var(--u) * 4);
+            top:  calc(50% + var(--u) * 2);
+            width: calc(var(--u) * 42);
+            transform: translateX(calc(var(--u) * 3));
+            animation: hudFlame .16s infinite alternate steps(2, end);
+        }
+
+        /* Alineación vertical del cuadro de texto de Palmer 1 con el centro de la pantalla */
+        #palmer-box1 {
+            top: calc(50% - var(--u) * 6.5);
+            left: calc(50% - var(--u) * 42.8);
+        }
+        #palmer-box2 {
+            top: calc(50% - var(--u) * 4.5);
+        }
+
+        #sound, #palmer-sound, #wald-sound {
+            position: absolute; right: 18px; bottom: 60px; z-index: 50;
+            padding: 8px 14px;
+            font: 600 1rem 'Rajdhani', sans-serif;
+            letter-spacing: .08em;
+            color: #fff;
+            background: rgba(0,0,0,.55);
+            border: 1px solid rgba(255,255,255,.35);
+            border-radius: 4px;
+            opacity: 0; pointer-events: none;
+            transition: opacity .4s ease;
+        }
+        #sound.show, #palmer-sound.show, #wald-sound.show { opacity: 1; pointer-events: auto; }
+
+        @keyframes titleIn {
+            0%   { opacity: 0; transform: scale(2.2); filter: blur(10px); }
+            100% { opacity: 1; transform: scale(1);   filter: blur(0); }
+        }
+        @keyframes palmerTitleIn {
+            0%   { opacity: 0; transform: scale(1.76); filter: blur(10px); }
+            100% { opacity: 1; transform: scale(1);    filter: blur(0); }
+        }
+        @keyframes flicker {
+            0%   { opacity: .72; }
+            50%  { opacity: 1; }
+            100% { opacity: .84; }
+        }
+        @keyframes hudFlame {
+            0%   { filter: drop-shadow(0 0 calc(var(--u) * 1.4) rgba(255,150,30,.55)) brightness(1); }
+            100% { filter: drop-shadow(0 0 calc(var(--u) * 2.8) rgba(255,185,60,.9)) brightness(1.16); }
+        }
+
+        /* ============ UI ============ */
         #ui-layer {
             position: absolute;
-            bottom: 20px; left: 50%;
+            bottom: 16px;
+            left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 8px 22px;
+            background: rgba(0, 0, 0, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 7px 18px;
             border-radius: 30px;
             color: #fff;
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
             z-index: 1000;
-            font-size: 0.85rem;
-            transition: opacity 0.6s ease;
-            opacity: 1;
+            font-size: 0.78rem;
+            font-family: 'JetBrains Mono', monospace;
+            transition: opacity 0.3s ease;
             pointer-events: auto;
         }
+        #ui-layer.atenuada { opacity: 0.25; }
+        #ui-layer:hover { opacity: 1 !important; }
+
         .ui-btn {
-            background: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: #fff;
             padding: 8px 14px;
-            border-radius: 10px;
+            border-radius: 12px;
             font-weight: 600;
-            font-size: 0.85rem;
-            font-family: inherit;
-            cursor: pointer;
             transition: background 0.2s;
+            font-family: inherit;
+            font-size: 0.78rem;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
             min-width: 44px;
             min-height: 44px;
             display: inline-flex;
@@ -359,299 +634,1863 @@
             justify-content: center;
             gap: 6px;
         }
-        .ui-btn:hover, .ui-btn:active { background: rgba(255,255,255,0.35); }
+        .ui-btn:hover, .ui-btn:active { background: rgba(245, 158, 11, 0.5); }
         .ui-key {
-            background: #ffffff; color: #000000;
-            padding: 3px 8px; border-radius: 5px;
-            font-weight: 700; font-size: 0.75rem;
+            background: #ffffff;
+            color: #000000;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.7rem;
         }
-        #slide-indicator {
-            font-size: 0.82rem;
-            font-weight: 600;
-            min-width: 110px;
+        #slide-indicador {
+            color: var(--ambar-suave);
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            min-width: 80px;
             text-align: center;
         }
 
+        /* Botones más grandes en pantalla táctil */
         @media (hover: none) and (pointer: coarse) {
-            #ui-layer { bottom: 12px; padding: 6px 14px; gap: 10px; }
-            .ui-btn { padding: 10px 14px; font-size: 0.9rem; }
+            #ui-layer {
+                bottom: 12px;
+                padding: 6px 14px;
+                gap: 8px;
+            }
+            .ui-btn {
+                padding: 10px 12px;
+                font-size: 0.85rem;
+            }
         }
 
-        /* BORDE GIRATORIO */
-        @property --ang { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
-        .glass-container.desarrollo::before {
-            content: ''; position: absolute; inset: -1px;
-            border-radius: 25px; padding: 2px; pointer-events: none;
+        html, body, button, a, input, textarea, select { cursor: none; }
+        html.cursor-visible,
+        html.cursor-visible body,
+        html.cursor-visible button { cursor: default; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+            #entrada-fade { animation: none !important; opacity: 0; visibility: hidden; }
+            #muzzle, #palmer-muzzle, #warm::before, #palmer-warm::before,
+            #box2, #palmer-box2, .hud-text .txt, .hud-tag .star { animation: none; }
+        }
+    
+        /* ============================================================
+           SLIDE 04 — WALD (sesgo de supervivencia)
+           ============================================================ */
+        .slide.slide-wald {
+            padding: 0; overflow: hidden; background: #000;
+            transition: opacity 1.8s ease; user-select: none;
+        }
+
+        #wald-video-wrap {
+            position: absolute; inset: 0; z-index: 0;
+            opacity: 0; transform-origin: 50% 50%;
+            will-change: transform; transition: opacity 1.2s ease;
+            pointer-events: none; overflow: hidden;
+        }
+        #wald-video-wrap.on { opacity: 1; }
+        #wald-video { width: 100%; height: 100%; object-fit: cover; background: #000; display: block; }
+
+        #wald-dim { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: #000; opacity: .42; }
+        #wald-vignette {
+            position: absolute; inset: 0; z-index: 1; pointer-events: none;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0) 40%, rgba(0,0,0,.75) 100%);
+        }
+        #wald-flash {
+            position: absolute; inset: 0; z-index: 2; pointer-events: none; opacity: 0;
+            background: radial-gradient(ellipse at 50% 50%, rgba(255,130,60,.6), rgba(255,50,20,.2) 55%, transparent 82%);
+            mix-blend-mode: screen;
+        }
+
+        #wald-stage {
+            position: absolute; left: 50%; top: 50%;
+            width: calc(var(--u) * 100);
+            height: calc(var(--u) * 56.25);
+            transform: translate(-50%, -50%);
+            z-index: 3;
+        }
+
+        #wald-plane {
+            --line: #d6ecff;
+            --panel: #0a1424;
+            --hit: #ff3b30;
+            --hitglow: rgba(255, 60, 40, .85);
+            --hit-wing: #ff7d70;
+            --hitglow-wing: rgba(255, 130, 110, .95);
+            position: absolute; left: 50%; top: 46.5%;
+            width: calc(var(--u) * 47);
+            height: calc(var(--u) * 35);
             opacity: 0;
-            transition: opacity 0.6s ease 0.9s;
-            background: conic-gradient(from var(--ang), transparent 0deg, transparent 240deg,
-                rgba(56, 189, 248, 0.15) 265deg, #38bdf8 315deg, #ffffff 340deg, transparent 360deg);
-            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-            -webkit-mask-composite: xor;
-            mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
-            mask-composite: exclude;
+            will-change: transform, opacity;
+            pointer-events: none;
         }
-        .animaciones-activas .glass-container.desarrollo::before {
+        #wald-plane::before {
+            content: ""; position: absolute;
+            inset: calc(var(--u) * -7) calc(var(--u) * -9);
+            background: radial-gradient(ellipse at center, rgba(4,10,22,.78) 0%, rgba(4,10,22,.5) 52%, transparent 74%);
+            z-index: -1;
+        }
+        #wald-stage.ok #wald-plane {
+            --hit: #34d399;
+            --hitglow: rgba(52, 211, 153, .85);
+            --hit-wing: #34d399;
+            --hitglow-wing: rgba(52, 211, 153, .85);
+        }
+
+        #wald-svg {
+            width: 100%; height: 100%; display: block; overflow: visible;
+            filter: drop-shadow(0 0 calc(var(--u) * .6) rgba(120, 200, 255, .35));
+        }
+
+        /* Impactos */
+        #wald-svg #hits-body { filter: drop-shadow(0 0 1.4px var(--hitglow)); }
+        /* Impactos en alas: rojo más claro y brillante */
+        #wald-svg #hits-wing { filter: drop-shadow(0 0 1.6px var(--hitglow-wing)) drop-shadow(0 0 4.5px var(--hitglow-wing)); }
+        #wald-svg .hit.wing { fill: var(--hit-wing); }
+        #wald-svg .hit {
+            fill: var(--hit);
+            opacity: 0;
+            transform-box: fill-box; transform-origin: center;
+            transform: scale(0);
+            transition: fill .6s ease;
+        }
+        #wald-svg .hit.on { opacity: 1; transform: scale(1); animation: waldHitPop .5s cubic-bezier(.2, 1.6, .4, 1) both; }
+        @keyframes waldHitPop {
+            0%   { transform: scale(0); }
+            55%  { transform: scale(2); }
+            100% { transform: scale(1); }
+        }
+        #wald-svg .flash {
+            fill: none; stroke: #ffd9a0; stroke-width: .7;
+            transform-box: fill-box; transform-origin: center;
+            animation: waldFlashRing .55s ease-out forwards;
+            pointer-events: none;
+        }
+        @keyframes waldFlashRing {
+            0%   { opacity: .95; transform: scale(.5); }
+            100% { opacity: 0;   transform: scale(5); }
+        }
+
+        /* Zonas sin impactos (ámbar) */
+        #wald-svg #zonas { filter: drop-shadow(0 0 3px rgba(251, 191, 36, .9)); }
+        #wald-svg .zona {
+            fill: rgba(255, 170, 30, .3);
+            stroke: #fbbf24; stroke-width: 3.5;
+            opacity: 0;
+            transition: opacity 1s ease 1.3s;
+        }
+        #wald-stage.ok .zona {
             opacity: 1;
-            animation: borderSpin 5s linear infinite;
+            animation: waldZonaPulse 1.4s ease-in-out 2.3s infinite alternate;
         }
-        @keyframes borderSpin { to { --ang: 360deg; } }
-
-        @keyframes shimmer {
-            0%   { background-position: 0% 0%; }
-            50%  { background-position: 100% 100%; }
-            100% { background-position: 0% 0%; }
+        @keyframes waldZonaPulse {
+            from { fill: rgba(255, 170, 30, .2); }
+            to   { fill: rgba(255, 195, 60, .55); }
         }
 
-        /* CURSOR */
-        html, body, #presentation-container, button, a { cursor: none; }
-        html.cursor-visible, html.cursor-visible body,
-        html.cursor-visible #presentation-container,
-        html.cursor-visible button, html.cursor-visible a { cursor: default; }
+        /* Barrido de escaneo (rojo → verde) */
+        #wald-scan {
+            position: absolute; left: calc(var(--u) * -3); right: calc(var(--u) * -3);
+            height: calc(var(--u) * 3.4); top: -6%;
+            opacity: 0; pointer-events: none;
+            background: linear-gradient(to bottom, transparent, rgba(110, 255, 190, .55) 50%, transparent);
+            filter: blur(1px);
+        }
+        #wald-plane.scan #wald-scan { animation: waldScan 1.5s ease-in-out forwards; }
+        @keyframes waldScan {
+            0%   { opacity: 0; top: -6%; }
+            10%  { opacity: 1; }
+            90%  { opacity: 1; }
+            100% { opacity: 0; top: 100%; }
+        }
+
+        /* Títulos (mismo estilo amarillo de Musk y Palmer) */
+        .wald-title {
+            position: absolute; left: 0; right: 0;
+            display: flex; justify-content: center;
+            z-index: 5; pointer-events: none;
+            perspective: 700px; opacity: 0; white-space: nowrap;
+        }
+        .wald-title .tx {
+            font-family: 'Anton', 'Impact', 'Haettenschweiler', sans-serif;
+            line-height: 1; text-transform: uppercase;
+            color: #ffe81f;
+            transform: rotateX(18deg) scaleX(1.1);
+            -webkit-text-stroke: calc(var(--u) * .12) #b8860b;
+            text-shadow:
+                0 0 calc(var(--u) * 1) rgba(255,232,31,.55),
+                0 calc(var(--u) * .2) 0 #c9a100,
+                0 calc(var(--u) * .4) 0 #9a7a00,
+                0 calc(var(--u) * .6) 0 #6e5600,
+                0 calc(var(--u) * .9) calc(var(--u) * 1.2) rgba(0,0,0,.9);
+        }
+        #wald-top { top: calc(var(--u) * 3.2); }
+        #wald-top .tx { font-size: calc(var(--u) * 3.0); letter-spacing: .07em; }
+        #wald-bottom { bottom: calc(var(--u) * 5.4); }
+        #wald-bottom .tx { font-size: calc(var(--u) * 4.8); letter-spacing: .09em; }
+
+        #wald-top.enter    { animation: waldTitleInTop 1.8s cubic-bezier(.16,.8,.2,1) both; }
+        #wald-bottom.enter { animation: waldTitleInBottom 1.8s cubic-bezier(.16,.8,.2,1) .35s both; }
+        @keyframes waldTitleInTop {
+            0%   { opacity: 0; transform: translateY(calc(var(--u) * -4)) scale(1.25); filter: blur(8px); }
+            100% { opacity: 1; transform: none; filter: blur(0); }
+        }
+        @keyframes waldTitleInBottom {
+            0%   { opacity: 0; transform: translateY(calc(var(--u) * 4)) scale(1.25); filter: blur(8px); }
+            100% { opacity: 1; transform: none; filter: blur(0); }
+        }
+        #wald-top.fuera    { animation: waldTitleOutTop 1.3s ease forwards; }
+        #wald-bottom.fuera { animation: waldTitleOutBottom 1.3s ease forwards; }
+        @keyframes waldTitleOutTop {
+            0%   { opacity: 1; transform: none; filter: blur(0); }
+            100% { opacity: 0; transform: translateY(calc(var(--u) * -2)) scale(.88); filter: blur(8px); }
+        }
+        @keyframes waldTitleOutBottom {
+            0%   { opacity: 1; transform: none; filter: blur(0); }
+            100% { opacity: 0; transform: translateY(calc(var(--u) * 2)) scale(.88); filter: blur(8px); }
+        }
+
+        /* Leyenda del paso verde / ámbar */
+        #wald-legend {
+            position: absolute; left: 0; right: 0; bottom: calc(var(--u) * 5.6);
+            display: flex; justify-content: center; gap: calc(var(--u) * 3);
+            z-index: 5; pointer-events: none;
+            opacity: 0; transform: translateY(calc(var(--u) * 1.5));
+            transition: opacity .8s ease 1.8s, transform .9s cubic-bezier(.16,.8,.2,1) 1.8s;
+        }
+        #wald-stage.ok #wald-legend { opacity: 1; transform: none; }
+        .wald-chip {
+            display: flex; align-items: center; gap: calc(var(--u) * 1);
+            padding: calc(var(--u) * .9) calc(var(--u) * 2);
+            font: 600 calc(var(--u) * 1.35) 'Rajdhani', sans-serif;
+            letter-spacing: .05em; color: #fff;
+            background: rgba(6, 14, 28, .74);
+            border: 1px solid var(--c); border-radius: 4px;
+            box-shadow: 0 0 calc(var(--u) * 1.2) var(--c);
+        }
+        .wald-chip i {
+            width: calc(var(--u) * 1.3); height: calc(var(--u) * 1.3);
+            border-radius: 50%; background: var(--c); box-shadow: 0 0 calc(var(--u) * .8) var(--c);
+        }
+        .chip-verde { --c: #34d399; }
+        .chip-ambar { --c: #fbbf24; }
+
+        #wald-credit {
+            position: absolute; left: calc(var(--u) * 1.6); bottom: calc(var(--u) * .9);
+            z-index: 5; pointer-events: none;
+            font: 400 calc(var(--u) * .95) 'Inter', sans-serif;
+            color: rgba(255, 255, 255, .45);
+        }
+
+        /* ============================================================
+           HUD EXTENDIDO — mismo formato Musk para toda la presentación
+           ============================================================ */
+        .hud-azul {
+            --edge: linear-gradient(135deg, #b4e8ff, #2f86c4 55%, #8fdcff);
+            --fill: repeating-linear-gradient(to bottom, rgba(130,205,255,.06) 0 1px, transparent 1px 4px),
+                    linear-gradient(160deg, rgba(6,22,42,.9), rgba(3,10,22,.92));
+            --glow: rgba(80,180,255,.6);
+            --ink: #eaf6ff;
+        }
+        .hud-ambar {
+            --edge: linear-gradient(135deg, #fff0c4, #ff9a1f 50%, #ffd27a);
+            --fill: radial-gradient(ellipse 110% 140% at -8% -25%, rgba(255,195,80,.65), rgba(255,120,20,.22) 50%, transparent 80%),
+                    linear-gradient(160deg, rgba(48,20,6,.92), rgba(14,7,3,.94));
+            --glow: rgba(255,160,40,.7);
+            --ink: #fff3d6;
+            animation: hudFlame .16s infinite alternate steps(2, end);
+        }
+        .hud-verde {
+            --edge: linear-gradient(135deg, #c9ffe8, #18b07a 55%, #9af5cc);
+            --fill: repeating-linear-gradient(to bottom, rgba(120,255,200,.06) 0 1px, transparent 1px 4px),
+                    radial-gradient(ellipse 110% 140% at -8% -25%, rgba(70,235,160,.4), transparent 75%),
+                    linear-gradient(160deg, rgba(4,34,24,.93), rgba(2,14,10,.95));
+            --glow: rgba(60,230,160,.65);
+            --ink: #eafff4;
+        }
+        .hud.show, .hud.visible { opacity: 1; transform: none; }
+        .hud.show .hud-tag, .hud.visible .hud-tag { opacity: 1; }
+
+        /* Versión compacta (menos alto, misma inclinación) */
+        .hud-compacto { --k: calc(var(--u) * 1.85); }
+        .hud-compacto .hud-frame,
+        .hud-compacto .hud-text { min-height: calc(var(--u) * 8.5); }
+
+        /* Cuadros del slide 1 (temporizador): fluyen dentro de .texto-wrap */
+        .hud.hud-flow { position: relative; transform: none; transition: opacity .7s ease; }
+
+        /* Cuadros laterales / inferior del slide Wald */
+        .hud-lado {
+            left: calc(50% - var(--u) * 49.2);
+            top: calc(50% - var(--u) * 13);
+            width: calc(var(--u) * 28);
+            transform: translateX(calc(var(--u) * -3));
+        }
+        .hud-lado .hud-text {
+            padding: calc(var(--u) * 2) calc(var(--k) + var(--u) * 1.6);
+            font-size: calc(var(--u) * 1.35);
+        }
+        .hud-bajo {
+            left: calc(50% - var(--u) * 41);
+            bottom: calc(var(--u) * 3.2);
+            width: calc(var(--u) * 82);
+            transform: translateY(calc(var(--u) * 2));
+        }
+        .hud-bajo .hud-text { font-size: calc(var(--u) * 1.6); }
+
+        #wald-legend { bottom: auto; top: calc(var(--u) * 1.8); }
+        #wald-stage.eng #wald-svg #hits-body,
+        #wald-stage.eng #wald-svg #hits-wing {
+            filter: drop-shadow(0 0 2px rgba(251,191,36,1)) drop-shadow(0 0 7px rgba(251,191,36,.85));
+        }
+
+        /* ============================================================
+           SLIDE 05 — CIERRE (frase, título de la tesis, hiperespacio)
+           ============================================================ */
+        .slide.slide-final { padding: 0; overflow: hidden; background: radial-gradient(ellipse 85% 75% at 50% 52%, rgba(26,84,160,.5) 0%, rgba(8,30,76,.55) 38%, #02050f 76%, #000 100%); transition: opacity 1.8s ease; user-select: none; }
+        #final-stars { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; }
+        #final-flash { position: absolute; inset: 0; z-index: 20; background: #fff; opacity: 0; pointer-events: none; }
+        .hud-lado.hud-der {
+            left: calc(50% + var(--u) * 21.2);
+            top: calc(50% - var(--u) * 9);
+            transform: translateX(calc(var(--u) * 3));
+        }
+        .hud-lado.hud-der.show { transform: none; }
+
+        /* Cierre: solo colores, tipografía y ambiente azulado del formato Musk (sin marcos) */
+        .final-wrap {
+            position: absolute; inset: 0; z-index: 3;
+            display: grid; place-items: center;
+            padding: 0 6vw; pointer-events: none;
+        }
+        .final-blk {
+            grid-area: 1 / 1;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: calc(var(--u) * 3.6);
+            width: calc(var(--u) * 86); max-width: 100%;
+            text-align: center;
+        }
+        #final-boxA, #final-boxB, #final-boxT {
+            opacity: 0; transform: translateY(calc(var(--u) * 2));
+            transition: opacity .9s ease, transform 1s cubic-bezier(.16,.8,.2,1);
+        }
+        #final-boxA.show, #final-boxB.show, #final-boxT.show { opacity: 1; transform: none; }
+        .ftxt {
+            --c0: #9aa3ad; --c1: #f0f2f5; --c2: #fffde6; --glow: rgba(130,200,255,.5);
+            margin: 0; display: block; width: 100%;
+            font-family: 'Inter', sans-serif; font-style: italic; font-weight: 600;
+            line-height: 1.4; letter-spacing: .01em; text-align: center;
+            background-image: linear-gradient(108deg, var(--c0) 0%, var(--c0) 30%, var(--c1) 42%, #ffffff 46%, var(--c2) 51%, #ffffff 56%, var(--c1) 60%, var(--c0) 72%, var(--c0) 100%);
+            background-size: 350% 100%; background-position: 100% 0; background-repeat: no-repeat;
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent; color: transparent;
+            filter: drop-shadow(0 0 1px rgba(0,0,0,1)) drop-shadow(0 0 4px rgba(0,0,0,.85)) drop-shadow(0 0 calc(var(--u) * 1.6) var(--glow));
+            animation: shineSweep 2.5s ease-in-out infinite;
+        }
+        .ftxt.azul  { --c0: #7fbbee; --c1: #d4ecff; --c2: #ffffff; --glow: rgba(80,180,255,.6); }
+        .ftxt.ambar { --c0: #e8a93a; --c1: #ffe3a0; --c2: #fffbe6; --glow: rgba(255,160,40,.55); }
+        .ftxt.plata { --c0: #9aa3ad; --c1: #f0f2f5; --c2: #fffde6; --glow: rgba(110,190,255,.55); }
+        .ftxt.f-a { font-size: calc(var(--u) * 3.6); }
+        .ftxt.f-b { font-size: calc(var(--u) * 2.7); }
+        .ftxt.f-t { font-size: calc(var(--u) * 3.1); font-weight: 800; text-transform: uppercase; letter-spacing: .03em; line-height: 1.3; }
+        .hud.hiper, .final-blk.hiper { animation: hudHiper .9s cubic-bezier(.55, 0, .9, .4) forwards; }
+        @keyframes hudHiper {
+            0%   { opacity: 1; transform: scale(1); filter: blur(0); }
+            100% { opacity: 0; transform: scale(2.6); filter: blur(12px); }
+        }
+        #final-boxA { left: calc(50% - var(--u) * 32); width: calc(var(--u) * 64); }
+        #final-boxA.show, #final-boxB.show, #final-boxT.show { transform: none; }
     </style>
 </head>
 <body>
 
     <div id="black-cover"></div>
     <div id="entrada-fade"></div>
+    <div id="aviso-audio">🔇 Click o presiona una tecla para activar el sonido</div>
 
-    <div id="presentation-container">
+    <div id="contenido">
 
-        <div class="bg-parallax">
-            <video class="bg-video" id="main-video"
-                   src="videos1/asimetria1.mp4"
-                   autoplay loop muted playsinline preload="auto"></video>
+        <!-- ===== SLIDE 01 — VIDEO TEMPORIZADOR ===== -->
+        <div class="slide slide-video activo" data-slide="1">
+
+            <video
+                id="video-timer"
+                class="video-fullscreen"
+                src="videos1/temporizador1.mp4"
+                autoplay
+                muted
+                playsinline
+                preload="auto"></video>
+
+            <div class="video-fade-out" id="video-fade-out"></div>
+
+            <div class="texto-wrap pos-abajo">
+                <div class="hud hud-flow hud-compacto hud-azul" id="texto1" style="width:calc(var(--u) * 62);">
+                    <div class="hud-frame"><div class="hud-text"><span class="txt">En marzo de 2025, el frente ucraniano registró un promedio de 700 ataques FPV por día. Uno cada dos minutos</span></div></div>
+                </div>
+            </div>
+
+            <div class="texto-wrap pos-arriba">
+                <div class="hud hud-flow hud-compacto hud-ambar" id="texto2" style="width:calc(var(--u) * 50);">
+                    <div class="hud-frame"><div class="hud-text"><span class="txt">Un dron de ataque cuesta lo que un teléfono de gama media</span></div></div>
+                </div>
+            </div>
+
+            <div class="texto-wrap pos-abajo">
+                <div class="hud hud-flow hud-compacto hud-azul" id="texto3" style="width:calc(var(--u) * 58);">
+                    <div class="hud-frame"><div class="hud-text"><span class="txt">Una vez que el operador ve el objetivo, tiene veinte segundos para destruirlo.</span></div></div>
+                </div>
+            </div>
+
         </div>
 
-        <!-- ==================================================
-             SLIDE 01 — OE1 · CONCLUSIÓN
-             ================================================== -->
-        <main class="glass-container desarrollo" id="slide-01">
-            <header class="slide-header">
-                <h1 class="slide-top-title">OE1 · Conclusión · Perfil tecnológico y disposición</h1>
-            </header>
-            <section class="grid-conclusion">
-                <h2 class="column-title col-a" style="grid-column:1;grid-row:1;">Evidencia empírica</h2>
-                <h2 class="column-title col-b" style="grid-column:2;grid-row:1;">Lectura concluyente</h2>
+        <!-- ===== SLIDE 02 — MUSK: SECUENCIA CINEMATOGRÁFICA ===== -->
+        <div class="slide slide-musk" data-slide="2">
 
-                <article class="card-conclusion" style="grid-column:1;grid-row:2;">
-                    <span class="card-tag">Perfil de ingreso · Tabla 22 · n = 74</span>
-                    <div class="mini-row">
-                        <div class="mini"><b style="color:#3b82f6">51,4 %</b><small>Mixto</small></div>
-                        <div class="mini"><b style="color:#38bdf8">40,5 %</b><small>Medio</small></div>
-                        <div class="mini"><b style="color:#eab308">8,1 %</b><small>Bajo</small></div>
-                        <div class="mini"><b style="color:#64748b">0 %</b><small>Alto</small></div>
+            <div id="starship-wrap">
+                <video id="starship" src="videos1/starship1.mp4" loop playsinline preload="auto"></video>
+            </div>
+
+            <div id="dim"></div>
+            <div id="vignette"></div>
+            <div id="warm"></div>
+
+            <div id="title"><div id="titleWrap"><div id="titleText">Elon Musk</div></div></div>
+
+            <div id="stage">
+                <div id="camera">
+                    <div id="actor1" class="actor"><img src="videos1/musk1.png" alt="Musk 1"></div>
+                    <div id="actor2" class="actor">
+                        <img src="videos1/musk2.png" alt="Musk 2">
+                        <div id="muzzle"></div>
                     </div>
-                    <p>Ningún convocado reunió de forma simultánea la totalidad de los criterios del baremo para el perfil <strong>Alto</strong>.</p>
-                </article>
-
-                <article class="card-conclusion ambar" style="grid-column:1;grid-row:3;">
-                    <span class="card-tag amb">Disposición actitudinal · Instrumento N.º 2 · n = 300</span>
-                    <p>Promedios por dimensión: <strong>4,83</strong> (interés), <strong>4,85</strong> (atractivo del juego), <strong>4,88</strong> (motivación SMO). Contraste inferencial: <em>p &lt; 0,001</em> en los 14 ítems.</p>
-                </article>
-
-                <article class="card-conclusion" style="grid-column:2;grid-row:2;">
-                    <span class="card-tag">Conclusión</span>
-                    <p>El perfil de ingreso es <strong>marcadamente heterogéneo</strong> y de base técnica baja. La disposición, en cambio, es <strong>muy alta y estadísticamente significativa</strong>.</p>
-                    <p>La limitación del modelo está en la <em>aptitud</em>, no en la <em>actitud</em>.</p>
-                </article>
-
-                <article class="card-conclusion destacado" style="grid-column:2;grid-row:3;">
-                    <span class="card-tag amb">Advertencia sobre el 0 %</span>
-                    <p>El 0 % del baremo <strong>no invalida el modelo</strong>. Refleja a quienes ingresan al SMO, no el potencial de la juventud paraguaya.</p>
-                    <p>De ahí la necesidad de un <strong>módulo de nivelación inicial</strong> antes del adiestramiento táctico.</p>
-                </article>
-            </section>
-            <div class="anclaje-pie">Cap. IV, Tablas 22 y 37 · Cap. V, Conclusión OE1</div>
-        </main>
-
-        <!-- ==================================================
-             SLIDE 02 — OE2 · CONCLUSIÓN
-             ================================================== -->
-        <main class="glass-container desarrollo" id="slide-02">
-            <header class="slide-header">
-                <h1 class="slide-top-title">OE2 · Conclusión · Requerimientos técnicos y pedagógicos</h1>
-            </header>
-            <section class="grid-conclusion">
-                <h2 class="column-title col-a" style="grid-column:1;grid-row:1;">Evidencia empírica</h2>
-                <h2 class="column-title col-b" style="grid-column:2;grid-row:1;">Lectura concluyente</h2>
-
-                <article class="card-conclusion" style="grid-column:1;grid-row:2;">
-                    <span class="card-tag">Infraestructura · Observación EPSOA · N = 1</span>
-                    <p>Sala de informática operativa con sistemas estándar, suministro eléctrico con soporte base y red sectorizada. Espacio físico adaptable a estaciones modulares de simulación.</p>
-                    <p>Requiere complementos para soporte 3D offline/online.</p>
-                </article>
-
-                <article class="card-conclusion ambar" style="grid-column:1;grid-row:3;">
-                    <span class="card-tag amb">Doctrina · Análisis documental · Tabla 38</span>
-                    <p>Las cuatro fichas de manuales del CINAE presentan <strong>brecha crítica</strong>: enfoque analógico tradicional, sin directrices de simulación ni de sistemas no tripulados.</p>
-                </article>
-
-                <article class="card-conclusion" style="grid-column:2;grid-row:2;">
-                    <span class="card-tag">Conclusión</span>
-                    <p>La infraestructura es <strong>básica</strong>, lo que exige una arquitectura de simulación <strong>local o híbrida</strong>, de bajo requerimiento de conectividad.</p>
-                    <p>El hardware no es el obstáculo principal.</p>
-                </article>
-
-                <article class="card-conclusion destacado" style="grid-column:2;grid-row:3;">
-                    <span class="card-tag amb">Restricciones organizacionales</span>
-                    <p>Las barreras son <strong>humanas y doctrinarias</strong>: falta de personal técnico con dedicación exclusiva y persistencia de una doctrina pedagógica analógica.</p>
-                    <p>Ambas son <strong>condiciones emergentes</strong>, no fallas de infraestructura.</p>
-                </article>
-            </section>
-            <div class="anclaje-pie">Cap. IV, Tablas 38 y 39 · Cap. V, Conclusión OE2</div>
-        </main>
-
-        <!-- ==================================================
-             SLIDE 03 — OE3 · CONCLUSIÓN
-             ================================================== -->
-        <main class="glass-container desarrollo" id="slide-03">
-            <header class="slide-header">
-                <h1 class="slide-top-title">OE3 · Conclusión · Impacto proyectado y costos</h1>
-            </header>
-            <section class="grid-conclusion">
-                <h2 class="column-title col-a" style="grid-column:1;grid-row:1;">Evidencia empírica</h2>
-                <h2 class="column-title col-b" style="grid-column:2;grid-row:1;">Lectura concluyente</h2>
-
-                <article class="card-conclusion" style="grid-column:1;grid-row:2;">
-                    <span class="card-tag">Impacto percibido · Instrumento N.º 3 · n = 300</span>
-                    <div class="mini-row">
-                        <div class="mini"><b style="color:#38bdf8">4,85</b><small>Competencias y drones</small></div>
-                        <div class="mini"><b style="color:#f59e0b">4,82</b><small>Cumplimiento SMO</small></div>
-                        <div class="mini"><b style="color:#34d399">4,86</b><small>Reserva y retención</small></div>
-                    </div>
-                    <p>Las tres dimensiones se ubican en el tramo de <strong>acuerdo muy alto</strong> del baremo.</p>
-                </article>
-
-                <article class="card-conclusion ambar" style="grid-column:1;grid-row:3;">
-                    <span class="card-tag amb">Costos · Informantes clave · n = 116</span>
-                    <p>Ningún indicador económico del listado fue seleccionado (0 %). La expectativa de ahorro se concentra en <strong>materiales e insumos</strong> y <strong>desgaste de equipos</strong>, no en combustible ni munición.</p>
-                </article>
-
-                <article class="card-conclusion" style="grid-column:2;grid-row:2;">
-                    <span class="card-tag">Conclusión</span>
-                    <p>El impacto institucional percibido es <strong>muy favorable</strong> en capacidad tecnológica, cohesión de la reserva y retención de conscriptos.</p>
-                    <p>Los resultados son <strong>estadísticamente significativos</strong>.</p>
-                </article>
-
-                <article class="card-conclusion destacado" style="grid-column:2;grid-row:3;">
-                    <span class="card-tag amb">Límite del hallazgo</span>
-                    <p>La reducción de costos <strong>no pudo cuantificarse</strong> por falta de registros presupuestarios institucionales.</p>
-                    <p>Se mantiene como <strong>proyección a verificar en fase piloto</strong>, no como resultado medido.</p>
-                </article>
-            </section>
-            <div class="anclaje-pie">Cap. IV, Tabla 49 · Cap. V, Conclusión OE3</div>
-        </main>
-
-        <!-- ==================================================
-             SLIDE 04 — CONCLUSIÓN GENERAL (cartel)
-             ================================================== -->
-        <main class="glass-container cartel" id="slide-04">
-            <div class="cartel-wrap">
-                <h1 class="cartel-title">Conclusión general</h1>
-                <p class="cartel-claim">La viabilidad inicial está condicionada a tres condiciones emergentes.</p>
-                <div class="cartel-bloque cartel-que">
-                    <span class="bloque-label">Lo que la evidencia converge en afirmar</span>
-                    <p>Incorporar la simulación y la gamificación al SMO de la Armada Paraguaya para la formación en drones FPV es <strong>viable en su etapa inicial</strong>. La aceptación actitudinal es muy alta, la infraestructura es suficiente para una arquitectura local, y la disposición del personal instructor es favorable.</p>
-                </div>
-                <div class="cartel-bloque cartel-como">
-                    <span class="bloque-label">Lo que condiciona esa viabilidad</span>
-                    <p><strong>1. Personal técnico dedicado.</strong> · <strong>2. Nivelación inicial de competencias.</strong> · <strong>3. Superación de la inercia cultural.</strong></p>
                 </div>
             </div>
-        </main>
 
-        <!-- ==================================================
-             SLIDE 05 — CONTRASTACIÓN H1 / H0 (cartel)
-             ================================================== -->
-        <main class="glass-container cartel" id="slide-05">
-            <div class="cartel-wrap">
-                <h1 class="cartel-title">Contrastación H1 / H0</h1>
-                <p class="cartel-claim">Respaldo parcial de la hipótesis de trabajo.</p>
-                <div class="cartel-bloque cartel-verde">
-                    <span class="bloque-label">Componente actitudinal y pedagógico · H1 confirmada</span>
-                    <p>Consenso favorable estadísticamente significativo (<strong>p &lt; 0,001</strong>) en los 14 ítems del Instrumento N.º 2 y en las tres dimensiones del Instrumento N.º 3. La disposición de los convocados y la percepción de los instructores son evidencia convergente.</p>
+            <div id="box1" class="hud">
+                <div class="hud-tag">
+                    <span class="stars">
+                        <i class="star">★</i><i class="star">★</i><i class="star">★</i><i class="star">★</i><i class="star">★</i>
+                    </span>
                 </div>
-                <div class="cartel-bloque cartel-como">
-                    <span class="bloque-label">Componente económico · H1 pendiente</span>
-                    <p>La reducción de costos operativos <strong>no pudo cuantificarse</strong> por falta de registros presupuestarios. Se mantiene como proyección a validar en una <strong>fase piloto con diseño cuasi experimental</strong>.</p>
+                <div class="hud-frame">
+                    <div class="hud-text"><span class="txt">Dejó su país antes de cumplir el servicio militar.</span></div>
                 </div>
             </div>
-        </main>
+            <div id="box2" class="hud">
+                <div class="hud-tag">
+                    <span class="stars">
+                        <i class="star">★</i><i class="star">★</i><i class="star">★</i><i class="star">★</i><i class="star">★</i>
+                    </span>
+                </div>
+                <div class="hud-frame">
+                    <div class="hud-text"><span class="txt">Hoy lanza cohetes para la defensa americana.</span></div>
+                </div>
+            </div>
 
-        <!-- ==================================================
-             SLIDE 06 — CONDICIONES EMERGENTES
-             ================================================== -->
-        <main class="glass-container desarrollo" id="slide-06">
-            <header class="slide-header">
-                <h1 class="slide-top-title">Condiciones emergentes de viabilidad</h1>
-            </header>
-            <section class="grid-conclusion">
-                <h2 class="column-title col-a" style="grid-column:1;grid-row:1;">Condición emergente</h2>
-                <h2 class="column-title col-b" style="grid-column:2;grid-row:1;">Base empírica convergente</h2>
+            <div id="sound"></div>
 
-                <article class="card-conclusion" style="grid-column:1;grid-row:2;">
-                    <span class="card-tag">Condición 1</span>
-                    <p><strong>Personal técnico dedicado.</strong> Figura ausente en la estructura orgánica actual de la Armada.</p>
-                </article>
+        </div>
 
-                <article class="card-conclusion ambar" style="grid-column:1;grid-row:3;">
-                    <span class="card-tag amb">Condición 2</span>
-                    <p><strong>Nivelación inicial de competencias.</strong> El 92 % de los convocados presenta perfil Medio o Mixto, aunque los instructores suponen un nivel homogéneo.</p>
-                </article>
+        <!-- ===== SLIDE 03 — PALMER LUCKEY: SECUENCIA CINEMATOGRÁFICA ===== -->
+        <div class="slide slide-palmer" data-slide="3">
 
-                <article class="card-conclusion" style="grid-column:2;grid-row:2;">
-                    <span class="card-tag">Convergencia de cuatro técnicas</span>
-                    <p>Observación directa (N=1) registró «inexistencia de personal orgánico con dedicación exclusiva a redes o simulación». El cuestionario a informantes clave (n=116) seleccionó «personal técnico permanente» como requerimiento. El análisis documental confirma que el manual no contempla esta figura.</p>
-                </article>
+            <div id="palmer-video-wrap">
+                <video id="palmer-video" src="videos1/palmer1.mp4" loop playsinline preload="auto"></video>
+            </div>
 
-                <article class="card-conclusion destacado-verde" style="grid-column:2;grid-row:3;">
-                    <span class="card-tag ver">Condición 3</span>
-                    <p><strong>Superación de la inercia cultural.</strong> Observación directa registró «disposición institucional reactiva por inercia». El cuestionario a informantes clave muestra 0 % de selección en opciones de simulación táctica avanzada.</p>
-                </article>
-            </section>
-            <div class="anclaje-pie">Cap. IV, Condiciones emergentes · Cap. V, Conclusión general</div>
-        </main>
+            <div id="palmer-dim"></div>
+            <div id="palmer-vignette"></div>
+            <div id="palmer-warm"></div>
+
+            <div id="palmer-title"><div id="palmer-titleWrap"><div id="palmer-titleText">Palmer Luckey</div></div></div>
+
+            <div id="palmer-stage">
+                <div id="palmer-camera">
+                    <div id="palmer-actor1" class="actor"><img src="videos1/palmer1.png" alt="Palmer 1"></div>
+                    <div id="palmer-actor2" class="actor">
+                        <img src="videos1/palmer2.png" alt="Palmer 2">
+                        <div id="palmer-muzzle"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="palmer-box1" class="hud">
+                <div class="hud-tag">
+                    <span class="stars">
+                        <i class="star">★</i><i class="star">★</i><i class="star">★</i><i class="star">★</i><i class="star">★</i>
+                    </span>
+                </div>
+                <div class="hud-frame">
+                    <div class="hud-text"><span class="txt">Rechazado por el sistema militar tradicional.</span></div>
+                </div>
+            </div>
+            <div id="palmer-box2" class="hud">
+                <div class="hud-tag">
+                    <span class="stars">
+                        <i class="star">★</i><i class="star">★</i><i class="star">★</i><i class="star">★</i><i class="star">★</i>
+                    </span>
+                </div>
+                <div class="hud-frame">
+                    <div class="hud-text"><span class="txt">Hoy diseña los sistemas autónomos del Pentágono.</span></div>
+                </div>
+            </div>
+
+            <div id="palmer-sound"></div>
+
+        </div>
+
+
+        <!-- ===== SLIDE 04 — WALD: SESGO DE SUPERVIVENCIA ===== -->
+        <div class="slide slide-wald" data-slide="4">
+
+            <div id="wald-video-wrap">
+                <video id="wald-video" src="videos1/iiww.mp4" loop playsinline preload="auto"></video>
+            </div>
+
+            <div id="wald-dim"></div>
+            <div id="wald-vignette"></div>
+            <div id="wald-flash"></div>
+
+            <div id="wald-stage">
+                <div id="wald-plane">
+                    <svg id="wald-svg" class="bomber" viewBox="0 0 377.56042 281.25208" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"><g transform="translate(-32.713837,-89.0942)">
+    <g>
+      <ellipse ry="8.2020826" rx="8.0697918" cy="256.57547" cx="220.43573" style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <ellipse style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter" cx="220.43571" cy="257.10464" rx="10.186459" ry="11.377083"/>
+      <ellipse style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter" cx="220.17114" cy="209.08278" rx="4.3656254" ry="4.1010408"/>
+      <g transform="matrix(0.57240525,0,0,0.6606317,103.36567,41.291695)" style="stroke:var(--line);stroke-width:2.765">
+        <ellipse ry="0.59710032" rx="0.66145873" cy="121.70235" cx="213.1597" style="fill:none;stroke:var(--line);stroke-width:2.926;stroke-linecap:butt;stroke-linejoin:miter"/>
+        <path d="m 213.15967,122.16712 -0.13229,-4.7625" style="fill:none;stroke:var(--line);stroke-width:2.194;stroke-linecap:butt;stroke-linejoin:miter"/>
+      </g>
+      <path d="m 219.90654,191.22337 c 2.31803,1.07759 0.81389,4.22675 0,5.29166 -0.50015,-1.02737 -2.80194,-3.3803 0,-5.29166 z" style="fill:var(--line);stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <g style="stroke:var(--line);stroke-width:1.799">
+        <path style="fill:none;stroke:var(--line);stroke-width:1.799;stroke-linecap:butt;stroke-linejoin:miter" d="m 206.2805,162.1192 c 0,0 -2.64584,56.88542 -1.5875,64.82292"/>
+      </g>
+      <path d="m 122.143,213.44837 0.52917,-17.99167 81.75625,14.02292" style="fill:none;stroke:var(--line);stroke-width:1.349;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path d="m 64.72842,201.54212 v -5.55625 l 57.67917,6.61458" style="fill:none;stroke:var(--line);stroke-width:1.349;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path d="m 102.29925,209.7442 v -1.85208 l 9.525,1.5875 v 2.11666" style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path d="m 213.15967,322.19212 4.89479,32.54374" style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.05833333,1.05833333"/>
+      <path d="m 172.41383,353.67753 -3.70416,-9.78958 46.56666,-2.91042 -0.26458,13.22917" style="fill:none;stroke:var(--line);stroke-width:1.349;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path d="m 185.11384,353.94211 v -1.85208 h 21.69583 v 2.38125" style="fill:none;stroke:var(--line);stroke-width:1.349;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path d="m 165.79925,333.30461 53.975,-152.66458" style="fill:none;stroke:var(--line);stroke-width:0.450;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <g style="stroke:var(--line)">
+        <g style="stroke:var(--line);stroke-width:0.900">
+          <path d="m 178.67564,131.69212 0.26458,22.66597 5.20348,-0.17639 -0.0882,-22.84236 -1.23472,-1.5875 -3.43958,0.17639 z" style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+          <path d="m 169.06246,147.65531 9.70138,0.0882" style="fill:none;stroke:var(--line);stroke-width:1.349;stroke-linecap:butt;stroke-linejoin:miter"/>
+          <path d="m 169.768,151.09489 9.08403,-0.0882" style="fill:none;stroke:var(--line);stroke-width:1.349;stroke-linecap:butt;stroke-linejoin:miter"/>
+          <path d="m 184.23189,147.65531 9.34862,-0.17639" style="fill:none;stroke:var(--line);stroke-width:1.349;stroke-linecap:butt;stroke-linejoin:miter"/>
+          <path d="m 184.23189,151.0067 h 8.73125" style="fill:none;stroke:var(--line);stroke-width:1.349;stroke-linecap:butt;stroke-linejoin:miter"/>
+        </g>
+        <path style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter" d="m 179.3812,129.92823 -1.41111,-1.05834 v -1.67569 l 1.41111,-1.23472 h 3.70416 l 1.05834,1.05833 v 1.76389 l -1.32292,0.97014 z"/>
+        <path style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter" d="m 179.11662,125.95948 -1e-5,-3.52778 c 0,0 1.94028,-3.61597 3.96875,-0.0882 0.0317,1.17038 -0.14569,3.55123 0,3.61598"/>
+        <path style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter" d="m 177.97009,128.86989 c 0,0 -16.32425,0.26458 -24.96142,-0.70555 16.84248,-2.02848 24.96142,-0.97014 24.96142,-0.97014 z"/>
+        <path d="m 184.1437,128.7817 c 0,0 16.32352,0.26458 24.96031,-0.70555 -16.84173,-2.02848 -24.96031,-0.97014 -24.96031,-0.97014 z" style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+        <path style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter" d="m 177.88189,127.89976 -23.01875,0.17638"/>
+        <path d="m 207.07425,127.81157 -23.01875,0.17638" style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+      </g>
+      <ellipse ry="1.190625" rx="1.6315972" cy="127.94386" cx="181.101" style="fill:var(--line);stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <g style="stroke:var(--line);stroke-width:0.900" transform="translate(0.26458334)">
+        <path style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter" d="m 181.01279,118.33066 0.1323,23.54791"/>
+        <path style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter" d="m 181.01279,144.52441 0.26459,14.02291"/>
+        <path style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter" d="m 181.27738,161.32545 0.13229,10.98021"/>
+      </g>
+      <path d="m 169.23884,167.67545 c 2.84113,-0.47352 4.1337,6.11129 6.44761,13.77311 1.62897,5.39384 3.08542,10.6203 5.9878,14.80189 2.32529,-2.03745 5.81275,-7.33285 7.54481,-15.90642 2.02839,-10.0404 2.35901,-14.32558 4.36144,-16.37275" style="fill:none;stroke:var(--line);stroke-width:1.349;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <g style="stroke:var(--line)">
+        <ellipse style="fill:none;stroke:var(--line);stroke-width:1.799;stroke-linecap:butt;stroke-linejoin:miter" cx="213.1597" cy="121.70235" rx="0.66145873" ry="0.59710032"/>
+        <path style="fill:none;stroke:var(--line);stroke-width:1.349;stroke-linecap:butt;stroke-linejoin:miter" d="m 213.15967,122.16712 -0.13229,-4.7625"/>
+      </g>
+      <path d="m 219.50967,145.18587 c -3.87757,3.7125 -7.90944,7.64543 -9.39271,7.9375 l -2.64583,14.02291 c 0,0 0.92604,2.64584 2.91041,0.13229 0.39688,-2.64583 1.5875,-9.525 1.5875,-9.525 l 7.54063,-6.48229" style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path d="m 210.38154,167.27857 18.78542,-0.13229" style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path d="m 209.85238,154.44628 2.11666,3.30729 15.21354,0.1323 2.51355,-4.18924" style="fill:none;stroke:var(--line);stroke-width:1.799;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path d="m 219.50967,145.18587 v 22.225" style="fill:none;stroke:var(--line);stroke-width:1.799;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path d="m 218.71592,183.55045 -2.64584,-3.175" style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <g transform="translate(0.26458333,60.192708)" style="stroke:var(--line)">
+        <circle r="0.47083336" cy="120.24112" cx="215.87949" style="fill:none;stroke:var(--line);stroke-width:1.799;stroke-linecap:butt;stroke-linejoin:miter"/>
+      </g>
+      <g style="stroke:var(--line)" transform="translate(3.8364583,60.192708)">
+        <circle style="fill:none;stroke:var(--line);stroke-width:1.799;stroke-linecap:butt;stroke-linejoin:miter" cx="215.87949" cy="120.24112" r="0.47083336"/>
+      </g>
+      <rect y="258.03067" x="214.87946" height="7.6729164" width="1.4552083" style="fill:var(--panel);stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <rect style="fill:none;stroke:var(--line);stroke-width:1.349;stroke-linecap:butt;stroke-linejoin:miter" width="0.37282196" height="8.441062" x="215.43268" y="265.72919"/>
+      <path style="fill:none;stroke:var(--line);stroke-width:1.799;stroke-linecap:butt;stroke-linejoin:miter" d="m 224.13988,108.93795 c 0,0 6.50638,20.10833 9.15824,52.65208 l 12.94988,2.20486 0.57457,-12.87639 -0.53038,-0.88194 c 0,0 -0.44198,-1.41112 -0.26518,-3.08681 -0.3622,-17.92573 4.80555,-16.13157 6.09926,-16.31597 0,0 9.19311,0.0882 14.23163,0.17639 4.83597,-0.0129 3.97596,16.18277 4.24296,16.31597 -0.0332,0.91134 0.16097,1.99908 0.0884,2.73403 l -0.88394,1.05833 0.61876,16.22778 105.27866,15.61042 c 0,0 32.87373,5.96946 -6.89482,21.16666 -6.04179,2.30882 -133.91869,22.48959 -133.91869,22.48959 0,0 2.38064,42.33333 -5.8401,95.25 18.82817,3.17499 40.83561,8.07989 49.58969,9.78958 9.7752,1.90912 13.3235,19.1542 -2.12148,21.69583 -5.55044,0.91338 -52.37414,1.05834 -52.37414,1.05834 0,0 -0.79556,8.46666 -3.04783,9.52499 -2.24716,-0.52916 -3.04091,-8.99582 -3.04091,-8.99582 0,0 -46.71737,-0.14496 -52.25521,-1.05834 -15.40991,-2.54163 -11.86967,-19.78671 -2.11666,-21.69583 8.7342,-1.70969 30.69166,-6.61459 49.47708,-9.78958 -8.20208,-52.91667 -8.46667,-95.25 -8.46667,-95.25 0,0 -127.586509,-20.18077 -133.614578,-22.48959 -39.678243,-15.1972 -6.879171,-21.16666 -6.879171,-21.16666 l 105.039589,-15.61042 0.61736,-16.22778 -0.88194,-1.05833 c -0.0724,-0.73495 0.12127,-1.82269 0.0882,-2.73403 0.2664,-0.1332 -0.59166,-16.32883 4.23333,-16.31597 5.02708,-0.0882 14.19931,-0.17639 14.19931,-0.17639 1.29077,0.1844 6.44679,-1.60976 6.08541,16.31597 0.1764,1.67569 -0.26458,3.08681 -0.26458,3.08681 l -0.52917,0.88194 0.57326,12.87639 12.92048,-2.20486 c 2.64583,-32.54375 7.9375,-52.91667 7.9375,-52.91667 l 9.92188,-0.26458 c 0.646,-0.13229 -0.12952,-8.46667 -5.02709,-8.46667 -3.85966,0.10079 -4.71466,5.64236 -4.89479,8.73125"/>
+      <path style="fill:none;stroke:var(--line);stroke-width:1.799;stroke-linecap:butt;stroke-linejoin:miter" d="m 233.29812,161.59003 c 0,0 2.65186,56.88542 1.59111,64.82292"/>
+      <path style="fill:none;stroke:var(--line);stroke-width:1.349;stroke-linecap:butt;stroke-linejoin:miter" d="m 317.62711,212.9192 -0.53037,-17.99167 -81.94233,14.02292"/>
+      <path style="fill:none;stroke:var(--line);stroke-width:1.349;stroke-linecap:butt;stroke-linejoin:miter" d="m 375.17237,201.01295 v -5.55625 l -57.81045,6.61458"/>
+      <path style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter" d="m 337.51603,209.21503 v -1.85208 l -9.54668,1.5875 v 2.11666"/>
+      <path style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.05833333,1.05833333" d="m 229.04913,321.66295 -5.17052,32.80832"/>
+      <path style="fill:none;stroke:var(--line);stroke-width:1.349;stroke-linecap:butt;stroke-linejoin:miter" d="m 269.62311,353.41294 3.71259,-9.78958 -46.67264,-2.91042 0.26518,13.22917"/>
+      <path style="fill:none;stroke:var(--line);stroke-width:1.349;stroke-linecap:butt;stroke-linejoin:miter" d="m 256.8942,353.67752 v -1.85208 h -21.74521 v 2.38125"/>
+      <path style="fill:none;stroke:var(--line);stroke-width:0.450;stroke-linecap:butt;stroke-linejoin:miter" d="m 276.25275,332.77544 -56.56729,-152.4"/>
+      <g transform="matrix(-1.002276,0,0,1,440.04811,-0.52916667)" style="stroke:var(--line);stroke-width:1.698">
+        <g style="stroke:var(--line);stroke-width:0.899">
+          <path style="fill:none;stroke:var(--line);stroke-width:0.899;stroke-linecap:butt;stroke-linejoin:miter" d="m 178.67564,131.69212 0.26458,22.66597 5.20348,-0.17639 -0.0882,-22.84236 -1.23472,-1.5875 -3.43958,0.17639 z"/>
+          <path style="fill:none;stroke:var(--line);stroke-width:1.348;stroke-linecap:butt;stroke-linejoin:miter" d="m 169.06246,147.65531 9.70138,0.0882"/>
+          <path style="fill:none;stroke:var(--line);stroke-width:1.348;stroke-linecap:butt;stroke-linejoin:miter" d="m 169.768,151.09489 9.08403,-0.0882"/>
+          <path style="fill:none;stroke:var(--line);stroke-width:1.348;stroke-linecap:butt;stroke-linejoin:miter" d="m 184.23189,147.65531 9.34862,-0.17639"/>
+          <path style="fill:none;stroke:var(--line);stroke-width:1.348;stroke-linecap:butt;stroke-linejoin:miter" d="m 184.23189,151.0067 h 8.73125"/>
+        </g>
+        <path d="m 179.3812,129.92823 -1.41111,-1.05834 v -1.67569 l 1.41111,-1.23472 h 3.70416 l 1.05834,1.05833 v 1.76389 l -1.32292,0.97014 z" style="fill:none;stroke:var(--line);stroke-width:0.899;stroke-linecap:butt;stroke-linejoin:miter"/>
+        <path d="m 179.11662,125.95948 -1e-5,-3.52778 c 0,0 1.94028,-3.61597 3.96875,-0.0882 0.0317,1.17038 -0.14569,3.55123 0,3.61598" style="fill:none;stroke:var(--line);stroke-width:0.899;stroke-linecap:butt;stroke-linejoin:miter"/>
+        <path d="m 177.97009,128.86989 c 0,0 -16.32425,0.26458 -24.96142,-0.70555 16.84248,-2.02848 24.96142,-0.97014 24.96142,-0.97014 z" style="fill:none;stroke:var(--line);stroke-width:0.899;stroke-linecap:butt;stroke-linejoin:miter"/>
+        <path style="fill:none;stroke:var(--line);stroke-width:0.899;stroke-linecap:butt;stroke-linejoin:miter" d="m 184.1437,128.7817 c 0,0 16.32352,0.26458 24.96031,-0.70555 -16.84173,-2.02848 -24.96031,-0.97014 -24.96031,-0.97014 z"/>
+        <path d="m 177.88189,127.89976 -23.01875,0.17638" style="fill:none;stroke:var(--line);stroke-width:0.899;stroke-linecap:butt;stroke-linejoin:miter"/>
+        <path style="fill:none;stroke:var(--line);stroke-width:0.899;stroke-linecap:butt;stroke-linejoin:miter" d="m 207.07425,127.81157 -23.01875,0.17638"/>
+      </g>
+      <ellipse transform="scale(-1,1)" style="fill:var(--line);stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter" cx="-258.53491" cy="127.4147" rx="1.6353106" ry="1.190625"/>
+      <g style="stroke:var(--line);stroke-width:0.899" transform="matrix(-1.002276,0,0,1,439.78353,-0.52916667)">
+        <path d="m 181.01279,118.33066 0.1323,23.54791" style="fill:none;stroke:var(--line);stroke-width:0.899;stroke-linecap:butt;stroke-linejoin:miter"/>
+        <path d="m 181.01279,144.52441 0.26459,14.02291" style="fill:none;stroke:var(--line);stroke-width:0.899;stroke-linecap:butt;stroke-linejoin:miter"/>
+        <path d="m 181.27738,161.32545 0.13229,10.98021" style="fill:none;stroke:var(--line);stroke-width:0.899;stroke-linecap:butt;stroke-linejoin:miter"/>
+      </g>
+      <path style="fill:none;stroke:var(--line);stroke-width:1.349;stroke-linecap:butt;stroke-linejoin:miter" d="m 270.42408,167.14628 c -2.84759,-0.47352 -4.14311,6.11129 -6.46228,13.77311 -1.63268,5.39384 -3.09244,10.6203 -6.00143,14.80189 -2.33058,-2.03745 -5.82598,-7.33285 -7.56198,-15.90642 -2.03301,-10.0404 -2.36438,-14.32558 -4.37137,-16.37275"/>
+      <path style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter" d="m 219.50967,145.18587 c 3.8864,3.7125 8.45661,7.11626 9.94325,7.40833 l 2.65186,14.02291 c 0,0 -0.94893,3.04272 -2.93782,0.52917 -0.39778,-2.64583 -1.65852,-9.39271 -1.65852,-9.39271 l -7.99877,-6.48229"/>
+      <path style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter" d="m 220.83439,183.02128 2.65186,-3.175"/>
+      <g style="stroke:var(--line);stroke-width:1.698" transform="matrix(-1.002276,0,0,1,439.78292,59.663541)">
+        <circle style="fill:none;stroke:var(--line);stroke-width:1.797;stroke-linecap:butt;stroke-linejoin:miter" cx="215.87949" cy="120.24112" r="0.47083336"/>
+      </g>
+      <rect transform="scale(-1,1)" style="fill:var(--panel);stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter" width="1.4585204" height="7.6729164" x="-225.73792" y="257.76608"/>
+      <rect transform="scale(-1,1)" y="265.4646" x="-225.18344" height="8.441062" width="0.37367049" style="fill:none;stroke:var(--line);stroke-width:1.349;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path style="fill:none;stroke:var(--line);stroke-width:1.799;stroke-linecap:butt;stroke-linejoin:miter" d="m 218.05446,354.73586 5.82415,-0.26459"/>
+      <path d="m 219.11279,99.280658 v 3.968752" style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path d="m 219.24508,105.49837 v 13.49375" style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path d="m 219.11279,121.50566 0.13229,13.22916" style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path d="m 219.24508,137.11607 0.26459,8.0698" style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path d="m 219.50966,166.8817 v 4.10104" style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path d="m 219.64196,173.2317 0.13229,16.40417" style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path d="M 219.90654,196.51503 V 209.7442" style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path d="m 220.03883,213.97753 v 17.4625" style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path d="m 220.43571,242.15566 -0.13229,10.84791" style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path d="m 220.03884,255.64941 0.26458,16.40416" style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path d="m 220.30341,274.43482 -0.13229,16.40417" style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path d="m 220.17112,293.8817 v 19.44687" style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path d="m 220.30341,316.37128 0.26459,15.08125" style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path d="m 220.70029,335.02441 0.13229,14.68437" style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path d="m 221.09717,352.75149 v 13.62604" style="fill:none;stroke:var(--line);stroke-width:0.900;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path d="m 165.71106,331.62892 c -1.75844,3.44535 -2.05427,17.33909 0.35278,26.54653 1.83143,-9.89843 0.82737,-24.74901 -0.35278,-26.54653 z" style="fill:var(--panel);stroke:var(--line);stroke-width:1.349;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path d="m 164.21175,344.50531 h 2.82223" style="fill:none;stroke:var(--line);stroke-width:1.349;stroke-linecap:butt;stroke-linejoin:miter"/>
+      <path style="fill:var(--panel);stroke:var(--line);stroke-width:1.349;stroke-linecap:butt;stroke-linejoin:miter" d="m 276.34114,331.36433 c 1.76244,3.44535 2.58812,16.94222 0.17559,26.14966 -1.8356,-9.89843 -1.35843,-24.35214 -0.17559,-26.14966 z"/>
+      <path style="fill:none;stroke:var(--line);stroke-width:1.349;stroke-linecap:butt;stroke-linejoin:miter" d="m 277.84386,344.24072 h -2.82865"/>
+    </g>
+    <g id="hits">
+      <g id="hits-body"><circle cx="205.94337" cy="194.33862" r="2" class="hit"/>
+      <circle cx="206.73714" cy="223.44278" r="2" class="hit"/>
+      <circle r="2" cy="206.11256" cx="207.53088" class="hit"/>
+      <circle cx="211.49963" cy="201.08548" r="2" class="hit"/>
+      <circle r="2" cy="187.72401" cx="212.69026" class="hit"/>
+      <circle cx="216.9236" cy="195.9261" r="2" class="hit"/>
+      <circle r="2" cy="205.05423" cx="216.12985" class="hit"/>
+      <circle cx="213.21944" cy="211.13965" r="2" class="hit"/>
+      <circle r="2" cy="213.91777" cx="216.12985" class="hit"/>
+      <circle cx="210.30902" cy="219.20944" r="2" class="hit"/>
+      <circle r="2" cy="223.0459" cx="211.23506" class="hit"/>
+      <circle cx="223.4059" cy="210.61049" r="2" class="hit"/>
+      <circle r="2" cy="213.5209" cx="230.28506" class="hit"/>
+      <circle cx="225.65486" cy="218.15111" r="2" class="hit"/>
+      <circle r="2" cy="223.97194" cx="221.28923" class="hit"/>
+      <circle cx="217.98193" cy="227.94069" r="2" class="hit"/>
+      <circle r="2" cy="231.51256" cx="214.01318" class="hit"/>
+      <circle cx="214.80693" cy="231.51256" r="2" class="hit"/>
+      <circle r="2" cy="233.36464" cx="211.63193" class="hit"/>
+      <circle cx="211.63193" cy="234.42297" r="2" class="hit"/>
+      <circle r="2" cy="242.49277" cx="210.57359" class="hit"/>
+      <circle cx="220.36317" cy="234.68756" r="2" class="hit"/>
+      <circle r="2" cy="238.12715" cx="225.91942" class="hit"/>
+      <circle cx="226.97775" cy="229.3959" r="2" class="hit"/>
+      <circle r="2" cy="223.31049" cx="230.68192" class="hit"/>
+      <circle cx="233.32774" cy="203.86362" r="2" class="hit"/>
+      <circle r="2" cy="200.82091" cx="228.69754" class="hit"/>
+      <circle cx="226.58087" cy="187.59174" r="2" class="hit"/>
+      <circle r="2" cy="190.76674" cx="233.32774" class="hit"/>
+      <circle cx="235.17982" cy="189.97299" r="2" class="hit"/>
+      <circle r="2" cy="244.21257" cx="230.94652" class="hit"/>
+      <circle r="2" cy="333.90631" cx="206.20799" class="hit"/>
+      <circle r="2" cy="343.96051" cx="210.57362" class="hit"/>
+      <circle cx="232.26945" cy="349.38446" r="2" class="hit"/>
+      <circle cx="238.09029" cy="330.99591" r="2" class="hit"/>
+      <circle r="2" cy="337.21362" cx="233.98924" class="hit"/>
+      </g><g id="hits-wing"><circle cx="119.29232" cy="181.24176" r="2" class="hit wing"/>
+      <circle r="2" cy="182.56468" cx="100.6392" class="hit wing"/>
+      <circle cx="84.764198" cy="184.28447" r="2" class="hit wing"/>
+      <circle r="2" cy="185.87196" cx="70.344406" class="hit wing"/>
+      <circle cx="65.185028" cy="189.17926" r="2" class="hit wing"/>
+      <circle r="2" cy="194.47093" cx="59.496487" class="hit wing"/>
+      <circle cx="68.889198" cy="191.8251" r="2" class="hit wing"/>
+      <circle r="2" cy="188.6501" cx="77.355865" class="hit wing"/>
+      <circle cx="77.355865" cy="193.2803" r="2" class="hit wing"/>
+      <circle r="2" cy="193.2803" cx="83.57357" class="hit wing"/>
+      <circle cx="86.351692" cy="188.6501" r="2" class="hit wing"/>
+      <circle r="2" cy="185.87198" cx="89.923569" class="hit wing"/>
+      <circle cx="94.686066" cy="188.51781" r="2" class="hit wing"/>
+      <circle r="2" cy="193.01572" cx="95.479813" class="hit wing"/>
+      <circle cx="90.585022" cy="192.61885" r="2" class="hit wing"/>
+      <circle r="2" cy="190.36989" cx="101.82981" class="hit wing"/>
+      <circle cx="111.22252" cy="186.9303" r="2" class="hit wing"/>
+      <circle r="2" cy="191.82509" cx="114.6621" class="hit wing"/>
+      <circle cx="121.54127" cy="192.75113" r="2" class="hit wing"/>
+      <circle r="2" cy="198.17509" cx="117.8371" class="hit wing"/>
+      <circle cx="108.3121" cy="195.92613" r="2" class="hit wing"/>
+      <circle r="2" cy="199.10114" cx="104.07877" class="hit wing"/>
+      <circle cx="97.728775" cy="200.29176" r="2" class="hit wing"/>
+      <circle r="2" cy="204.5251" cx="92.833984" class="hit wing"/>
+      <circle cx="84.235023" cy="202.40843" r="2" class="hit wing"/>
+      <circle r="2" cy="201.3501" cx="78.546478" class="hit wing"/>
+      <circle cx="70.608978" cy="201.61469" r="2" class="hit wing"/>
+      <circle r="2" cy="208.49385" cx="104.87252" class="hit wing"/>
+      <circle cx="119.42461" cy="206.11259" r="2" class="hit wing"/>
+      <circle r="2" cy="209.02301" cx="127.09753" class="hit wing"/>
+      <circle cx="153.42357" cy="193.67717" r="2" class="hit wing"/>
+      <circle r="2" cy="201.74696" cx="161.49336" class="hit wing"/>
+      <circle cx="166.12357" cy="192.35425" r="2" class="hit wing"/>
+      <circle r="2" cy="187.06258" cx="170.4892" class="hit wing"/>
+      <circle cx="172.73816" cy="192.75111" r="2" class="hit wing"/>
+      <circle r="2" cy="198.17508" cx="169.96004" class="hit wing"/>
+      <circle cx="154.6142" cy="207.56779" r="2" class="hit wing"/>
+      <circle r="2" cy="212.99176" cx="157.12773" class="hit wing"/>
+      <circle cx="162.94856" cy="209.81676" r="2" class="hit wing"/>
+      <circle r="2" cy="212.33029" cx="168.37253" class="hit wing"/>
+      <circle cx="164.13919" cy="215.90216" r="2" class="hit wing"/>
+      <circle r="2" cy="217.88654" cx="178.4267" class="hit wing"/>
+      <circle cx="178.55899" cy="213.78549" r="2" class="hit wing"/>
+      <circle r="2" cy="208.22925" cx="177.76524" class="hit wing"/>
+      <circle cx="179.35274" cy="201.48238" r="2" class="hit wing"/>
+      <circle r="2" cy="205.18654" cx="185.70274" class="hit wing"/>
+      <circle cx="181.73399" cy="210.6105" r="2" class="hit wing"/>
+      <circle r="2" cy="210.6105" cx="182.66003" class="hit wing"/>
+      <circle cx="184.7767" cy="215.90218" r="2" class="hit wing"/>
+      <circle r="2" cy="210.7428" cx="189.5392" class="hit wing"/>
+      <circle cx="190.86212" cy="210.7428" r="2" class="hit wing"/>
+      <circle r="2" cy="201.74696" cx="189.01004" class="hit wing"/>
+      <circle cx="185.70274" cy="196.45529" r="2" class="hit wing"/>
+      <circle r="2" cy="193.80946" cx="190.20065" class="hit wing"/>
+      <circle cx="197.4767" cy="197.91051" r="2" class="hit wing"/>
+      <circle r="2" cy="189.70842" cx="200.6517" class="hit wing"/>
+      <circle r="2" cy="203.86362" cx="202.90067" class="hit wing"/>
+      <circle cx="196.0215" cy="208.75841" r="2" class="hit wing"/>
+      <circle r="2" cy="210.4782" cx="197.07983" class="hit wing"/>
+      <circle cx="201.44547" cy="211.80112" r="2" class="hit wing"/>
+      <circle r="2" cy="216.96049" cx="200.78401" class="hit wing"/>
+      <circle cx="191.65588" cy="218.68028" r="2" class="hit wing"/>
+      <circle r="2" cy="219.47403" cx="195.36005" class="hit wing"/>
+      <circle cx="194.30171" cy="220.79695" r="2" class="hit wing"/>
+      <circle r="2" cy="223.31049" cx="204.35588" class="hit wing"/>
+      <circle r="2" cy="206.11258" cx="238.61942" class="hit wing"/>
+      <circle cx="240.07463" cy="215.373" r="2" class="hit wing"/>
+      <circle r="2" cy="221.98758" cx="244.44026" class="hit wing"/>
+      <circle cx="246.68922" cy="216.56361" r="2" class="hit wing"/>
+      <circle r="2" cy="182.69695" cx="240.60379" class="hit wing"/>
+      <circle cx="247.08607" cy="186.13654" r="2" class="hit wing"/>
+      <circle r="2" cy="190.36987" cx="246.68919" class="hit wing"/>
+      <circle cx="247.87982" cy="190.50217" r="2" class="hit wing"/>
+      <circle r="2" cy="192.48654" cx="240.20691" class="hit wing"/>
+      <circle cx="241.7944" cy="197.11674" r="2" class="hit wing"/>
+      <circle r="2" cy="201.74695" cx="248.27669" class="hit wing"/>
+      <circle cx="248.93814" cy="204.26048" r="2" class="hit wing"/>
+      <circle r="2" cy="208.75839" cx="246.55688" class="hit wing"/>
+      <circle cx="255.02354" cy="206.90631" r="2" class="hit wing"/>
+      <circle r="2" cy="207.43547" cx="256.08188" class="hit wing"/>
+      <circle cx="258.46313" cy="205.71568" r="2" class="hit wing"/>
+      <circle r="2" cy="201.08548" cx="255.15584" class="hit wing"/>
+      <circle cx="251.84854" cy="195.66151" r="2" class="hit wing"/>
+      <circle r="2" cy="198.04277" cx="264.01938" class="hit wing"/>
+      <circle cx="266.66522" cy="205.71568" r="2" class="hit wing"/>
+      <circle r="2" cy="210.47818" cx="260.05063" class="hit wing"/>
+      <circle cx="255.02354" cy="215.10838" r="2" class="hit wing"/>
+      <circle r="2" cy="217.62192" cx="259.25687" class="hit wing"/>
+      <circle cx="260.18292" cy="217.62192" r="2" class="hit wing"/>
+      <circle r="2" cy="212.99171" cx="264.68085" class="hit wing"/>
+      <circle cx="265.73917" cy="212.99171" r="2" class="hit wing"/>
+      <circle r="2" cy="213.52087" cx="268.78186" class="hit wing"/>
+      <circle cx="276.58707" cy="216.1667" r="2" class="hit wing"/>
+      <circle r="2" cy="208.3615" cx="276.85165" class="hit wing"/>
+      <circle cx="282.93707" cy="200.15941" r="2" class="hit wing"/>
+      <circle r="2" cy="201.48233" cx="274.07352" class="hit wing"/>
+      <circle cx="273.54434" cy="195.26462" r="2" class="hit wing"/>
+      <circle r="2" cy="187.85628" cx="276.85162" class="hit wing"/>
+      <circle cx="267.19434" cy="187.59169" r="2" class="hit wing"/>
+      <circle r="2" cy="180.44794" cx="269.4433" class="hit wing"/>
+      <circle cx="290.47766" cy="192.35419" r="2" class="hit wing"/>
+      <circle r="2" cy="205.98022" cx="307.41098" class="hit wing"/>
+      <circle cx="315.21619" cy="194.86772" r="2" class="hit wing"/>
+      <circle r="2" cy="188.12085" cx="310.32138" class="hit wing"/>
+      <circle cx="310.05679" cy="179.78647" r="2" class="hit wing"/>
+      <circle r="2" cy="177.40521" cx="310.45367" class="hit wing"/>
+      <circle cx="315.61304" cy="177.93437" r="2" class="hit wing"/>
+      <circle r="2" cy="177.53749" cx="322.75677" class="hit wing"/>
+      <circle cx="319.58179" cy="182.29999" r="2" class="hit wing"/>
+      <circle r="2" cy="188.91457" cx="323.41824" class="hit wing"/>
+      <circle cx="321.56616" cy="195.66144" r="2" class="hit wing"/>
+      <circle r="2" cy="206.24477" cx="325.7995" class="hit wing"/>
+      <circle cx="339.69012" cy="204.1281" r="2" class="hit wing"/>
+      <circle r="2" cy="197.51352" cx="334.39847" class="hit wing"/>
+      <circle cx="345.51096" cy="196.85207" r="2" class="hit wing"/>
+      <circle r="2" cy="199.23332" cx="354.50677" class="hit wing"/>
+      <circle cx="358.21094" cy="196.85207" r="2" class="hit wing"/>
+      <circle r="2" cy="196.32291" cx="359.66614" class="hit wing"/>
+      <circle cx="367.73593" cy="197.77812" r="2" class="hit wing"/>
+      <circle r="2" cy="192.48645" cx="370.77863" class="hit wing"/>
+      <circle cx="379.90674" cy="191.56041" r="2" class="hit wing"/>
+      <circle r="2" cy="186.79791" cx="379.90674" class="hit wing"/>
+      <circle cx="372.36612" cy="186.00417" r="2" class="hit wing"/>
+      <circle r="2" cy="187.0625" cx="366.01611" class="hit wing"/>
+      <circle cx="359.7984" cy="190.3698" r="2" class="hit wing"/>
+      <circle r="2" cy="183.49063" cx="359.26923" class="hit wing"/>
+      <circle cx="353.44839" cy="182.16771" r="2" class="hit wing"/>
+      <circle r="2" cy="187.85625" cx="352.91922" class="hit wing"/>
+      <circle cx="351.06714" cy="190.10521" r="2" class="hit wing"/>
+      <circle r="2" cy="185.34271" cx="346.43692" class="hit wing"/>
+      <circle cx="344.58484" cy="183.22604" r="2" class="hit wing"/>
+      <circle r="2" cy="190.50209" cx="343.39423" class="hit wing"/>
+      <circle cx="337.70569" cy="191.16354" r="2" class="hit wing"/>
+      <circle r="2" cy="186.40105" cx="337.70569" class="hit wing"/>
+      <circle cx="329.76819" cy="191.82501" r="2" class="hit wing"/>
+      <circle r="2" cy="186.53334" cx="329.76819" class="hit wing"/>
+      <circle cx="329.10672" cy="180.71251" r="2" class="hit wing"/>
+      <circle r="2" cy="181.77084" cx="329.63589" class="hit wing"/>
+      <circle cx="335.32443" cy="180.71251" r="2" class="hit wing"/>
+      <circle cx="202.7684" cy="330.33444" r="2" class="hit wing"/>
+      <circle cx="194.69862" cy="332.31882" r="2" class="hit wing"/>
+      <circle r="2" cy="331.1282" cx="187.42258" class="hit wing"/>
+      <circle cx="185.4382" cy="339.198" r="2" class="hit wing"/>
+      <circle r="2" cy="342.37299" cx="173.66425" class="hit wing"/>
+      <circle cx="169.82779" cy="334.96466" r="2" class="hit wing"/>
+      <circle r="2" cy="339.46259" cx="161.6257" class="hit wing"/>
+      <circle cx="185.70279" cy="347.40009" r="2" class="hit wing"/>
+      <circle r="2" cy="339.72717" cx="196.41841" class="hit wing"/>
+      <circle cx="197.74133" cy="340.12405" r="2" class="hit wing"/>
+      <circle r="2" cy="345.28342" cx="242.32362" class="hit wing"/>
+      <circle cx="258.86008" cy="345.81259" r="2" class="hit wing"/>
+      <circle r="2" cy="340.38864" cx="254.75903" class="hit wing"/>
+      <circle cx="249.99654" cy="337.7428" r="2" class="hit wing"/>
+      <circle r="2" cy="335.36154" cx="243.24966" class="hit wing"/>
+      <circle cx="254.22987" cy="331.39279" r="2" class="hit wing"/>
+      <circle r="2" cy="336.1553" cx="262.96112" class="hit wing"/>
+      <circle cx="268.91425" cy="333.37717" r="2" class="hit wing"/>
+      <circle r="2" cy="340.6532" cx="272.08923" class="hit wing"/>
+      <circle cx="284.39236" cy="341.71152" r="2" class="hit wing"/>
+    </g></g>
+  <g id="flashes"/></g>
+<g id="zonas" transform="scale(0.343235)">
+<path class="zona" d="M398 130 Q398 122 410 122 L456 122 Q469 122 469 130 L468 228 L452 285 L437 312 L418 285 L400 228 Z"/>
+<path class="zona" d="M692 130 Q692 122 680 122 L634 122 Q621 122 621 130 L622 228 L638 285 L655 312 L672 285 L690 228 Z"/>
+<ellipse class="zona" cx="432" cy="112" rx="84" ry="9"/>
+<ellipse class="zona" cx="658" cy="112" rx="84" ry="9"/>
+<path class="zona" d="M510 232 L516 192 L545 161 L575 192 L581 232 Z"/>
+</g></svg>
+                    <div id="wald-scan"></div>
+                </div>
+
+                <div id="wald-top" class="wald-title"><span class="tx">Segunda Guerra Mundial · Abraham Wald</span></div>
+                <div id="wald-bottom" class="wald-title"><span class="tx">Sesgo de supervivencia</span></div>
+
+                <div id="wald-legend">
+                    <div class="wald-chip chip-verde"><i></i>Impactos: aviones que regresaron</div>
+                    <div class="wald-chip chip-ambar"><i></i>Sin impactos: aviones que no regresaron</div>
+                </div>
+
+                <div id="wald-credit">Ilustración: Wikimedia Commons (Survivorship-bias.svg)</div>
+            </div>
+
+            <div id="wald-boxL1" class="hud hud-lado hud-azul">
+                <div class="hud-frame"><div class="hud-text"><span class="txt">En la Segunda Guerra Mundial, los bombarderos debían ser blindados para sobrevivir a los impactos.</span></div></div>
+            </div>
+            <div id="wald-boxL2" class="hud hud-lado hud-der hud-ambar">
+                <div class="hud-frame"><div class="hud-text"><span class="txt">Los ingenieros querían blindar los agujeros que estaban a la vista.</span></div></div>
+            </div>
+            <div id="wald-boxV" class="hud hud-bajo hud-compacto hud-verde">
+                <div class="hud-frame"><div class="hud-text"><span class="txt">Un matemático, Abraham Wald, alertó: hay que blindar las partes que no tienen agujeros.</span></div></div>
+            </div>
+
+            <div id="wald-sound"></div>
+
+        </div>
+
+        <!-- ===== SLIDE 05 — CIERRE: FRASE, TÍTULO Y SALTO AL HIPERESPACIO ===== -->
+        <div class="slide slide-final" data-slide="5">
+            <canvas id="final-stars"></canvas>
+            <div class="final-wrap">
+                <div id="final-boxA" class="final-blk">
+                    <p class="ftxt azul f-a">Este trabajo no propone comprar drones.</p>
+                </div>
+                <div id="final-bt" class="final-blk">
+                    <p id="final-boxB" class="ftxt ambar f-b">Propone construir el mecanismo institucional para que la Armada capture a esos jóvenes antes de perderlos.</p>
+                    <p id="final-boxT" class="ftxt plata f-t">Simulación para competencias STEAM en el Servicio Militar Obligatorio de la Armada Paraguaya (2026–2028)</p>
+                </div>
+            </div>
+            <div id="final-flash"></div>
+        </div>
 
     </div>
 
+    <!-- =========================================================
+         UI DE NAVEGACIÓN — botones clicables en PC y móvil
+         ========================================================= -->
     <div id="ui-layer">
-        <button class="ui-btn" onclick="irAnterior()">← <span class="ui-key">P</span></button>
-        <span id="slide-indicator">Diapositiva 1 / 6</span>
-        <button class="ui-btn" onclick="irSiguiente()"><span class="ui-key">N</span> →</button>
+        <button class="ui-btn" onclick="slideAnterior()">← <span class="ui-key">P</span></button>
+        <span id="slide-indicador">01 / 05</span>
+        <button class="ui-btn" onclick="slideSiguiente()"><span class="ui-key">N</span> →</button>
+        <button class="ui-btn" onclick="salirAlSiguiente()">Salir <span class="ui-key">ESC</span></button>
         <button class="ui-btn" onclick="toggleFullscreen()">⛶ <span class="ui-key">F</span></button>
     </div>
 
     <script>
-        let currentSlide = 1;
-        let isTransitioning = false;
-        const totalSlides = 6;
         const NEXT_FILE = 'presentación4.html';
-        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-        const video = document.getElementById('main-video');
 
-        function reproducirVideo() {
+        /* =========================================================
+           REFERENCIAS GENERALES
+           ========================================================= */
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        let slideActual = 0;
+
+        const avisoAudio = document.getElementById('aviso-audio');
+        const $ = id => document.getElementById(id);
+
+        const cineMouseShared = { x: 0, y: 0 };
+        document.addEventListener('mousemove', (e) => {
+            cineMouseShared.x = e.clientX / innerWidth - .5;
+            cineMouseShared.y = e.clientY / innerHeight - .5;
+        });
+
+        /* =========================================================
+           SLIDE 1 — TEMPORIZADOR
+           ========================================================= */
+        const video = $('video-timer');
+        const videoFadeOut = $('video-fade-out');
+        const texto1 = $('texto1');
+        const texto2 = $('texto2');
+        const texto3 = $('texto3');
+
+        const T1_INI = 26, T1_FIN = 35;
+        const T2_INI = 47, T2_FIN = 57;
+        const T3_INI = 66, T3_FIN = 76;
+
+        function actualizarOverlays() {
             if (!video) return;
-            video.muted = true;
-            video.defaultMuted = true;
-            video.volume = 0;
-            const p = video.play();
-            if (p && p.catch) p.catch(() => {});
+            const t = video.currentTime;
+            if (texto1) texto1.classList.toggle('visible', t >= T1_INI && t < T1_FIN);
+            if (texto2) texto2.classList.toggle('visible', t >= T2_INI && t < T2_FIN);
+            if (texto3) texto3.classList.toggle('visible', t >= T3_INI && t < T3_FIN);
         }
 
-        function arrancarPresentacion() {
-            const container = document.getElementById('presentation-container');
+        /* =========================================================
+           REFERENCIAS SLIDE 2 — MUSK
+           ========================================================= */
+        const starship = $('starship');
+        const starshipWrap = $('starship-wrap');
+        const soundBtnMusk = $('sound');
+
+        /* =========================================================
+           REFERENCIAS SLIDE 3 — PALMER
+           ========================================================= */
+        const palmerVideo = $('palmer-video');
+        const palmerVideoWrap = $('palmer-video-wrap');
+        const soundBtnPalmer = $('palmer-sound');
+
+        /* =========================================================
+           REFERENCIAS SLIDE 4 — WALD
+           ========================================================= */
+        const waldVideo = $('wald-video');
+        const waldVideoWrap = $('wald-video-wrap');
+        const soundBtnWald = $('wald-sound');
+
+        /* =========================================================
+           AUDIO — desbloqueo global
+           ========================================================= */
+        function intentarReproducirConAudio(v) {
+            if (!v) return;
+            v.muted = false;
+            v.volume = 1;
+            const p = v.play();
+            if (!p || typeof p.catch !== 'function') return;
+            p.catch(() => {
+                v.muted = true;
+                v.play().catch(() => {});
+                if (avisoAudio) avisoAudio.classList.add('show');
+            });
+        }
+
+        function desbloquearAudioEnGesto() {
+            let algunDesbloqueo = false;
+            [video, starship, palmerVideo, waldVideo].forEach(v => {
+                if (!v) return;
+                if ((v.muted || v.volume === 0) && !v.paused && !v.ended) {
+                    v.muted = false;
+                    v.volume = 1;
+                    algunDesbloqueo = true;
+                }
+            });
+            if (algunDesbloqueo && avisoAudio) avisoAudio.classList.remove('show');
+        }
+
+        ['click','keydown','touchstart','mousedown','pointerdown'].forEach(ev => {
+            document.addEventListener(ev, desbloquearAudioEnGesto, true);
+        });
+
+        if (video) {
+            video.addEventListener('timeupdate', actualizarOverlays);
+            video.addEventListener('seeked', actualizarOverlays);
+            video.addEventListener('loadedmetadata', () => intentarReproducirConAudio(video));
+        }
+
+        /* =========================================================
+           UTILIDADES
+           ========================================================= */
+        const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+        const easeInOutCubic = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
+
+        function lerpTable(tab, s) {
+            if (s <= tab[0][0]) return tab[0][1];
+            for (let i = 1; i < tab.length; i++) {
+                if (s <= tab[i][0]) {
+                    const [s0, v0] = tab[i-1], [s1, v1] = tab[i];
+                    return v0 + (v1 - v0) * (s - s0) / (s1 - s0);
+                }
+            }
+            return tab[tab.length - 1][1];
+        }
+
+        /* =========================================================
+           CONFIGURACIÓN CINEMATOGRÁFICA
+           ========================================================= */
+        const CINE_TRANSITION_MS = 2400;
+        const CINE_AUDIO_FADE_MS = 1200;
+        const CINE_MAX_BLUR = 18;
+        const CINE_BLUR_PER_Z = 1 / 32;
+        const CINE_BEHIND_FADE_START = 600;
+        const CINE_BEHIND_FADE_END = 850;
+        const CINE_DRIFT_AMP = 40;
+        const CINE_DRIFT_TAU = 6;
+
+        const CINE_SCENE = [
+            { focusZ: -100,
+              z:  [[0, 880], [1, -100], [2, -520]],
+              op: [[0, 1],   [1, 1],    [2, 0.45]],
+              x:  [[0, 10],  [1, 0],    [2, 2]],
+              y:  [[0, 0],   [1, 0],    [2, 3]] },
+            { focusZ: -111,
+              z:  [[0, 880], [1, 880],  [2, -111]],
+              op: [[0, 1],   [2, 1]],
+              x:  [[1, -6],  [2, 0]],
+              y:  [[0, 0],   [2, 0]] }
+        ];
+
+        const PALMER_SCENE = [
+            { focusZ: -100,
+              z:  [[0, 880], [1, -100], [2, -520]],
+              op: [[0, 1],   [1, 1],    [2, 0.45]],
+              x:  [[0, 29.5], [1, 0],   [2, 2]],
+              y:  [[0, 0],   [1, 0],    [2, 3]] },
+            { focusZ: -111,
+              z:  [[0, 880], [1, 880],  [2, -111]],
+              op: [[0, 1],   [2, 1]],
+              x:  [[1, -6],  [2, 0]],
+              y:  [[0, 0],   [2, 0]] }
+        ];
+
+        const CINE_TITLE_OPACITY = [[0, 1], [0.45, 0], [2, 0]];
+        const CINE_TITLE_SCALE   = [[0, 1], [0.6, 0.22]];
+        const CINE_DIM_OPACITY   = [[0, 0.12], [1, 0.38], [2, 0.5]];
+        const CINE_WARM_OPACITY  = [[1.4, 0], [2, 1]];
+        const CINE_VIDEO_INTRO   = 0.42;
+
+        const CINE_VIDEO_ZOOM_MUSK   = [[0, 1.24], [1, 1.15], [2, 1.09]];
+        const CINE_VIDEO_ZOOM_PALMER = [[0, 1.38], [1, 1.14], [2, 1.02]];
+
+        function crearSecuenciaCine(refs) {
+            const {
+                videoEl, wrapEl, cameraEl, actor1El, actor2El,
+                titleEl, titleWrapEl, box1El, box2El, dimEl, warmEl,
+                soundBtn, slideIndex,
+                sceneData = CINE_SCENE,
+                videoZoomTable = CINE_VIDEO_ZOOM_MUSK,
+                videoParX = 5,
+                videoParY = 4
+            } = refs;
+
+            const scene = [
+                { el: actor1El, idx: 1, ...sceneData[0] },
+                { el: actor2El, idx: 2, ...sceneData[1] }
+            ];
+
+            const driftStart = [null, null];
+            const mouse = { x: 0, y: 0, sx: 0, sy: 0 };
+
+            let s = 0, target = 0, anim = null;
+            let started = false, tStart = 0, textTimer = null;
+
+            const drift = (i, now) =>
+                driftStart[i] == null ? 0 : CINE_DRIFT_AMP * Math.log(1 + (now - driftStart[i]) / 1000 / CINE_DRIFT_TAU);
+
+            function fadeInAudio() {
+                if (!videoEl) return;
+                videoEl.muted = false;
+                videoEl.volume = 0;
+                const t0 = performance.now();
+                (function step(now) {
+                    const k = clamp((now - t0) / CINE_AUDIO_FADE_MS, 0, 1);
+                    videoEl.volume = k * k * (3 - 2 * k);
+                    if (k < 1) requestAnimationFrame(step);
+                })(t0);
+            }
+
+            function showSoundNote(msg) {
+                soundBtn.textContent = msg;
+                soundBtn.classList.add('show');
+            }
+
+            function unmute() {
+                soundBtn.classList.remove('show');
+                fadeInAudio();
+            }
+
+            function iniciar() {
+                if (started) return;
+                started = true;
+                tStart = performance.now();
+
+                videoEl.currentTime = 0;
+                videoEl.muted = false;
+                videoEl.volume = 0;
+
+                const p = videoEl.play();
+                if (p && typeof p.then === 'function') {
+                    p.then(() => fadeInAudio()).catch(() => {
+                        videoEl.muted = true;
+                        videoEl.play().catch(() => {});
+                        showSoundNote('🔇 Click para activar el sonido');
+                    });
+                } else {
+                    fadeInAudio();
+                }
+
+                wrapEl.classList.add('on');
+                titleWrapEl.classList.add('enter');
+                requestAnimationFrame(render);
+            }
+
+            function goTo(n) {
+                n = clamp(n, 0, 2);
+                if (n === target || anim) return;
+                target = n;
+                if (n >= 1 && driftStart[n - 1] == null) driftStart[n - 1] = performance.now();
+                anim = { from: s, to: n, t0: performance.now() };
+                hideBoxes();
+            }
+
+            function hideBoxes() {
+                clearTimeout(textTimer);
+                box1El.classList.remove('show');
+                box2El.classList.remove('show');
+            }
+
+            function showBoxFor(n) {
+                clearTimeout(textTimer);
+                textTimer = setTimeout(() => {
+                    if (n === 1) box1El.classList.add('show');
+                    if (n === 2) box2El.classList.add('show');
+                }, 180);
+            }
+
+            function render(now) {
+                if (!started) return;
+
+                if (anim) {
+                    const k = clamp((now - anim.t0) / CINE_TRANSITION_MS, 0, 1);
+                    s = anim.from + (anim.to - anim.from) * easeInOutCubic(k);
+                    if (k >= 1) {
+                        s = anim.to;
+                        anim = null;
+                        showBoxFor(target);
+                    }
+                }
+
+                const t = now / 1000;
+                mouse.x = cineMouseShared.x;
+                mouse.y = cineMouseShared.y;
+                mouse.sx += (mouse.x - mouse.sx) * 0.05;
+                mouse.sy += (mouse.y - mouse.sy) * 0.05;
+
+                if (slideActual === slideIndex) {
+                    const rotX = Math.sin(t * 0.3) * 1.2 - mouse.sy * 2.2;
+                    const rotY = Math.cos(t * 0.2) * 1.2 + mouse.sx * 3.0;
+                    cameraEl.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+
+                    const since = (now - tStart) / 1000;
+                    const intro = CINE_VIDEO_INTRO * Math.pow(2, -5.5 * since / 4);
+                    const slow  = 0.03 * (1 - 1 / (1 + since / 25));
+                    const vz = lerpTable(videoZoomTable, s) + intro - slow;
+                    const vx = -mouse.sx * videoParX + Math.sin(t * 0.23) * 0.4;
+                    const vy = -mouse.sy * videoParY + Math.cos(t * 0.17) * 0.3;
+                    wrapEl.style.transform = `translate3d(${vx.toFixed(3)}%, ${vy.toFixed(3)}%, 0) scale(${vz.toFixed(4)})`;
+
+                    scene.forEach((item, i) => {
+                        const baseZ = lerpTable(item.z, s);
+                        const z = baseZ - drift(i, now);
+                        const x = lerpTable(item.x, s);
+                        const baseOp = lerpTable(item.op, s);
+
+                        let vis = 1;
+                        if (baseZ >= CINE_BEHIND_FADE_END) vis = 0;
+                        else if (baseZ > CINE_BEHIND_FADE_START) vis = (CINE_BEHIND_FADE_END - baseZ) / (CINE_BEHIND_FADE_END - CINE_BEHIND_FADE_START);
+
+                        const blur = Math.min(CINE_MAX_BLUR, Math.abs(baseZ - item.focusZ) * CINE_BLUR_PER_Z);
+                        const y = lerpTable(item.y, s);
+
+                        item.el.style.opacity = vis * baseOp;
+                        item.el.style.filter = blur > 0.15 ? `blur(${blur.toFixed(2)}px)` : 'none';
+                        item.el.style.transform =
+                            `translate3d(calc(var(--u) * ${x.toFixed(3)}), calc(var(--u) * ${y.toFixed(3)}), ${z.toFixed(2)}px)`;
+                    });
+
+                    const tOp = lerpTable(CINE_TITLE_OPACITY, s);
+                    const tSc = lerpTable(CINE_TITLE_SCALE, s);
+                    titleEl.style.opacity = tOp;
+                    titleEl.style.transform = `translate(-50%, -50%) scale(${tSc.toFixed(3)}) translateY(${((1 - tSc) * -18).toFixed(2)}vh)`;
+
+                    dimEl.style.opacity = lerpTable(CINE_DIM_OPACITY, s);
+                    warmEl.style.opacity = lerpTable(CINE_WARM_OPACITY, s);
+                }
+
+                requestAnimationFrame(render);
+            }
+
+            function reiniciar() {
+                clearTimeout(textTimer);
+                box1El.classList.remove('show');
+                box2El.classList.remove('show');
+                anim = null; s = 0; target = 0;
+                driftStart[0] = driftStart[1] = null;
+                tStart = performance.now();
+                titleWrapEl.classList.remove('enter');
+                void titleWrapEl.offsetWidth;
+                titleWrapEl.classList.add('enter');
+                if (!started) return;
+                videoEl.currentTime = 0;
+                videoEl.muted = false;
+                videoEl.volume = 0;
+                const p = videoEl.play();
+                if (p && typeof p.then === 'function') {
+                    p.then(() => fadeInAudio()).catch(() => {
+                        videoEl.muted = true;
+                        videoEl.play().catch(() => {});
+                        showSoundNote('🔇 Click para activar el sonido');
+                    });
+                } else { fadeInAudio(); }
+            }
+
+            return {
+                iniciar, reiniciar, goTo, hideBoxes, unmute,
+                getTarget: () => target,
+                isStarted: () => started,
+                pause: () => { if (videoEl && !videoEl.paused) videoEl.pause(); },
+                resume: () => { if (videoEl && videoEl.paused) videoEl.play().catch(() => {}); },
+                isMuted: () => videoEl.muted
+            };
+        }
+
+        const muskSeq = crearSecuenciaCine({
+            videoEl: starship,
+            wrapEl: starshipWrap,
+            cameraEl: $('camera'),
+            actor1El: $('actor1'),
+            actor2El: $('actor2'),
+            titleEl: $('title'),
+            titleWrapEl: $('titleWrap'),
+            box1El: $('box1'),
+            box2El: $('box2'),
+            dimEl: $('dim'),
+            warmEl: $('warm'),
+            soundBtn: soundBtnMusk,
+            slideIndex: 1,
+            sceneData: CINE_SCENE,
+            videoZoomTable: CINE_VIDEO_ZOOM_MUSK,
+            videoParX: 5,
+            videoParY: 4
+        });
+
+        const palmerSeq = crearSecuenciaCine({
+            videoEl: palmerVideo,
+            wrapEl: palmerVideoWrap,
+            cameraEl: $('palmer-camera'),
+            actor1El: $('palmer-actor1'),
+            actor2El: $('palmer-actor2'),
+            titleEl: $('palmer-title'),
+            titleWrapEl: $('palmer-titleWrap'),
+            box1El: $('palmer-box1'),
+            box2El: $('palmer-box2'),
+            dimEl: $('palmer-dim'),
+            warmEl: $('palmer-warm'),
+            soundBtn: soundBtnPalmer,
+            slideIndex: 2,
+            sceneData: PALMER_SCENE,
+            videoZoomTable: CINE_VIDEO_ZOOM_PALMER,
+            videoParX: 9,
+            videoParY: 7
+        });
+
+
+        /* =========================================================
+           SLIDE 4 — WALD
+           ========================================================= */
+        function crearSecuenciaWald() {
+            const NS_SVG = 'http://www.w3.org/2000/svg';
+            const videoEl = waldVideo, wrapEl = waldVideoWrap, soundBtn = soundBtnWald;
+            const stage = $('wald-stage'), plane = $('wald-plane'), svgEl = $('wald-svg');
+            const topEl = $('wald-top'), bottomEl = $('wald-bottom'), flashEl = $('wald-flash');
+            const boxL1 = $('wald-boxL1'), boxL2 = $('wald-boxL2'), boxV = $('wald-boxV');
+            const flashG = svgEl.querySelector('#flashes');
+            const WALD_ZOOM = [[0, 1.30], [1, 1.20], [2, 1.14], [3, 1.10]];
+            const SLIDE_IDX = 3;
+
+            const hits = Array.from(svgEl.querySelectorAll('#hits .hit')).map(el => ({
+                el, x: +el.getAttribute('cx'), y: +el.getAttribute('cy'), t: 0, shown: false, wing: el.classList.contains('wing')
+            }));
+            const yMin = Math.min(...hits.map(h => h.y));
+            const yMax = Math.max(...hits.map(h => h.y));
+
+            let s = 0, target = 0, anim = null;
+            let started = false, tStart = 0, planeT0 = 0, titleTimer = null, boxTimer = null;
+            let hitStart = null, hitEnd = 0;
+            let flashAmp = 0, lastNow = 0;
+
+            const CX = 221.49;
+            const ROLL_K = 56,  ROLL_C = 2.8,  ROLL_MAX = 8;
+            const HEAVE_K = 60, HEAVE_C = 4.5, HEAVE_MAX = 1.2;
+            const POS_K = 1.6,  POS_C = 2.5,   POS_MAX = 3.4;
+            let roll = 0, rollV = 0, heave = 0, heaveV = 0, pos = 0, posV = 0;
+            let nextWobble = Infinity;
+            let msx = 0, msy = 0;
+
+            function planearImpactos() {
+                const libres = new Set(hits.map((_, i) => i));
+                const BURSTS = 12, GAP = 0.27;
+                const por = Math.ceil(hits.length / BURSTS);
+                const d2 = (a, b) => (a.x - b.x) ** 2 + (a.y - b.y) ** 2;
+                let b = 0, maxT = 0;
+                while (libres.size) {
+                    const arr = Array.from(libres);
+                    const c = hits[arr[Math.floor(Math.random() * arr.length)]];
+                    arr.sort((i, j) => d2(hits[i], c) - d2(hits[j], c));
+                    arr.slice(0, por).forEach((idx, k) => {
+                        hits[idx].t = b * GAP + k * 0.022 + Math.random() * 0.01;
+                        maxT = Math.max(maxT, hits[idx].t);
+                        libres.delete(idx);
+                    });
+                    b++;
+                }
+                hitEnd = maxT;
+            }
+
+            function revelar(h) {
+                h.shown = true;
+                h.el.classList.add('on');
+                const r = document.createElementNS(NS_SVG, 'circle');
+                r.setAttribute('class', 'flash');
+                r.setAttribute('cx', h.x);
+                r.setAttribute('cy', h.y);
+                r.setAttribute('r', 2.2);
+                flashG.appendChild(r);
+                r.addEventListener('animationend', () => r.remove());
+                if (h.wing) {
+                    const dx = h.x - CX;
+                    rollV += Math.sign(dx) * 2.6 * Math.min(1.3, 0.5 + Math.abs(dx) / 70);
+                } else {
+                    heaveV -= 1.2;
+                }
+                posV += 0.07;
+                flashAmp = Math.min(0.35, flashAmp + 0.05);
+            }
+
+            function resetHit(h) {
+                h.shown = false;
+                h.el.classList.remove('on');
+                h.el.style.transitionDelay = '';
+            }
+
+            function impactosPendientes() {
+                if (hitStart === null) return false;
+                return (performance.now() - hitStart) / 1000 < hitEnd + 0.4;
+            }
+
+            function fadeInAudio() {
+                videoEl.muted = false;
+                videoEl.volume = 0;
+                const t0 = performance.now();
+                (function step(now) {
+                    const k = clamp((now - t0) / CINE_AUDIO_FADE_MS, 0, 1);
+                    videoEl.volume = k * k * (3 - 2 * k);
+                    if (k < 1) requestAnimationFrame(step);
+                })(t0);
+            }
+            function showSoundNote(msg) { soundBtn.textContent = msg; soundBtn.classList.add('show'); }
+            function unmute() { soundBtn.classList.remove('show'); fadeInAudio(); }
+
+            function playConAudio() {
+                videoEl.currentTime = 0;
+                videoEl.muted = false;
+                videoEl.volume = 0;
+                const p = videoEl.play();
+                if (p && typeof p.then === 'function') {
+                    p.then(() => fadeInAudio()).catch(() => {
+                        videoEl.muted = true;
+                        videoEl.play().catch(() => {});
+                        showSoundNote('🔇 Click para activar el sonido');
+                    });
+                } else {
+                    fadeInAudio();
+                }
+            }
+
+            function entradaTitulos(delay) {
+                clearTimeout(titleTimer);
+                topEl.classList.remove('enter', 'fuera');
+                bottomEl.classList.remove('enter', 'fuera');
+                void topEl.offsetWidth;
+                titleTimer = setTimeout(() => {
+                    topEl.classList.add('enter');
+                    bottomEl.classList.add('enter');
+                }, delay);
+            }
+
+            function setBoxes(n, prev) {
+                clearTimeout(boxTimer);
+                boxL1.classList.remove('show');
+                boxL2.classList.remove('show');
+                boxV.classList.remove('show');
+                if (n === 1) boxTimer = setTimeout(() => boxL1.classList.add('show'), prev === 0 ? 2000 : 500);
+                if (n === 2) boxTimer = setTimeout(() => boxL2.classList.add('show'), 500);
+                if (n === 3) boxTimer = setTimeout(() => boxV.classList.add('show'), 2600);
+            }
+
+            function iniciar() {
+                if (started) return;
+                started = true;
+                tStart = performance.now();
+                planeT0 = tStart + 700;
+                playConAudio();
+                wrapEl.classList.add('on');
+                entradaTitulos(2600);
+                requestAnimationFrame(render);
+            }
+
+            function reiniciar() {
+                clearTimeout(titleTimer);
+                clearTimeout(boxTimer);
+                anim = null; s = 0; target = 0;
+                hitStart = null; hitEnd = 0;
+                hits.forEach(resetHit);
+                while (flashG.firstChild) flashG.removeChild(flashG.firstChild);
+                stage.classList.remove('ok', 'eng');
+                plane.classList.remove('scan');
+                roll = rollV = heave = heaveV = pos = posV = 0;
+                flashAmp = 0; nextWobble = Infinity;
+                setBoxes(0, 0);
+                tStart = performance.now();
+                planeT0 = tStart + 700;
+                try { videoEl.playbackRate = 1; } catch (e) {}
+                playConAudio();
+                entradaTitulos(2600);
+            }
+
+            function goTo(n) {
+                n = clamp(n, 0, 3);
+                if (n === target || anim) return;
+                if (n === 2 && target === 1 && impactosPendientes()) return;
+                const prev = target;
+                clearTimeout(titleTimer);
+                target = n;
+                anim = { from: s, to: n, t0: performance.now() };
+
+                if (n === 0) {
+                    hitStart = null; nextWobble = Infinity;
+                    hits.forEach(resetHit);
+                    while (flashG.firstChild) flashG.removeChild(flashG.firstChild);
+                    stage.classList.remove('ok', 'eng');
+                    plane.classList.remove('scan');
+                    entradaTitulos(600);
+                }
+                if (n === 1) {
+                    stage.classList.remove('ok', 'eng');
+                    plane.classList.remove('scan');
+                    hits.forEach(h => { h.el.style.transitionDelay = ''; });
+                    if (prev === 0) {
+                        topEl.classList.remove('enter');
+                        topEl.classList.add('fuera');
+                        bottomEl.classList.remove('enter');
+                        bottomEl.classList.add('fuera');
+                        planearImpactos();
+                        hitStart = performance.now() + 600;
+                    }
+                }
+                if (n === 2) {
+                    stage.classList.remove('ok');
+                    stage.classList.add('eng');
+                    plane.classList.remove('scan');
+                    hits.forEach(h => {
+                        if (!h.shown) { h.shown = true; h.el.classList.add('on'); }
+                        h.el.style.transitionDelay = '';
+                    });
+                }
+                if (n === 3) {
+                    hits.forEach(h => {
+                        if (!h.shown) { h.shown = true; h.el.classList.add('on'); }
+                        const k = (h.y - yMin) / (yMax - yMin);
+                        h.el.style.transitionDelay = (k * 1.2).toFixed(2) + 's';
+                    });
+                    hitStart = null;
+                    stage.classList.remove('eng');
+                    plane.classList.remove('scan');
+                    void plane.offsetWidth;
+                    plane.classList.add('scan');
+                    stage.classList.add('ok');
+                }
+                setBoxes(n, prev);
+            }
+
+            function render(now) {
+                if (!started) return;
+                const dt = Math.min(0.05, ((now - (lastNow || now)) / 1000));
+                lastNow = now;
+
+                if (anim) {
+                    const k = clamp((now - anim.t0) / CINE_TRANSITION_MS, 0, 1);
+                    s = anim.from + (anim.to - anim.from) * easeInOutCubic(k);
+                    if (k >= 1) { s = anim.to; anim = null; }
+                }
+
+                if (hitStart !== null) {
+                    const tt = (now - hitStart) / 1000;
+                    if (tt >= 0) for (const h of hits) if (!h.shown && tt >= h.t) revelar(h);
+                }
+
+                if (target >= 1 && !impactosPendientes() && hits.every(h => h.shown)) {
+                    if (nextWobble === Infinity) nextWobble = now + 2200;
+                    else if (now >= nextWobble) {
+                        rollV += (Math.random() < 0.5 ? -1 : 1) * (16 + Math.random() * 6);
+                        heaveV -= 0.8;
+                        nextWobble = now + 3200 + Math.random() * 2800;
+                    }
+                }
+
+                for (let i = 0; i < 2; i++) {
+                    const hdt = dt / 2;
+                    rollV  += (-ROLL_K  * roll  - ROLL_C  * rollV)  * hdt;  roll  += rollV  * hdt;
+                    heaveV += (-HEAVE_K * heave - HEAVE_C * heaveV) * hdt;  heave += heaveV * hdt;
+                    posV   += (-POS_K   * pos   - POS_C   * posV)   * hdt;  pos   += posV   * hdt;
+                }
+                roll = clamp(roll, -ROLL_MAX, ROLL_MAX);
+                heave = clamp(heave, -HEAVE_MAX, HEAVE_MAX);
+                pos = clamp(pos, 0, POS_MAX);
+                flashAmp *= Math.exp(-dt * 7);
+
+                if (slideActual === SLIDE_IDX) {
+                    const t = now / 1000;
+                    msx += (cineMouseShared.x - msx) * 0.05;
+                    msy += (cineMouseShared.y - msy) * 0.05;
+
+                    const since = (now - tStart) / 1000;
+                    const intro = CINE_VIDEO_INTRO * Math.pow(2, -5.5 * since / 4);
+                    const slow = 0.03 * (1 - 1 / (1 + since / 25));
+                    const vz = lerpTable(WALD_ZOOM, s) + intro - slow - pos * 0.012;
+                    const vx = -msx * 5 + Math.sin(t * 0.23) * 0.4;
+                    const vy = -msy * 4 + Math.cos(t * 0.17) * 0.3;
+                    wrapEl.style.transform = `translate3d(${vx.toFixed(3)}%, ${vy.toFixed(3)}%, 0) scale(${vz.toFixed(4)})`;
+
+                    const rate = clamp(1 - pos * 0.14, 0.5, 1);
+                    if (Math.abs(videoEl.playbackRate - rate) > 0.02) videoEl.playbackRate = rate;
+
+                    const pIn = clamp((now - planeT0) / 1700, 0, 1);
+                    const e = 1 - Math.pow(1 - pIn, 3);
+                    const idleY = Math.sin(t * 0.8) * 0.25;
+                    const idleR = Math.sin(t * 0.5) * 0.35;
+                    plane.style.opacity = e.toFixed(3);
+                    plane.style.transform =
+                        `translate(-50%, -50%) translate(0, calc(var(--u) * ${(heave + idleY + pos).toFixed(3)})) ` +
+                        `perspective(650px) rotateY(${roll.toFixed(3)}deg) rotateZ(${(roll * 0.12 + idleR).toFixed(3)}deg) ` +
+                        `scale(${((0.93 + 0.07 * e) * (1 - pos * 0.012)).toFixed(4)})`;
+                    flashEl.style.opacity = flashAmp.toFixed(3);
+                }
+
+                requestAnimationFrame(render);
+            }
+
+            return {
+                iniciar, reiniciar, goTo, unmute,
+                getTarget: () => target,
+                isStarted: () => started,
+                pause: () => { if (videoEl && !videoEl.paused) videoEl.pause(); },
+                resume: () => { if (videoEl && videoEl.paused) videoEl.play().catch(() => {}); },
+                isMuted: () => videoEl.muted
+            };
+        }
+
+        const waldSeq = crearSecuenciaWald();
+
+        /* =========================================================
+           SLIDE 5 — CIERRE
+           ========================================================= */
+        function crearSecuenciaFinal() {
+            const SLIDE_IDX = 4;
+            const cv = $('final-stars'), ctx = cv.getContext('2d');
+            const boxA = $('final-boxA'), boxB = $('final-boxB'), boxT = $('final-boxT');
+            const flash = $('final-flash');
+            const boxes = [boxA, $('final-bt')];
+
+            const N = 520;
+            const stars = [];
+            let W = 1, H = 1, started = false, target = 0;
+            let hyper = null, leaving = false, timer = null, lastNow = 0;
+            const IDLE_V = 0.035, HYPER_V = 7.5, HYPER_RAMP = 2.0, HYPER_FLASH_AT = 1.7, HYPER_EXIT_AT = 2.55;
+
+            const rnd = (a, b) => a + Math.random() * (b - a);
+            function seed(st, z) {
+                st.x = rnd(-1, 1); st.y = rnd(-1, 1);
+                st.z = z === undefined ? rnd(0.04, 1) : z;
+                st.h = Math.random();
+            }
+            for (let i = 0; i < N; i++) { const st = {}; seed(st); stars.push(st); }
+
+            function resize() {
+                W = cv.width = Math.max(1, innerWidth);
+                H = cv.height = Math.max(1, innerHeight);
+            }
+            addEventListener('resize', resize);
+            resize();
+
+            function frame(now) {
+                requestAnimationFrame(frame);
+                if (!started || slideActual !== SLIDE_IDX) { lastNow = now; return; }
+                const dt = Math.min(0.05, (now - (lastNow || now)) / 1000);
+                lastNow = now;
+
+                let v = IDLE_V, tH = 0;
+                if (hyper) {
+                    tH = (now - hyper.t0) / 1000;
+                    const k = clamp(tH / HYPER_RAMP, 0, 1);
+                    v = IDLE_V + HYPER_V * k * k * k;
+                    flash.style.opacity = clamp((tH - HYPER_FLASH_AT) / (HYPER_EXIT_AT - HYPER_FLASH_AT - 0.1), 0, 1).toFixed(3);
+                    if (tH >= HYPER_EXIT_AT && !leaving) { leaving = true; salirAlSiguiente(); }
+                }
+
+                ctx.globalCompositeOperation = 'source-over';
+                if (hyper) { ctx.fillStyle = 'rgba(2,8,22,0.30)'; ctx.fillRect(0, 0, W, H); }
+                else ctx.clearRect(0, 0, W, H);
+
+                const cx = W / 2, cy = H / 2, f = Math.max(W, H) * 0.5;
+                const trail = hyper ? 0.05 + 0.02 * Math.min(tH, 2) : 0.02;
+                ctx.lineCap = 'round';
+                for (const st of stars) {
+                    const z0 = st.z;
+                    st.z -= v * dt;
+                    if (st.z <= 0.02) { seed(st, 1); continue; }
+                    const zt = st.z + v * trail + 0.004;
+                    const x1 = cx + (st.x / st.z) * f * 0.5, y1 = cy + (st.y / st.z) * f * 0.5;
+                    const x0 = cx + (st.x / zt) * f * 0.5,  y0 = cy + (st.y / zt) * f * 0.5;
+                    if (x1 < -50 || x1 > W + 50 || y1 < -50 || y1 > H + 50) { seed(st, 1); continue; }
+                    const depth = 1 - st.z;
+                    const a = Math.min(1, depth * 1.3 + 0.12);
+                    const bl = 200 + Math.floor(st.h * 55);
+                    ctx.strokeStyle = hyper
+                        ? `rgba(${170 + Math.floor(st.h * 60)},${200 + Math.floor(st.h * 40)},255,${a.toFixed(3)})`
+                        : `rgba(${170 + Math.floor(st.h * 50)},${205 + Math.floor(st.h * 35)},255,${(a * 0.9).toFixed(3)})`;
+                    ctx.lineWidth = 0.4 + depth * (hyper ? 2.6 : 1.8);
+                    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+                }
+
+                if (hyper && tH > 0.8) {
+                    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * 0.55);
+                    const ga = clamp((tH - 0.8) / 1.6, 0, 1) * 0.55;
+                    g.addColorStop(0, `rgba(210,230,255,${ga.toFixed(3)})`);
+                    g.addColorStop(1, 'rgba(120,160,255,0)');
+                    ctx.globalCompositeOperation = 'lighter';
+                    ctx.fillStyle = g;
+                    ctx.fillRect(0, 0, W, H);
+                }
+            }
+
+            function mostrar(n) {
+                clearTimeout(timer);
+                boxA.classList.toggle('show', n === 1);
+                boxB.classList.toggle('show', n === 2);
+                boxT.classList.remove('show');
+                if (n === 2) timer = setTimeout(() => { if (target === 2 && !hyper) boxT.classList.add('show'); }, 550);
+            }
+
+            function iniciar() {
+                if (started) return;
+                started = true;
+                requestAnimationFrame(frame);
+            }
+
+            function reiniciar() {
+                clearTimeout(timer);
+                hyper = null; leaving = false; target = 0;
+                flash.style.opacity = 0;
+                boxes.forEach(b => { b.classList.remove('show', 'hiper'); });
+                boxB.classList.remove('show'); boxT.classList.remove('show');
+                stars.forEach(st => seed(st));
+                ctx.clearRect(0, 0, W, H);
+            }
+
+            function hiperespacio() {
+                clearTimeout(timer);
+                hyper = { t0: performance.now() };
+                boxes.forEach(b => { b.classList.add('hiper'); });
+            }
+
+            function goTo(n) {
+                if (hyper) return;
+                n = clamp(n, 0, 3);
+                if (n === target && n !== 3) return;
+                if (n === 3) { hiperespacio(); return; }
+                target = n;
+                mostrar(n);
+            }
+
+            return {
+                iniciar, reiniciar, goTo,
+                getTarget: () => target,
+                isStarted: () => started,
+                isHyper: () => !!hyper
+            };
+        }
+
+        const finalSeq = crearSecuenciaFinal();
+
+        soundBtnMusk.addEventListener('click', (e) => {
+            e.stopPropagation();
+            starship.muted = false;
+            muskSeq.unmute();
+        });
+        soundBtnPalmer.addEventListener('click', (e) => {
+            e.stopPropagation();
+            palmerVideo.muted = false;
+            palmerSeq.unmute();
+        });
+        soundBtnWald.addEventListener('click', (e) => {
+            e.stopPropagation();
+            waldVideo.muted = false;
+            waldSeq.unmute();
+        });
+
+        function mostrarSlide(idx) {
+            if (idx < 0 || idx >= totalSlides) return;
+            slides.forEach((s, i) => s.classList.toggle('activo', i === idx));
+            slideActual = idx;
+
+            const indicador = document.getElementById('slide-indicador');
+            if (indicador) {
+                indicador.textContent = String(idx + 1).padStart(2, '0') + ' / ' + String(totalSlides).padStart(2, '0');
+            }
+
+            const ui = document.getElementById('ui-layer');
+            if (ui) ui.classList.toggle('atenuada', idx === 0);
+
+            if (video) {
+                if (idx === 0) {
+                    if (videoFadeOut) videoFadeOut.classList.remove('activar');
+                    try {
+                        video.currentTime = 0;
+                        video.play().catch(() => {});
+                    } catch (e) {}
+                } else {
+                    video.pause();
+                }
+            }
+
+            if (starship) {
+                if (idx === 1) {
+                    if (!muskSeq.isStarted()) muskSeq.iniciar();
+                    else muskSeq.reiniciar();
+                } else {
+                    muskSeq.pause();
+                }
+            }
+
+            if (palmerVideo) {
+                if (idx === 2) {
+                    if (!palmerSeq.isStarted()) palmerSeq.iniciar();
+                    else palmerSeq.reiniciar();
+                } else {
+                    palmerSeq.pause();
+                }
+            }
+
+            if (waldVideo) {
+                if (idx === 3) {
+                    if (!waldSeq.isStarted()) waldSeq.iniciar();
+                    else waldSeq.reiniciar();
+                } else {
+                    waldSeq.pause();
+                }
+            }
+
+            if (idx === 4) {
+                if (!finalSeq.isStarted()) finalSeq.iniciar();
+                else finalSeq.reiniciar();
+            }
+
+            actualizarOverlays();
+        }
+
+        function slideSiguiente() {
+            if (slideActual === 0) {
+                if (videoFadeOut) videoFadeOut.classList.add('activar');
+                setTimeout(() => {
+                    if (video) video.pause();
+                    mostrarSlide(1);
+                }, 1400);
+                return;
+            }
+
+            if (slideActual === 1) {
+                if (muskSeq.getTarget() < 2) muskSeq.goTo(muskSeq.getTarget() + 1);
+                else mostrarSlide(2);
+                return;
+            }
+
+            if (slideActual === 2) {
+                if (palmerSeq.getTarget() < 2) palmerSeq.goTo(palmerSeq.getTarget() + 1);
+                else mostrarSlide(3);
+                return;
+            }
+
+            if (slideActual === 3) {
+                if (waldSeq.getTarget() < 3) waldSeq.goTo(waldSeq.getTarget() + 1);
+                else mostrarSlide(4);
+                return;
+            }
+
+            if (slideActual === 4) {
+                finalSeq.goTo(finalSeq.getTarget() + 1);
+                return;
+            }
+
+            if (slideActual < totalSlides - 1) mostrarSlide(slideActual + 1);
+            else salirAlSiguiente();
+        }
+
+        function slideAnterior() {
+            if (slideActual === 1 && muskSeq.getTarget() > 0)   { muskSeq.goTo(muskSeq.getTarget() - 1); return; }
+            if (slideActual === 2 && palmerSeq.getTarget() > 0) { palmerSeq.goTo(palmerSeq.getTarget() - 1); return; }
+            if (slideActual === 3 && waldSeq.getTarget() > 0)   { waldSeq.goTo(waldSeq.getTarget() - 1); return; }
+            if (slideActual === 4) {
+                if (finalSeq.isHyper()) return;
+                if (finalSeq.getTarget() > 0) { finalSeq.goTo(finalSeq.getTarget() - 1); return; }
+            }
+            if (slideActual > 0) mostrarSlide(slideActual - 1);
+        }
+
+        function arrancarSeccion() {
+            const contenido = document.getElementById('contenido');
             const entrada   = document.getElementById('entrada-fade');
             const cover     = document.getElementById('black-cover');
 
-            container.classList.add('listo');
-            container.classList.add('state-1');
+            contenido.classList.add('listo');
             entrada.classList.add('arrancar');
-
-            reproducirVideo();
-            setTimeout(reproducirVideo, 300);
-
-            setTimeout(() => { container.classList.add('animaciones-activas'); }, 300);
 
             function onFadeEnd(e) {
                 if (e.animationName !== 'entradaFade') return;
@@ -667,21 +2506,23 @@
                     setTimeout(() => { if (cover.parentNode) cover.remove(); }, 600);
                 }
             }, 2000);
+
+            mostrarSlide(0);
         }
 
         window.addEventListener('load', () => {
-            reproducirVideo();
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => { arrancarPresentacion(); });
-            });
+            requestAnimationFrame(() => requestAnimationFrame(arrancarSeccion));
         });
-
         setTimeout(() => {
-            const container = document.getElementById('presentation-container');
-            if (!container.classList.contains('listo')) { arrancarPresentacion(); }
+            const c = document.getElementById('contenido');
+            if (!c.classList.contains('listo')) arrancarSeccion();
         }, 3000);
 
         function salirAlSiguiente() {
+            if (video) video.pause();
+            if (starship) starship.pause();
+            if (palmerVideo) palmerVideo.pause();
+            if (waldVideo) waldVideo.pause();
             const salida = document.createElement('div');
             salida.style.cssText = 'position:fixed;inset:0;background:#000;z-index:99999;opacity:0;pointer-events:none;transition:opacity 0.4s ease;';
             document.body.appendChild(salida);
@@ -689,75 +2530,147 @@
             setTimeout(() => { window.location.href = NEXT_FILE; }, 450);
         }
 
-        function changeSlide(target) {
-            if (isTransitioning || target === currentSlide) return;
-            if (target < 1 || target > totalSlides) return;
-            isTransitioning = true;
-            currentSlide = target;
-            const container = document.getElementById('presentation-container');
-            container.className = `listo state-${target} animaciones-activas`;
-            document.getElementById('slide-indicator').textContent = `Diapositiva ${target} / ${totalSlides}`;
-            setTimeout(() => { isTransitioning = false; }, reducedMotion.matches ? 50 : 1200);
-        }
-
-        function irAnterior() { if (currentSlide > 1) changeSlide(currentSlide - 1); }
-        function irSiguiente() {
-            if (currentSlide === totalSlides) { salirAlSiguiente(); return; }
-            changeSlide(currentSlide + 1);
-        }
-
-        /* Fullscreen */
+        /* =========================================================
+           FULLSCREEN — auto en primera interacción + toggle con F
+           ========================================================= */
         let primeraInteraccionHecha = false;
+
         function solicitarFullscreen() {
-            if (document.fullscreenElement || document.webkitFullscreenElement) return;
+            if (document.fullscreenElement ||
+                document.webkitFullscreenElement ||
+                document.mozFullScreenElement ||
+                document.msFullscreenElement) {
+                return;
+            }
+
             const el = document.documentElement;
-            const requestFn = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
-            if (requestFn) { try { requestFn.call(el); } catch (e) {} }
+            const requestFn =
+                el.requestFullscreen ||
+                el.webkitRequestFullscreen ||
+                el.webkitRequestFullScreen ||
+                el.mozRequestFullScreen ||
+                el.msRequestFullscreen;
+
+            if (!requestFn) return;
+
+            try {
+                const p = requestFn.call(el);
+                if (p && typeof p.catch === 'function') p.catch(() => {});
+            } catch (e) { /* silencioso */ }
         }
+
         function toggleFullscreen() {
-            if (document.fullscreenElement || document.webkitFullscreenElement) {
-                if (document.exitFullscreen) document.exitFullscreen();
-            } else { solicitarFullscreen(); }
-        }
-        ['click', 'touchstart', 'pointerdown'].forEach(ev => {
-            document.addEventListener(ev, () => {
-                if (!primeraInteraccionHecha) {
-                    primeraInteraccionHecha = true;
-                    solicitarFullscreen();
+            const enFullscreen =
+                document.fullscreenElement ||
+                document.webkitFullscreenElement ||
+                document.mozFullScreenElement ||
+                document.msFullscreenElement;
+
+            if (enFullscreen) {
+                const exitFn =
+                    document.exitFullscreen ||
+                    document.webkitExitFullscreen ||
+                    document.mozCancelFullScreen ||
+                    document.msExitFullscreen;
+                if (exitFn) {
+                    try {
+                        const p = exitFn.call(document);
+                        if (p && typeof p.catch === 'function') p.catch(() => {});
+                    } catch (e) { /* silencioso */ }
                 }
-                reproducirVideo();
-            }, { passive: true });
+            } else {
+                solicitarFullscreen();
+            }
+        }
+
+        function autoFullscreenPrimeraVez() {
+            if (primeraInteraccionHecha) return;
+            primeraInteraccionHecha = true;
+            solicitarFullscreen();
+        }
+
+        ['click', 'touchstart', 'pointerdown'].forEach(ev => {
+            document.addEventListener(ev, autoFullscreenPrimeraVez, { passive: true });
         });
 
-        /* Teclado */
+        /* =========================================================
+           TECLADO (PC)
+           ========================================================= */
         document.addEventListener('keydown', (e) => {
             const key = e.key.toLowerCase();
-            if (key === 'n' || key === 'arrowright' || key === 'pagedown' || e.code === 'Space') { e.preventDefault(); irSiguiente(); }
-            else if (key === 'p' || key === 'arrowleft' || key === 'pageup' || key === 'backspace') { e.preventDefault(); irAnterior(); }
+            if (key === 'n' || key === 'arrowright' || key === 'pagedown' || e.code === 'Space') { e.preventDefault(); slideSiguiente(); }
+            else if (key === 'p' || key === 'arrowleft' || key === 'pageup' || key === 'backspace') { e.preventDefault(); slideAnterior(); }
             else if (key === 'f') { e.preventDefault(); toggleFullscreen(); }
             else if (key === 'escape') { e.preventDefault(); salirAlSiguiente(); }
         });
 
-        /* Swipe */
-        let touchStartX = 0, touchStartY = 0, touchStartT = 0;
+        /* =========================================================
+           CLICK — desbloqueo de audio / avance dentro de slides cine
+           ========================================================= */
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('#ui-layer')) return;
+
+            if (slideActual === 1) {
+                if (!muskSeq.isStarted()) return;
+                if (muskSeq.isMuted() || starship.volume === 0) { starship.muted = false; muskSeq.unmute(); return; }
+                slideSiguiente();
+                return;
+            }
+
+            if (slideActual === 2) {
+                if (!palmerSeq.isStarted()) return;
+                if (palmerSeq.isMuted() || palmerVideo.volume === 0) { palmerVideo.muted = false; palmerSeq.unmute(); return; }
+                slideSiguiente();
+                return;
+            }
+
+            if (slideActual === 3) {
+                if (!waldSeq.isStarted()) return;
+                if (waldSeq.isMuted() || waldVideo.volume === 0) { waldVideo.muted = false; waldSeq.unmute(); return; }
+                slideSiguiente();
+                return;
+            }
+
+            if (slideActual === 4) {
+                slideSiguiente();
+                return;
+            }
+        });
+
+        /* =========================================================
+           TOUCH: swipe con umbral de tiempo y predominancia
+           ========================================================= */
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchStartT = 0;
+
         document.addEventListener('touchstart', (e) => {
             const t = e.changedTouches[0];
-            touchStartX = t.screenX; touchStartY = t.screenY; touchStartT = Date.now();
+            touchStartX = t.screenX;
+            touchStartY = t.screenY;
+            touchStartT = Date.now();
         }, { passive: true });
+
         document.addEventListener('touchend', (e) => {
             const t = e.changedTouches[0];
-            const dx = t.screenX - touchStartX, dy = t.screenY - touchStartY, dt = Date.now() - touchStartT;
+            const dx = t.screenX - touchStartX;
+            const dy = t.screenY - touchStartY;
+            const dt = Date.now() - touchStartT;
+
             if (dt < 600 && Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.5) {
-                if (dx < 0) irSiguiente(); else irAnterior();
+                if (dx < 0) {
+                    slideSiguiente();
+                } else {
+                    slideAnterior();
+                }
             }
         }, { passive: true });
 
-        /* Cursor */
         let cursorTimeout;
         function mostrarCursorTemporalmente() {
             document.documentElement.classList.add('cursor-visible');
             clearTimeout(cursorTimeout);
-            cursorTimeout = setTimeout(() => { document.documentElement.classList.remove('cursor-visible'); }, 2000);
+            cursorTimeout = setTimeout(() => document.documentElement.classList.remove('cursor-visible'), 2000);
         }
         document.addEventListener('mousemove', mostrarCursorTemporalmente);
         document.addEventListener('mousedown', mostrarCursorTemporalmente);
