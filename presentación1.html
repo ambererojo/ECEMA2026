@@ -47,15 +47,69 @@
         }
 
         /* ============================================================
+           TÚNEL SEVEN NATION — FONDO DEL ESTADO 1
+           ============================================================ */
+        #tunnel-bg {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            background: #000;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+            pointer-events: none;
+        }
+        .state-1 #tunnel-bg { opacity: 1; }
+        .state-2 #tunnel-bg, .state-3 #tunnel-bg, .state-4 #tunnel-bg,
+        .state-5 #tunnel-bg, .state-6 #tunnel-bg, .state-7 #tunnel-bg,
+        .state-8 #tunnel-bg, .state-9 #tunnel-bg, .state-10 #tunnel-bg,
+        .state-11 #tunnel-bg, .state-12 #tunnel-bg, .state-13 #tunnel-bg,
+        .state-14 #tunnel-bg, .state-15 #tunnel-bg, .state-16 #tunnel-bg,
+        .state-17 #tunnel-bg, .state-18 #tunnel-bg, .state-19 #tunnel-bg {
+            opacity: 0;
+        }
+
+        #tunnel-bg svg#tunnel-svg {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: block;
+        }
+
+        #tunnel-bg .flicker-layer {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background-color: #00BFFF;
+            opacity: 0;
+            z-index: 2;
+            animation: kick-flash 0.48387s cubic-bezier(0.1, 0.9, 0.2, 1) infinite;
+        }
+
+        @keyframes kick-flash {
+            0%   { opacity: 0.10; }
+            25%  { opacity: 0.02; }
+            45%, 100% { opacity: 0; }
+        }
+
+        #tunnel-bg .grain-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.10;
+            z-index: 3;
+            mix-blend-mode: overlay;
+        }
+
+        /* ============================================================
            ESTADO 1 — GLASS CON GANCHO HISTÓRICO
-           Mismo lenguaje visual que marco.html y objetivos.html
            ============================================================ */
         #slide-01 {
             position: absolute;
             top: 5vh; left: 4vw;
             z-index: 60;
             width: 92vw; height: 90vh;
-            background: rgba(15, 23, 42, 0.92);
+            background: rgba(15, 23, 42, 0.82);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 24px;
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
@@ -70,9 +124,10 @@
                         visibility 0s linear 0.9s;
             will-change: transform, opacity;
             backface-visibility: hidden;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
         }
 
-        /* Borde giratorio para el glass del estado 1 */
         @property --ang { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
         #slide-01::before {
             content: '';
@@ -113,7 +168,6 @@
             pointer-events: none;
         }
 
-        /* Header del estado 1 */
         .slide-01-header {
             margin-bottom: 2.4vh;
             text-align: center;
@@ -128,7 +182,6 @@
             line-height: 1.3;
         }
 
-        /* Contenido: tres tarjetas */
         .intro-contenido {
             flex: 1;
             display: grid;
@@ -167,7 +220,6 @@
             font-weight: 600;
         }
 
-        /* Anclaje al pie */
         .anclaje-pie {
             margin-top: 1.4vh;
             font-size: clamp(.8rem, 1.75vh, 1.04rem);
@@ -177,7 +229,6 @@
             text-align: right;
         }
 
-        /* Shine fuerte y suave (mismas clases que marco.html y objetivos.html) */
         @keyframes shimmer {
             0%   { background-position: 0% 0%; }
             50%  { background-position: 100% 100%; }
@@ -206,7 +257,6 @@
             filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.2));
         }
 
-        /* Animaciones de entrada del estado 1, con retraso de 1 s */
         @keyframes slideInDown { from { opacity: 0; transform: translateY(-18px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideInUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeInScale { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: scale(1); } }
@@ -224,7 +274,6 @@
             animation: slideInUp .62s ease 1.68s both;
         }
 
-        /* Clips de los estados 2–19 */
         .clip-wrapper {
             transition: clip-path 1.5s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.5s ease;
             will-change: clip-path, opacity;
@@ -277,7 +326,6 @@
         .state-1 #clip-c1, .state-1 #clip-p1, .state-1 #clip-p2, .state-1 #clip-p3,
         .state-1 #clip-col1, .state-1 #clip-bandera, .state-1 #clip-juramento { opacity: 0; }
 
-        /* FIX FLASH: mantener ocultos los clips que aún no deben verse */
         .state-2 #clip-c1, .state-3 #clip-c1, .state-4 #clip-c1 { opacity: 0; }
         .state-2 #clip-p1, .state-2 #clip-p2, .state-2 #clip-p3,
         .state-3 #clip-p1, .state-3 #clip-p2, .state-3 #clip-p3,
@@ -411,7 +459,7 @@
             transform: scale(1.1);
         }
 
-        /* HUD — formato Musk */
+        /* HUD */
         .hud {
             --k: calc(var(--u) * 2.8);
             --b: calc(var(--u) * .3);
@@ -535,8 +583,6 @@
         .hud-tag .star:nth-child(4) { animation-delay: .24s; }
         .hud-tag .star:nth-child(5) { animation-delay: .32s; }
 
-        /* Plateado subido: de #6b7280 a #94a3b8 para que se vea más brillante
-           cuando el shine no está en el centro del barrido */
         .hud-tag .star.plata {
             background-image: linear-gradient(108deg,
                 #94a3b8 0%, #94a3b8 30%, #cbd5e1 42%, #ffffff 46%, #f9fafb 49%,
@@ -728,12 +774,12 @@
         #creditos-texto {
             position: absolute;
             left: 50%;
-            bottom: -100%;
+            bottom: -40%;
             width: 85%;
             transform: translateX(-50%);
             color: #ffffff;
             font-family: 'Arial', 'Helvetica Neue', Helvetica, sans-serif;
-            font-size: clamp(1.6rem, 3.5vw, 2.8rem);
+            font-size: clamp(1.92rem, 4.2vw, 3.36rem);
             font-weight: 700;
             line-height: 1.6;
             text-align: center;
@@ -749,8 +795,8 @@
         .state-17 #creditos-texto { animation-play-state: running; }
 
         @keyframes creditosScroll {
-            0%   { bottom: -100%; opacity: 0; }
-            5%   { opacity: 1; }
+            0%   { bottom: -40%; opacity: 0; }
+            2%   { opacity: 1; }
             95%  { opacity: 1; }
             100% { bottom: 110%; opacity: 0; }
         }
@@ -917,12 +963,48 @@
 
         @media (prefers-reduced-motion: reduce) {
             .hud-text .txt, .hud-tag .star { animation: none; }
+            #tunnel-bg .flicker-layer { animation: none; }
         }
     </style>
 </head>
 <body>
 
     <div id="presentation-container" class="state-1">
+
+        <!-- ============================================================
+             TÚNEL SEVEN NATION — FONDO DEL ESTADO 1
+             ============================================================ -->
+        <div id="tunnel-bg">
+            <div class="flicker-layer"></div>
+            <svg class="grain-overlay" width="100%" height="100%">
+                <filter id="grain">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch" />
+                    <feColorMatrix type="saturate" values="0" />
+                </filter>
+                <rect width="100%" height="100%" filter="url(#grain)" />
+            </svg>
+            <svg id="tunnel-svg" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice">
+                <g id="refl-layers"></g>
+                <g id="main-layers"></g>
+            </svg>
+            <audio id="real-audio" loop preload="auto" playsinline>
+                <source src="videos1/seven1.opus" type="audio/mpeg">
+                <source src="videos1/salida2_5b1d8536.mp3" type="audio/mpeg">
+                <source src="videos1/seven1.mp3" type="audio/mpeg">
+            </audio>
+            <audio id="fondo2-audio" loop preload="auto" playsinline>
+                <source src="videos1/fondo2.opus" type="audio/ogg">
+                <source src="videos1/fondo2.mp3" type="audio/mpeg">
+            </audio>
+            <audio id="fondo3-audio" loop preload="auto" playsinline>
+                <source src="videos1/fondo3.mp3" type="audio/mpeg">
+                <source src="videos1/fondo3.opus" type="audio/ogg">
+            </audio>
+            <audio id="fondo4-audio" loop preload="auto" playsinline>
+                <source src="videos1/fondo4.mp3" type="audio/mpeg">
+                <source src="videos1/fondo4.opus" type="audio/ogg">
+            </audio>
+        </div>
 
         <!-- ============================================================
              ESTADO 1 — GLASS CON GANCHO HISTÓRICO
@@ -1143,6 +1225,283 @@
     <div id="debug-layer"></div>
 
     <script>
+        /* ============================================================
+           TÚNEL SEVEN NATION — animación de fondo del estado 1
+           ============================================================ */
+        (function initTunnel() {
+            const BPM = 124;
+            const AUDIO_BEAT = 60 / BPM;
+            const VISUAL_STEP_DURATION = AUDIO_BEAT / 0.70;
+            const CHEVRON_INTERVAL = VISUAL_STEP_DURATION * 2;
+
+            const POOL_SIZE = 12;
+            const NUM_CHEVRONS_IN_FLIGHT = 6;
+            const S_MIN = 0.0022;
+            const S_MAX = 2.45;
+
+            const HORIZON_Y = 670;
+            const APEX_DIST = 960;
+            const BASE_DIST = 210;
+            const BASE_HALF_W = 390;
+            const REFL_RATIO = 0.62;
+
+            const INITIAL_P0 = 0.38;
+
+            const mainContainer = document.getElementById('main-layers');
+            const reflContainer = document.getElementById('refl-layers');
+            if (!mainContainer || !reflContainer) return;
+            const mainElements = [];
+            const reflElements = [];
+
+            for (let i = 0; i < POOL_SIZE; i++) {
+                const pRefl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                pRefl.setAttribute('fill', '#00BFFF');
+                pRefl.style.display = 'none';
+                reflContainer.appendChild(pRefl);
+                reflElements.push(pRefl);
+
+                const pMain = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                pMain.setAttribute('fill', '#00BFFF');
+                pMain.style.display = 'none';
+                mainContainer.appendChild(pMain);
+                mainElements.push(pMain);
+            }
+
+            let startTime = null;
+            let rafId = null;
+
+            function render(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const t = (timestamp - startTime) / 1000;
+
+                for (let i = 0; i < POOL_SIZE; i++) {
+                    mainElements[i].style.display = 'none';
+                    reflElements[i].style.display = 'none';
+                }
+
+                const flightTime = NUM_CHEVRONS_IN_FLIGHT * CHEVRON_INTERVAL;
+                const maxSpawned = Math.floor(t / CHEVRON_INTERVAL);
+
+                for (let k = maxSpawned; k >= 0; k--) {
+                    let phase;
+                    if (k === 0) {
+                        phase = INITIAL_P0 + t / flightTime;
+                    } else {
+                        const spawnTime = k * CHEVRON_INTERVAL;
+                        const age = t - spawnTime;
+                        phase = age / flightTime;
+                    }
+
+                    if (phase < 0 || phase > 0.94) continue;
+
+                    const slot = k % POOL_SIZE;
+                    const mainPath = mainElements[slot];
+                    const reflPath = reflElements[slot];
+
+                    mainPath.style.display = 'block';
+                    reflPath.style.display = 'block';
+
+                    const scale = S_MIN * Math.pow(S_MAX / S_MIN, phase);
+
+                    const isBlue = k % 2 === 1;
+                    const strokeColor = isBlue ? '#00BFFF' : '#FFFFFF';
+
+                    const apexY = HORIZON_Y - APEX_DIST * scale;
+                    const baseY = HORIZON_Y + BASE_DIST * scale;
+                    const dy = baseY - apexY;
+                    const dx = BASE_HALF_W * scale;
+                    const legLen = Math.sqrt(dx * dx + dy * dy);
+
+                    const wBase = 1.0 + Math.pow(scale, 1.15) * 185;
+                    const wUniform = Math.min(wBase, dy * 0.22);
+
+                    const tFloor = wUniform * (legLen / dy);
+                    const tApex = wUniform * (legLen / dx);
+
+                    const leftMidX = 500 - dx;
+                    const rightMidX = 500 + dx;
+
+                    const xL_out = (leftMidX - tFloor / 2).toFixed(2);
+                    const xL_in = (leftMidX + tFloor / 2).toFixed(2);
+                    const xR_in = (rightMidX - tFloor / 2).toFixed(2);
+                    const xR_out = (rightMidX + tFloor / 2).toFixed(2);
+
+                    const yApex_out = (apexY - tApex / 2).toFixed(2);
+                    const yApex_in = (apexY + tApex / 2).toFixed(2);
+                    const yBaseStr = baseY.toFixed(2);
+
+                    mainPath.setAttribute(
+                        'd',
+                        `M ${xL_out} ${yBaseStr} L 500 ${yApex_out} L ${xR_out} ${yBaseStr} L ${xR_in} ${yBaseStr} L 500 ${yApex_in} L ${xL_in} ${yBaseStr} Z`
+                    );
+                    mainPath.setAttribute('fill', strokeColor);
+
+                    let opacity = 1;
+                    if (phase > 0.82) {
+                        opacity = Math.max(0, 1 - (phase - 0.82) / 0.12);
+                    }
+                    mainPath.setAttribute('opacity', opacity.toFixed(3));
+
+                    const yRefl_out = (baseY + (baseY - (apexY - tApex / 2)) * REFL_RATIO).toFixed(2);
+                    const yRefl_in = (baseY + (baseY - (apexY + tApex / 2)) * REFL_RATIO).toFixed(2);
+
+                    reflPath.setAttribute(
+                        'd',
+                        `M ${xL_out} ${yBaseStr} L 500 ${yRefl_out} L ${xR_out} ${yBaseStr} L ${xR_in} ${yBaseStr} L 500 ${yRefl_in} L ${xL_in} ${yBaseStr} Z`
+                    );
+                    reflPath.setAttribute('fill', strokeColor);
+
+                    const reflOpacity = Math.max(0, opacity * 0.42 * (1 - phase * 0.3));
+                    reflPath.setAttribute('opacity', reflOpacity.toFixed(3));
+                }
+
+                rafId = requestAnimationFrame(render);
+            }
+            rafId = requestAnimationFrame(render);
+
+            const observer = new MutationObserver(() => {
+                const cont = document.getElementById('presentation-container');
+                const visible = cont.classList.contains('state-1');
+                if (visible && rafId === null) {
+                    startTime = null;
+                    rafId = requestAnimationFrame(render);
+                } else if (!visible && rafId !== null) {
+                    cancelAnimationFrame(rafId);
+                    rafId = null;
+                }
+            });
+            const contEl = document.getElementById('presentation-container');
+            observer.observe(contEl, { attributes: true, attributeFilter: ['class'] });
+
+            /* ============================================================
+               Audio del túnel: autoplay + crescendo sinusoidal.
+               Al salir del slide 1 → fade + KILL permanente (nunca más).
+               ============================================================ */
+            const realAudio = document.getElementById('real-audio');
+            if (!realAudio) return;
+
+            const VOL_MIN = 0.5;
+            const VOL_MAX = 1.0;
+            const VOL_SUSTAIN = 0.2;      // sustain de fondo tras la ejecución
+            const SWELL_UP_MS = 220;      // brevísimo fadeup al salir del slide
+            const SWELL_DELTA = 0.18;
+            const T_RAMP_UP = 3.0;
+            const T_HOLD_END = 7.0;
+            const T_RAMP_DOWN_END = 10.0;
+
+            let volRafId = null;
+            let volStartTime = null;
+            let audioFadeInterval = null;
+            let tunnelKilled = false;
+
+            function cancelVolumeRamp() {
+                if (volRafId !== null) {
+                    cancelAnimationFrame(volRafId);
+                    volRafId = null;
+                }
+                volStartTime = null;
+            }
+
+            function volumeEnvelope(t) {
+                if (t <= 0) return VOL_MIN;
+                if (t < T_RAMP_UP) {
+                    const p = t / T_RAMP_UP;
+                    const s = Math.sin(p * Math.PI / 2);
+                    return VOL_MIN + (VOL_MAX - VOL_MIN) * s;
+                }
+                if (t < T_HOLD_END) return VOL_MAX;
+                if (t < T_RAMP_DOWN_END) {
+                    const p = (t - T_HOLD_END) / (T_RAMP_DOWN_END - T_HOLD_END);
+                    const s = Math.sin(p * Math.PI / 2);
+                    return VOL_MAX - (VOL_MAX - VOL_SUSTAIN) * s;   // fadedown sinusoidal al 20%
+                }
+                return VOL_SUSTAIN;
+            }
+
+            function startVolumeRamp() {
+                if (tunnelKilled) return;
+                cancelVolumeRamp();
+                volStartTime = performance.now();
+                const step = (now) => {
+                    if (tunnelKilled || realAudio.paused) { volRafId = null; return; }
+                    const t = (now - volStartTime) / 1000;
+                    realAudio.volume = Math.max(0, Math.min(1, volumeEnvelope(t)));
+                    if (t >= T_RAMP_DOWN_END) { volRafId = null; return; }   // queda sosteniendo al 20%
+                    volRafId = requestAnimationFrame(step);
+                };
+                volRafId = requestAnimationFrame(step);
+            }
+
+            function playAudio() {
+                if (tunnelKilled) return;
+                if (realAudio.paused) {
+                    realAudio.volume = VOL_MIN;
+                    realAudio.play()
+                        .then(() => { startVolumeRamp(); })
+                        .catch(() => {});
+                }
+            }
+
+            function fadeOutTunnelAudio(durationMs = 1200) {
+                if (tunnelKilled) return;
+                tunnelKilled = true;
+                cancelVolumeRamp();
+                if (audioFadeInterval) clearInterval(audioFadeInterval);
+                const startVol = realAudio.volume;
+                const peakVol = Math.min(1, startVol + SWELL_DELTA);
+                const start = performance.now();
+                audioFadeInterval = setInterval(() => {
+                    const elapsed = performance.now() - start;
+                    let vol, done = false;
+                    if (elapsed < SWELL_UP_MS) {
+                        // brevísimo fadeup sinusoidal
+                        const p = elapsed / SWELL_UP_MS;
+                        vol = startVol + (peakVol - startVol) * Math.sin(p * Math.PI / 2);
+                    } else {
+                        // fadeoff sinusoidal
+                        const p = Math.min(1, (elapsed - SWELL_UP_MS) / durationMs);
+                        vol = peakVol * Math.cos(p * Math.PI / 2);
+                        done = p >= 1;
+                    }
+                    realAudio.volume = Math.max(0, Math.min(1, vol));
+                    if (done) {
+                        clearInterval(audioFadeInterval);
+                        audioFadeInterval = null;
+                        realAudio.pause();
+                        realAudio.volume = 0;
+                        realAudio.loop = false;
+                        try {
+                            realAudio.removeAttribute('src');
+                            realAudio.querySelectorAll('source').forEach(s => s.remove());
+                            realAudio.load();
+                        } catch (e) { /* silencioso */ }
+                    }
+                }, 25);
+            }
+
+            function tryAutoplay() {
+                if (tunnelKilled) return;
+                playAudio();
+            }
+            document.addEventListener('DOMContentLoaded', tryAutoplay);
+            tryAutoplay();
+            ['pointerdown', 'click', 'keydown', 'touchstart'].forEach(ev => {
+                document.addEventListener(ev, () => {
+                    if (!tunnelKilled && realAudio.paused) playAudio();
+                }, { once: true, passive: true });
+            });
+
+            window.__tunnelAudio = {
+                fadeOut: fadeOutTunnelAudio,
+                play: playAudio,
+                audio: realAudio,
+                isKilled: () => tunnelKilled
+            };
+        })();
+
+        /* ============================================================
+           SISTEMA DE SLIDES
+           ============================================================ */
         const VIDEO_SOURCES = {
             sujeto1: 'videos1/sujeto1.mp4',
             sujeto2: 'videos1/sujeto2.mp4',
@@ -1244,24 +1603,6 @@
 
                 videoEl.load();
             });
-
-            const vJuramento = videosState.juramento.element;
-            vJuramento.addEventListener('timeupdate', () => {
-                if (!vJuramento.duration) return;
-                const restante = vJuramento.duration - vJuramento.currentTime;
-                if (restante <= 2.0) {
-                    const factor = Math.max(0, restante / 2.0);
-                    vJuramento.volume = Math.min(1.0, factor);
-                    document.getElementById('fadeout-negro').style.opacity = String(1 - factor);
-                } else {
-                    vJuramento.volume = 1.0;
-                    document.getElementById('fadeout-negro').style.opacity = '0';
-                }
-            });
-
-            vJuramento.addEventListener('ended', () => {
-                document.getElementById('fadeout-negro').style.opacity = '1';
-            });
         });
 
         const VIDEO_VISIBLE = {
@@ -1300,6 +1641,154 @@
             if (j && estado < 17 && !j.paused) j.pause();
         }
 
+        /* ============================================================
+           Envolventes sinusoidales para audios de fondo
+           ============================================================ */
+        const FONDO2_VOL = 0.6;
+        const FONDO3_VOL = 0.6;
+        const FONDO4_VOL = 0.6;
+
+        // Parámetros de la envolvente de fondo (editar aquí)
+        const BG_SUSTAIN_VOL   = 0.20;  // volumen de sustain durante la exposición
+        const BG_HOLD_MS       = 6000;  // hold por defecto (fondo4)
+        const FONDO2_HOLD_MS   = 5200;
+        const FONDO3_HOLD_MS   = 5200;
+        const FONDO3_DROP_MS   = 5000;   // Ode to Joy: fadedown el doble de largo
+        const BG_DROP_MS       = 2500;  // fadedown sinusoidal hacia el sustain
+        const BG_SWELL_UP_MS   = 220;   // brevísimo fadeup al hacer siguiente
+        const BG_SWELL_DELTA   = 0.18;  // cuánto sube ese fadeup sobre el sustain
+        const BG_SWELL_DOWN_MS = 1100;  // fadeoff de regreso al sustain
+
+        // Cuarto de seno: sube (fadeup) o baja (fadedown) de forma sinusoidal.
+        function sineRamp(from, to, p) {
+            return to >= from
+                ? from + (to - from) * Math.sin(p * Math.PI / 2)
+                : to + (from - to) * Math.cos(p * Math.PI / 2);
+        }
+
+        function makeEnvelope(audioEl, targetVol, rampInMs = 1200, rampOutMs = 1500, holdMs = BG_HOLD_MS, dropMs = BG_DROP_MS) {
+            const state = {
+                el: audioEl,
+                target: targetVol,
+                rampIn: rampInMs,
+                rampOut: rampOutMs,
+                hold: holdMs,
+                drop: dropMs,
+                interval: null,
+                holdTimer: null,
+                active: false
+            };
+
+            const clamp = v => Math.max(0, Math.min(1, v));
+
+            function clearTimers() {
+                if (state.interval) { clearInterval(state.interval); state.interval = null; }
+                if (state.holdTimer) { clearTimeout(state.holdTimer); state.holdTimer = null; }
+            }
+
+            function ramp(to, ms, done) {
+                if (state.interval) { clearInterval(state.interval); state.interval = null; }
+                const from = state.el.volume;
+                const t0 = performance.now();
+                state.interval = setInterval(() => {
+                    const p = Math.min(1, (performance.now() - t0) / ms);
+                    state.el.volume = clamp(sineRamp(from, to, p));
+                    if (p >= 1) {
+                        clearInterval(state.interval);
+                        state.interval = null;
+                        state.el.volume = clamp(to);
+                        if (done) done();
+                    }
+                }, 25);
+            }
+
+            // Entrada al rango de slides: ejecución (fadeup) → hold → fadedown al 20%.
+            state.start = () => {
+                if (!state.el) return;
+                clearTimers();
+                state.active = true;
+                state.el.volume = 0;
+                state.el.currentTime = 0;
+                state.el.play().then(() => {
+                    if (!state.active) { state.el.pause(); return; }
+                    ramp(state.target, state.rampIn, () => {
+                        state.holdTimer = setTimeout(() => {
+                            state.holdTimer = null;
+                            if (state.active) ramp(BG_SUSTAIN_VOL, state.drop);
+                        }, state.hold);
+                    });
+                }).catch(() => {});
+            };
+
+            // Siguiente slide dentro del rango: brevísimo fadeup y fadeoff de vuelta al 20%.
+            state.pulse = () => {
+                if (!state.el || !state.active || state.el.paused) return;
+                clearTimers();
+                const peak = clamp(Math.max(state.el.volume, BG_SUSTAIN_VOL + BG_SWELL_DELTA));
+                ramp(peak, BG_SWELL_UP_MS, () => ramp(BG_SUSTAIN_VOL, BG_SWELL_DOWN_MS));
+            };
+
+            // Salida del rango: brevísimo fadeup y luego fadeoff a cero.
+            state.stop = (cb) => {
+                if (!state.el) { if (cb) cb(); return; }
+                if (!state.active) { if (cb) cb(); return; }
+                state.active = false;
+                clearTimers();
+                if (state.el.paused) { if (cb) cb(); return; }
+                const peak = clamp(state.el.volume + BG_SWELL_DELTA * 0.8);
+                ramp(peak, BG_SWELL_UP_MS, () => ramp(0, state.rampOut, () => {
+                    state.el.pause();
+                    state.el.currentTime = 0;
+                    if (cb) cb();
+                }));
+            };
+
+            return state;
+        }
+
+        let fondo2Env = null;
+        let fondo3Env = null;
+        let fondo4Env = null;
+
+        function initEnvelopes() {
+            if (fondo2Env || fondo3Env || fondo4Env) return;   // evita doble init
+            const f2 = document.getElementById('fondo2-audio');
+            const f3 = document.getElementById('fondo3-audio');
+            const f4 = document.getElementById('fondo4-audio');
+            if (f2) fondo2Env = makeEnvelope(f2, FONDO2_VOL, 1200, 1500, FONDO2_HOLD_MS);
+            if (f3) fondo3Env = makeEnvelope(f3, FONDO3_VOL, 1500, 1800, FONDO3_HOLD_MS, FONDO3_DROP_MS);
+            if (f4) fondo4Env = makeEnvelope(f4, FONDO4_VOL, 1500, 1800);
+        }
+
+        /* ============================================================
+           Fade sinusoidal del audio del juramento.
+           Acepta callback onDone → se usa para avanzar al slide 18
+           (NO para navegar a presentación2.html).
+           ============================================================ */
+        let juramentoFadeInterval = null;
+
+        function startJuramentoFadeOut(videoEl, onDone) {
+            if (juramentoFadeInterval) clearInterval(juramentoFadeInterval);
+            if (!videoEl) { if (onDone) onDone(); return; }
+            const startVol = videoEl.volume;
+            const durationMs = 2000;
+            const t0 = performance.now();
+            juramentoFadeInterval = setInterval(() => {
+                const p = Math.min(1, (performance.now() - t0) / durationMs);
+                const s = Math.sin((1 - p) * Math.PI / 2);
+                videoEl.volume = Math.max(0, startVol * s);
+                if (p >= 1) {
+                    clearInterval(juramentoFadeInterval);
+                    juramentoFadeInterval = null;
+                    videoEl.volume = 0;
+                    if (onDone) onDone();
+                }
+            }, 40);
+        }
+
+        /* ============================================================
+           Cambio de slide
+           ============================================================ */
         let currentSlide = 1;
         let isTransitioning = false;
         const totalSlides = 19;
@@ -1309,9 +1798,14 @@
             if (isTransitioning) return;
             if (target < 1) return;
 
+            // Salir del 19 → navegar al siguiente archivo
             if (target > totalSlides) {
                 window.location.href = NEXT_FILE;
                 return;
+            }
+
+            if (currentSlide === 1 && target > 1 && window.__tunnelAudio) {
+                window.__tunnelAudio.fadeOut(1200);
             }
 
             isTransitioning = true;
@@ -1364,9 +1858,23 @@
                 void creditos.offsetWidth;
                 creditos.style.animation = 'creditosScroll 55s linear forwards';
             } else if (target === 18) {
+                // Si venimos del 17, el fade ya se encargó; solo aseguramos pausa.
+                const v = videosState.juramento.element;
+                if (v && !v.paused && !juramentoFadeInterval) {
+                    v.pause();
+                }
+            } else if (target === 19) {
                 const v = videosState.juramento.element;
                 if (v && !v.paused) { v.pause(); }
             }
+
+            [[fondo2Env, 2, 8], [fondo3Env, 9, 13], [fondo4Env, 14, 16]].forEach(([env, lo, hi]) => {
+                if (!env) return;
+                const enRango = target >= lo && target <= hi;
+                if (enRango && !env.active) env.start();       // entra: ejecución → sustain 20%
+                else if (enRango) env.pulse();                  // siguiente: fadeup breve → fadeoff al 20%
+                else env.stop();                                // sale: fadeup breve → fadeoff a 0
+            });
 
             sincronizarVideos(target);
 
@@ -1378,6 +1886,20 @@
         }
 
         function irSiguiente() {
+            // Slide 17 → fade del juramento y luego avanzar al 18 (bisagra).
+            if (currentSlide === 17) {
+                const v = videosState.juramento.element;
+                if (v && !v.paused) {
+                    if (isTransitioning) return;
+                    isTransitioning = true;
+                    startJuramentoFadeOut(v, () => {
+                        isTransitioning = false;
+                        changeSlide(18);
+                    });
+                    return;
+                }
+            }
+
             if (currentSlide === totalSlides) {
                 window.location.href = NEXT_FILE;
                 return;
@@ -1533,6 +2055,9 @@
 
         document.addEventListener('mousemove', mostrarCursorTemporalmente);
         document.addEventListener('mousedown', mostrarCursorTemporalmente);
+
+        document.addEventListener('DOMContentLoaded', initEnvelopes);
+        initEnvelopes();
 
         showUI();
     </script>

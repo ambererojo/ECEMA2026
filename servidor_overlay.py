@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Servidor local que sirve la carpeta de la presentación e inyecta el escudo
-CINAE (fondo transparente, giro lento) en la esquina superior derecha de
-TODOS los .html, sin tener que editarlos."""
+CINAE (esquina sup. derecha) y un temporizador de 30 min (esquina sup. izquierda).
+Ambos permanecen ocultos y se activan juntos con la primera interacción del usuario.
+El temporizador persiste entre páginas encadenadas vía sessionStorage y, al llegar
+a 00:00, se queda fijo en rojo (sin parpadeo)."""
 import http.server, os, sys
 
 RAIZ = sys.argv[1]
@@ -25,14 +27,125 @@ def buscar_escudo():
 
 ESCUDO = buscar_escudo()
 
-# Tamaño máximo 2 cm x 3 cm (CSS cm). Ajustá ANCHO/ALTO si querés otra medida.
+# Tamaño máximo 2 cm x 3 cm (CSS cm).
 ANCHO, ALTO, MARGEN_SUP, MARGEN_DER = "2.1cm", "3.15cm", "0.8cm", "1.3cm"
-INYECCION = f"""
+
+# OJO: string NORMAL (sin f), para no tener que doblar llaves del JS/CSS.
+# Los placeholders %%...%% se sustituyen abajo con .replace().
+_PLANTILLA = """
+<!-- Escudo CINAE (oculto hasta la primera interacción o si ya se inició antes) -->
 <img id="escudo-cinae" src="/__escudo/cinae3d_lento.webp" alt=""
- style="position:fixed;top:{MARGEN_SUP};right:{MARGEN_DER};width:{ANCHO};height:{ALTO};
- max-width:{ANCHO};max-height:{ALTO};object-fit:contain;background:transparent;
- pointer-events:none;z-index:2147483647;">
-""".encode()
+ style="position:fixed;top:%%MARGEN_SUP%%;right:%%MARGEN_DER%%;
+ width:%%ANCHO%%;height:%%ALTO%%;max-width:%%ANCHO%%;max-height:%%ALTO%%;
+ object-fit:contain;background:transparent;
+ pointer-events:none;z-index:2147483647;display:none;opacity:0;
+ will-change: opacity;
+ transition: opacity 0.6s ease;
+ transform: translateZ(0);">
+
+<!-- Temporizador de 30 minutos (oculto hasta la primera interacción o si ya se inició antes) -->
+<div id="temporizador-tesis"
+ style="position:fixed;top:15px;left:15px;z-index:2147483647;
+ font-family:monospace, sans-serif;font-size:24px;font-weight:bold;
+ color:#ff3333;background:rgba(0,0,0,0.7);padding:5px 10px;border-radius:5px;
+ pointer-events:none;display:none;opacity:0;transition:opacity 0.6s ease;">30:00</div>
+
+<script>
+(function() {
+    var CLAVE_INI = 'tesis_iniciado';
+    var CLAVE_FIN = 'tesis_fin';
+    var DURACION_MS = 30 * 60 * 1000; // 30 minutos
+
+    var escudo = document.getElementById('escudo-cinae');
+    var timer  = document.getElementById('temporizador-tesis');
+    var intervalo = null;
+
+    function pintar(msRestantes) {
+        if (msRestantes < 0) msRestantes = 0;
+        var totalSeg = Math.ceil(msRestantes / 1000);
+        var m = Math.floor(totalSeg / 60);
+        var s = totalSeg % 60;
+        timer.innerText = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    }
+
+    function mostrarElementos() {
+        if (escudo) {
+            escudo.style.display = 'block';
+            // Usamos un pequeño retraso para que el navegador aplique el display:block antes de la opacidad
+            setTimeout(function() { escudo.style.opacity = '1'; }, 20);
+        }
+        if (timer) {
+            timer.style.display = 'block';
+            setTimeout(function() { timer.style.opacity = '1'; }, 20);
+        }
+    }
+
+    function arrancarCuenta(finMs) {
+        if (intervalo) return;
+        function tick() {
+            var restante = finMs - Date.now();
+            pintar(restante);
+            if (restante <= 0) {
+                clearInterval(intervalo);
+                intervalo = null;
+                timer.innerText = '00:00';
+                timer.style.color = '#ff0000';
+                try { sessionStorage.setItem(CLAVE_FIN, '0'); } catch(e) {}
+            }
+        }
+        tick();
+        intervalo = setInterval(tick, 1000);
+    }
+
+    function iniciarSiProcede() {
+        try {
+            if (sessionStorage.getItem(CLAVE_INI) === '1') {
+                mostrarElementos();
+                var fin = parseInt(sessionStorage.getItem(CLAVE_FIN) || '0', 10);
+                if (!fin || isNaN(fin)) {
+                    fin = Date.now() + DURACION_MS;
+                    sessionStorage.setItem(CLAVE_FIN, String(fin));
+                }
+                arrancarCuenta(fin);
+                return true;
+            }
+        } catch(e) {}
+        return false;
+    }
+
+    function primeraInteraccion() {
+        try {
+            if (sessionStorage.getItem(CLAVE_INI) === '1') return;
+            sessionStorage.setItem(CLAVE_INI, '1');
+            var fin = Date.now() + DURACION_MS;
+            sessionStorage.setItem(CLAVE_FIN, String(fin));
+        } catch(e) {}
+        mostrarElementos();
+        var fin2 = Date.now() + DURACION_MS;
+        try { fin2 = parseInt(sessionStorage.getItem(CLAVE_FIN), 10) || fin2; } catch(e) {}
+        arrancarCuenta(fin2);
+    }
+
+    // Si ya estaba iniciado (navegación encadenada), mostrar al cargar
+    if (!iniciarSiProcede()) {
+        window.addEventListener('click', primeraInteraccion, { once: true });
+        window.addEventListener('keydown', primeraInteraccion, { once: true });
+    }
+    // Re-evaluar por si el DOM aún no tenía los elementos al ejecutar el script
+    document.addEventListener('DOMContentLoaded', function() {
+        iniciarSiProcede();
+    });
+})();
+</script>
+"""
+
+INYECCION = (
+    _PLANTILLA
+    .replace("%%ANCHO%%", ANCHO)
+    .replace("%%ALTO%%", ALTO)
+    .replace("%%MARGEN_SUP%%", MARGEN_SUP)
+    .replace("%%MARGEN_DER%%", MARGEN_DER)
+).encode()
 
 class H(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *a, **k):

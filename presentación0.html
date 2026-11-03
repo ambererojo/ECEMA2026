@@ -182,16 +182,55 @@
             flex-direction: column;
             padding: 3.4vh 38px max(14px, calc(92px - 5vh));
         }
-#deck-problema.state-2 #problema-slide-02,
 #deck-problema.state-3 #problema-slide-03,
 #deck-problema.state-4 #problema-slide-04,
 #deck-problema.state-5 #problema-slide-05,
-#deck-problema.state-6 #problema-slide-06 {
+#deck-problema.state-6 #problema-slide-06,
+#deck-problema.state-7 #problema-slide-07 {
             opacity: 1;
             transform: translateY(0) scale(1);
             pointer-events: auto;
             visibility: visible;
             transition-delay: 0.3s;
+        }
+/* ===== PROBLEMA · APERTURA (estado 2) ===== */
+#deck-problema .slide-apertura {
+            position: absolute; inset: 0; z-index: 1;
+            visibility: hidden; opacity: 0; background: #000;
+            transition: opacity 0.9s cubic-bezier(0.7, 0, 0.3, 1),
+                        visibility 0s linear 0.9s;
+        }
+#deck-problema.state-2 .slide-apertura {
+            visibility: visible; opacity: 1; transition-delay: 0.3s;
+        }
+#deck-problema .slide-apertura video {
+            position: absolute; inset: 0; width: 100vw; height: 100vh;
+            object-fit: cover; filter: brightness(0.85) contrast(1.05);
+        }
+#deck-problema .apertura-vineta {
+            position: absolute; inset: 0; pointer-events: none;
+            background:
+                linear-gradient(to top right, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0) 42%),
+                radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.65) 100%);
+        }
+#deck-problema .apertura-marca {
+            position: absolute; left: clamp(20px, 3.2vw, 56px); bottom: clamp(18px, 4vh, 56px);
+            display: flex; flex-direction: column; gap: 0.35em; text-align: left;
+            opacity: 0; transform: translateY(6px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+#deck-problema.state-2 .apertura-marca {
+            opacity: 0.8; transform: none;
+            transition: opacity 1.4s ease 2.6s, transform 1.4s ease 2.6s;
+        }
+#deck-problema .apertura-termino {
+            font-weight: 600; font-size: clamp(18px, 2vw, 32px);
+            letter-spacing: 0.32em; color: #7dd3fc;
+            text-shadow: 0 0 18px rgba(56,189,248,0.35);
+        }
+#deck-problema .apertura-definicion {
+            font-weight: 300; font-style: italic; font-size: clamp(11px, 1.05vw, 17px);
+            color: #e2e8f0; letter-spacing: 0.02em;
         }
 @keyframes problema-shimmer {
             0%   { background-position: 0% 0%; }
@@ -300,7 +339,7 @@
             line-height: 1.5;
             margin-bottom: 4px;
         }
-#deck-problema #problema-slide-02 {
+#deck-problema #problema-slide-03 {
             padding: 3.4vh 44px max(14px, calc(92px - 5vh));
         }
 #deck-problema .sumario-wrap {
@@ -381,43 +420,43 @@
             width: 100%;
             margin-top: 0.4vh;
         }
-#deck-problema.state-2 #problema-slide-02 .sumario-rotulo {
+#deck-problema.state-3 #problema-slide-03 .sumario-rotulo {
             animation: problema-slideInDown 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both;
         }
-#deck-problema.state-2 #problema-slide-02 .sumario-pregunta {
+#deck-problema.state-3 #problema-slide-03 .sumario-pregunta {
             animation: problema-fadeInScale 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.45s both;
         }
-#deck-problema.state-2 #problema-slide-02 .sumario-grid {
+#deck-problema.state-3 #problema-slide-03 .sumario-grid {
             animation: problema-fadeInScale 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.7s both;
         }
-#deck-problema.state-3 #problema-slide-03 .slide-top-title,
 #deck-problema.state-4 #problema-slide-04 .slide-top-title,
 #deck-problema.state-5 #problema-slide-05 .slide-top-title,
-#deck-problema.state-6 #problema-slide-06 .slide-top-title {
+#deck-problema.state-6 #problema-slide-06 .slide-top-title,
+#deck-problema.state-7 #problema-slide-07 .slide-top-title {
             animation: problema-slideInDown 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both;
         }
-#deck-problema.state-3 #problema-slide-03 .left-column .blueprint-card,
 #deck-problema.state-4 #problema-slide-04 .left-column .blueprint-card,
 #deck-problema.state-5 #problema-slide-05 .left-column .blueprint-card,
-#deck-problema.state-6 #problema-slide-06 .left-column .blueprint-card {
+#deck-problema.state-6 #problema-slide-06 .left-column .blueprint-card,
+#deck-problema.state-7 #problema-slide-07 .left-column .blueprint-card {
             animation: problema-slideInUp 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.45s both;
         }
-#deck-problema.state-3 #problema-slide-03 .left-column .blueprint-card:nth-child(2),
 #deck-problema.state-4 #problema-slide-04 .left-column .blueprint-card:nth-child(2),
 #deck-problema.state-5 #problema-slide-05 .left-column .blueprint-card:nth-child(2),
-#deck-problema.state-6 #problema-slide-06 .left-column .blueprint-card:nth-child(2) {
+#deck-problema.state-6 #problema-slide-06 .left-column .blueprint-card:nth-child(2),
+#deck-problema.state-7 #problema-slide-07 .left-column .blueprint-card:nth-child(2) {
             animation-delay: 0.65s;
         }
-#deck-problema.state-3 #problema-slide-03 .right-column .blueprint-card,
 #deck-problema.state-4 #problema-slide-04 .right-column .blueprint-card,
 #deck-problema.state-5 #problema-slide-05 .right-column .blueprint-card,
-#deck-problema.state-6 #problema-slide-06 .right-column .blueprint-card {
+#deck-problema.state-6 #problema-slide-06 .right-column .blueprint-card,
+#deck-problema.state-7 #problema-slide-07 .right-column .blueprint-card {
             animation: problema-slideInUp 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both;
         }
-#deck-problema.state-3 #problema-slide-03 .right-column .blueprint-card:nth-child(2),
 #deck-problema.state-4 #problema-slide-04 .right-column .blueprint-card:nth-child(2),
 #deck-problema.state-5 #problema-slide-05 .right-column .blueprint-card:nth-child(2),
-#deck-problema.state-6 #problema-slide-06 .right-column .blueprint-card:nth-child(2) {
+#deck-problema.state-6 #problema-slide-06 .right-column .blueprint-card:nth-child(2),
+#deck-problema.state-7 #problema-slide-07 .right-column .blueprint-card:nth-child(2) {
             animation-delay: 0.8s;
         }
 #deck-problema .anclaje-pie {
@@ -1547,8 +1586,18 @@
             <img src="portada1.png" alt="">
         </div>
 
-        <!-- SLIDE 02 — SUMARIO · MAPA DE LA DEFENSA -->
-        <main class="glass-container" id="problema-slide-02">
+        <!-- SLIDE 02 — APERTURA · VIDEO (juego1.mp4) + MARCA DE AGUA REFRAMING -->
+        <div class="slide-apertura" id="problema-slide-02">
+            <video id="apertura-video" src="videos1/juego1.mp4" loop playsinline preload="auto"></video>
+            <div class="apertura-vineta"></div>
+            <div class="apertura-marca">
+                <span class="apertura-termino">REFRAMING</span>
+                <span class="apertura-definicion">&ldquo;Ludopatía como arte lúdico militar&rdquo;</span>
+            </div>
+        </div>
+
+        <!-- SLIDE 03 — SUMARIO · MAPA DE LA DEFENSA -->
+        <main class="glass-container" id="problema-slide-03">
             <div class="sumario-wrap">
                 <h1 class="sumario-rotulo shine-azul">Mapa de la defensa</h1>
                 <p class="sumario-subtitulo">10 estaciones</p>
@@ -1604,8 +1653,8 @@
             </div>
         </main>
 
-        <!-- SLIDE 03 — LA TRANSFORMACIÓN DEL CONFLICTO -->
-        <main class="glass-container" id="problema-slide-03">
+        <!-- SLIDE 04 — LA TRANSFORMACIÓN DEL CONFLICTO -->
+        <main class="glass-container" id="problema-slide-04">
             <header class="slide-header">
                 <h1 class="slide-top-title shine-azul">La transformación del conflicto</h1>
             </header>
@@ -1635,8 +1684,8 @@
             <div class="anclaje-pie">Watling &amp; Reynolds (2023), RUSI · Cap. I — Descripción del problema</div>
         </main>
 
-        <!-- SLIDE 04 — EL SMO PARAGUAYO -->
-        <main class="glass-container" id="problema-slide-04">
+        <!-- SLIDE 05 — EL SMO PARAGUAYO -->
+        <main class="glass-container" id="problema-slide-05">
             <header class="slide-header">
                 <h1 class="slide-top-title shine-azul">El Servicio Militar Obligatorio paraguayo</h1>
             </header>
@@ -1666,8 +1715,8 @@
             <div class="anclaje-pie">Ley N.º 569/1975 · INE (2022) · Cap. I — Descripción del problema</div>
         </main>
 
-        <!-- SLIDE 05 — LA BRECHA INSTITUCIONAL -->
-        <main class="glass-container" id="problema-slide-05">
+        <!-- SLIDE 06 — LA BRECHA INSTITUCIONAL -->
+        <main class="glass-container" id="problema-slide-06">
             <header class="slide-header">
                 <h1 class="slide-top-title shine-azul">La brecha institucional</h1>
             </header>
@@ -1701,8 +1750,8 @@
             <div class="anclaje-pie">Cap. I — Descripción del problema</div>
         </main>
 
-        <!-- SLIDE 06 — EL DILEMA ESTRATÉGICO -->
-        <main class="glass-container" id="problema-slide-06">
+        <!-- SLIDE 07 — EL DILEMA ESTRATÉGICO -->
+        <main class="glass-container" id="problema-slide-07">
             <header class="slide-header">
                 <h1 class="slide-top-title shine-azul">El dilema estratégico</h1>
             </header>
@@ -2221,14 +2270,14 @@
 
     <div id="ui-layer">
         <button class="ui-btn" onclick="irAnterior()">← <span class="ui-key">P</span></button>
-        <span id="slide-indicator">Diapositiva 1 / 18</span>
+        <span id="slide-indicator">Diapositiva 1 / 19</span>
         <button class="ui-btn" onclick="irSiguiente()"><span class="ui-key">N</span> →</button>
         <button class="ui-btn" onclick="toggleFullscreen()">⛶ <span class="ui-key">F</span></button>
     </div>
 
     <script>
 
-        const DECKS = [{"key": "problema", "n": 6, "portada": true, "video": {"2": "scale(1.12) translateX(-3%)", "3": "scale(1.05) translateX(3%)", "4": "scale(1.15) translateX(-4%)", "5": "scale(1.10) translateX(2%)", "6": "scale(1.08) translateX(-2%)"}}, {"key": "objetivos", "n": 4, "portada": false, "video": {"1": "scale(1.08) translateX(0)", "2": "scale(1.12) translateX(-3%)", "3": "scale(1.05) translateX(3%)", "4": "scale(1.15) translateX(-4%)"}}, {"key": "marco", "n": 5, "portada": false, "video": {"1": "scale(1.08) translateX(0)", "2": "scale(1.12) translateX(-3%)", "3": "scale(1.05) translateX(3%)", "4": "scale(1.15) translateX(-4%)", "5": "scale(1.10) translateX(2%)"}}, {"key": "metodologia", "n": 3, "portada": false, "video": {"1": "scale(1.08) translateX(0)", "2": "scale(1.12) translateX(-3%)", "3": "scale(1.05) translateX(3%)"}}];
+        const DECKS = [{"key": "problema", "n": 7, "portada": true, "sinFondo": [1, 2], "video": {"2": "scale(1.06)", "3": "scale(1.12) translateX(-3%)", "4": "scale(1.05) translateX(3%)", "5": "scale(1.15) translateX(-4%)", "6": "scale(1.10) translateX(2%)", "7": "scale(1.08) translateX(-2%)"}}, {"key": "objetivos", "n": 4, "portada": false, "video": {"1": "scale(1.08) translateX(0)", "2": "scale(1.12) translateX(-3%)", "3": "scale(1.05) translateX(3%)", "4": "scale(1.15) translateX(-4%)"}}, {"key": "marco", "n": 5, "portada": false, "video": {"1": "scale(1.08) translateX(0)", "2": "scale(1.12) translateX(-3%)", "3": "scale(1.05) translateX(3%)", "4": "scale(1.15) translateX(-4%)", "5": "scale(1.10) translateX(2%)"}}, {"key": "metodologia", "n": 3, "portada": false, "video": {"1": "scale(1.08) translateX(0)", "2": "scale(1.12) translateX(-3%)", "3": "scale(1.05) translateX(3%)"}}];
         const NEXT_FILE = 'presentación1.html';           // destino tras la última lámina (igual que en metodologia1.html)
         const totalSlides = DECKS.reduce((a, d) => a + d.n, 0);
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -2238,6 +2287,20 @@
         const deckEls = DECKS.map(d => document.getElementById('deck-' + d.key));
         let currentSlide = 1;
         let isTransitioning = false;
+
+        /* Lámina de apertura: reproduce juego1.mp4 al entrar (con sonido; si el navegador lo bloquea, en silencio) y lo detiene al salir */
+        const aperturaVideo = document.getElementById('apertura-video');
+        function gestionarApertura(activa) {
+            if (!aperturaVideo) return;
+            if (activa) {
+                try { aperturaVideo.currentTime = 0; } catch (e) {}
+                aperturaVideo.muted = false;
+                const p = aperturaVideo.play();
+                if (p && p.catch) p.catch(() => { aperturaVideo.muted = true; aperturaVideo.play().catch(() => {}); });
+            } else {
+                aperturaVideo.pause();
+            }
+        }
 
         function reproducirVideo() {
             if (!video) return;
@@ -2262,7 +2325,8 @@
                 el.className = 'deck' + (k === i ? ' state-' + s : '') + ' animaciones-activas';
             });
             const d = DECKS[i];
-            const portada = d.portada && s === 1;
+            const portada = d.sinFondo ? d.sinFondo.includes(s) : (d.portada && s === 1);
+            gestionarApertura(i === 0 && s === 2);
             bgWrap.classList.toggle('oculto', portada);
             bgWrap.style.transform = d.video[String(s)] || '';
             indicator.textContent = `Diapositiva ${g} / ${totalSlides}`;
