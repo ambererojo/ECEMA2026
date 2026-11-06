@@ -85,11 +85,12 @@
         /* FIX slide 8 y 9 y 10: sin viñeteado oscuro sobre el video */
         .state-8 .bg-parallax::after,
         .state-9 .bg-parallax::after,
-        .state-10 .bg-parallax::after { display: none; }
+        .state-10 .bg-parallax::after,
+        .state-11 .bg-parallax::after { display: none; }
 
         .bg-video {
             position: absolute; top: 0; left: 0;
-            width: 100vw; height: 100vh;
+            width: 100%; height: 100%;      /* FIX: 100% en vez de 100vw/100vh */
             object-fit: cover;
             filter: grayscale(100%) contrast(1.15) brightness(0.42);
             animation: bgDrift 40s ease-in-out infinite alternate;
@@ -156,7 +157,8 @@
         .state-3 #slide-03, .state-4 #slide-04,
         .state-5 #slide-05, .state-6 #slide-06,
         .state-7 #slide-07, .state-8 #slide-08,
-        .state-9 #slide-09, .state-10 #slide-10 {
+        .state-9 #slide-09, .state-10 #slide-10,
+        .state-11 #slide-11 {
             opacity: 1;
             transform: translateY(0) scale(1);
             pointer-events: auto;
@@ -723,6 +725,119 @@
         .state-10 .gracias-titulo   { animation: graciasIn 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.45s forwards; }
         .state-10 .gracias-pregunta { animation: graciasIn 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.85s forwards; }
 
+        /* ============ SLIDE 11 — ENCUESTA FINAL ============ */
+        .enc-wrap {
+            --enc-d: clamp(84px, 14vh, 128px);
+            position: absolute; inset: 0; overflow: hidden;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: clamp(28px, 7vh, 72px);
+            padding: 0 5vw 4vh;
+        }
+        .enc-overlay {
+            position: absolute; inset: 0; z-index: 0; pointer-events: none;
+            background:
+                radial-gradient(circle at 50% 58%, rgba(56, 189, 248, 0.10), transparent 55%),
+                radial-gradient(ellipse at center, rgba(5, 8, 17, 0.55) 0%, rgba(5, 8, 17, 0.82) 70%, rgba(0, 0, 0, 0.94) 100%);
+        }
+        @keyframes encFade { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes encOut  { from { opacity: 1; } to { opacity: 0; } }
+
+        .enc-cabecera, .enc-botones, .enc-no { opacity: 0; position: relative; z-index: 2; }
+        .enc-no { position: absolute; z-index: 3; }
+        .state-11 .enc-cabecera { animation: graciasIn 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.45s forwards; }
+        .state-11 .enc-botones,
+        .state-11 .enc-no       { animation: encFade 1s ease 0.95s forwards; }
+        .enc-wrap.respondido .enc-cabecera,
+        .enc-wrap.respondido .enc-botones,
+        .enc-wrap.respondido .enc-no { animation: encOut 0.45s ease forwards; pointer-events: none; }
+
+        .enc-titulo {
+            width: fit-content; max-width: 90vw; margin: 0 auto;
+            font-size: clamp(2rem, 5.4vw, 4.4rem);
+            font-weight: 800; line-height: 1.12; letter-spacing: 0.01em; text-align: center;
+        }
+        .enc-botones { display: flex; align-items: center; justify-content: center; gap: clamp(56px, 10vw, 130px); }
+        .enc-slot { width: var(--enc-d); height: var(--enc-d); flex: none; }
+
+        .enc-btn {
+            position: relative; isolation: isolate; overflow: hidden; padding: 0;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; cursor: pointer;
+            font-family: 'Inter', sans-serif; font-weight: 800;
+            font-size: clamp(1.25rem, 3vh, 1.75rem); letter-spacing: 0.08em;
+        }
+        /* Efecto shine: banda de luz que cruza el botón */
+        .enc-btn::before {
+            content: ''; position: absolute; top: 0; bottom: 0; left: -50%; width: 200%;
+            z-index: -1; pointer-events: none;
+            background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.55) 49%, rgba(255,255,255,.9) 50%, rgba(255,255,255,.55) 51%, transparent 60%);
+            transform: translateX(-60%);
+            animation: encBrillo 3.4s ease-in-out infinite;
+        }
+        @keyframes encBrillo {
+            0%, 35% { transform: translateX(-60%); }
+            80%, 100% { transform: translateX(60%); }
+        }
+
+        .enc-si {
+            --s: 1;
+            width: 100%; height: 100%;
+            color: #f0f9ff; border: 1px solid rgba(186, 230, 253, 0.65);
+            background: radial-gradient(circle at 30% 25%, #7dd3fc 0%, #38bdf8 38%, #0ea5e9 72%, #0369a1 100%);
+            text-shadow: 0 1px 6px rgba(3, 40, 80, 0.55);
+            box-shadow: 0 0 26px rgba(56,189,248,.5), 0 12px 30px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.5), 0 0 0 0 rgba(56,189,248,0);
+            transform: scale(var(--s)); will-change: transform;
+        }
+        .enc-si:hover { filter: brightness(1.08); }
+        .enc-si:focus-visible { outline: 3px solid #e0f2fe; outline-offset: 5px; }
+
+        /* Latido con pulso de luz al llegar al tamaño máximo */
+        .enc-si.max { animation: encLatido 4.4s ease-out infinite; }
+        @keyframes encLatido {
+            0%   { scale: 1;    box-shadow: 0 0 26px rgba(56,189,248,.5),  0 12px 30px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.5), 0 0 0 0 rgba(56,189,248,.8); }
+            12%  { scale: 1.07; box-shadow: 0 0 52px rgba(125,211,252,.95), 0 12px 30px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.6), 0 0 0 0 rgba(56,189,248,.8); }
+            24%  { scale: 1;    box-shadow: 0 0 30px rgba(56,189,248,.6),  0 12px 30px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.5), 0 0 0 20px rgba(56,189,248,.35); }
+            36%  { scale: 1.045; box-shadow: 0 0 44px rgba(125,211,252,.8), 0 12px 30px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.55), 0 0 0 38px rgba(56,189,248,.12); }
+            52%, 100% { scale: 1; box-shadow: 0 0 26px rgba(56,189,248,.5), 0 12px 30px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.5), 0 0 0 58px rgba(56,189,248,0); }
+        }
+
+        .enc-no {
+            position: absolute; z-index: 3;
+            left: 0; top: 0; width: var(--enc-d); height: var(--enc-d);
+            pointer-events: none; cursor: default; will-change: transform;
+            color: #1f1300; border: 1px solid rgba(254, 243, 199, 0.7);
+            background: radial-gradient(circle at 30% 25%, #fde68a 0%, #fbbf24 40%, #f59e0b 75%, #b45309 100%);
+            box-shadow: 0 0 22px rgba(251,191,36,.4), 0 10px 26px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.55);
+        }
+        .enc-no::before { animation-duration: 3.9s; animation-delay: 1.3s; }
+
+        /* Respuesta registrada */
+        .enc-gracias {
+            position: absolute; inset: 0; z-index: 4;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: clamp(10px, 2vh, 22px); text-align: center; padding: 0 5vw 4vh;
+            opacity: 0; visibility: hidden; pointer-events: none;
+        }
+        .enc-wrap.respondido .enc-gracias { visibility: visible; animation: graciasIn 1s cubic-bezier(0.22, 1, 0.36, 1) 0.4s forwards; }
+        .enc-check { width: clamp(56px, 9vh, 88px); filter: drop-shadow(0 0 10px rgba(52,211,153,.55)); }
+        .enc-check circle, .enc-check path { fill: none; stroke: #34d399; stroke-linecap: round; stroke-linejoin: round; }
+        .enc-check circle { stroke-width: 2.5; stroke-dasharray: 151; stroke-dashoffset: 151; }
+        .enc-check path   { stroke-width: 3.5; stroke-dasharray: 40;  stroke-dashoffset: 40; }
+        .enc-wrap.respondido .enc-check circle { animation: encTrazo 0.7s ease 0.5s forwards; }
+        .enc-wrap.respondido .enc-check path   { animation: encTrazo 0.5s ease 1.0s forwards; }
+        @keyframes encTrazo { to { stroke-dashoffset: 0; } }
+        .enc-gracias-titulo {
+            font-size: clamp(3rem, 10vw, 8rem); font-weight: 800; letter-spacing: 0.06em;
+            line-height: 1; text-transform: uppercase; width: fit-content;
+        }
+        .enc-gracias-texto { font-size: clamp(1.1rem, 2.6vw, 1.9rem); font-weight: 500; color: #e2e8f0; text-shadow: 0 2px 14px rgba(0,0,0,.9); }
+
+        @media (max-width: 600px) { .enc-botones { gap: 44px; } }
+        @media (prefers-reduced-motion: reduce) {
+            .enc-btn::before { animation: none; opacity: 0; }
+            .enc-si.max { animation: none; }
+        }
+
         /* UI */
         #ui-layer {
             position: absolute;
@@ -902,8 +1017,10 @@
     <div id="presentation-container">
 
         <div class="bg-parallax">
-            <video class="bg-video" id="main-video" autoplay loop playsinline preload="auto">
-                <source src="videos1/asimetría1.mp4" type="video/mp4">
+            <!-- FIX: añadido muted al video de fondo. Sin esto, los navegadores modernos
+                 bloquean el autoplay y el video queda congelado en el primer frame. -->
+            <video class="bg-video" id="main-video" autoplay loop muted playsinline preload="auto" webkit-playsinline>
+                <source src="videos1/darpa1.mp4" type="video/mp4">
             </video>
         </div>
 
@@ -1205,11 +1322,11 @@
             <div class="retorno-wrap">
                 <h1 class="retorno-title shine-azul-fuerte">Ahora ya sabemos dónde mirar</h1>
                 <div class="retorno-videos">
-                    <video id="ret-sujeto1" muted playsinline loop preload="auto"></video>
+                    <video id="ret-sujeto1" muted playsinline loop preload="auto" webkit-playsinline></video>
                     <div class="celda-sujeto2">
-                        <video id="ret-sujeto2" muted playsinline loop preload="auto"></video>
+                        <video id="ret-sujeto2" muted playsinline loop preload="auto" webkit-playsinline></video>
                     </div>
-                    <video id="ret-sujeto3" muted playsinline loop preload="auto"></video>
+                    <video id="ret-sujeto3" muted playsinline loop preload="auto" webkit-playsinline></video>
                 </div>
 
                 <!-- HUD Sujeto 1 — Juan, ingeniero -->
@@ -1256,7 +1373,7 @@
              ================================================== -->
         <main class="glass-container fullscreen" id="slide-10">
             <div class="gracias-wrap">
-                <video class="gracias-video" id="gracias-video" muted loop playsinline preload="auto">
+                <video class="gracias-video" id="gracias-video" muted loop playsinline preload="auto" webkit-playsinline>
                     <source src="videos1/unitree1.mp4" type="video/mp4">
                 </video>
                 <div class="gracias-overlay"></div>
@@ -1267,11 +1384,34 @@
             </div>
         </main>
 
+        <!-- ==================================================
+             SLIDE 11 — ENCUESTA FINAL
+             ================================================== -->
+        <main class="glass-container fullscreen" id="slide-11">
+            <div class="enc-wrap" id="enc-wrap">
+                <div class="enc-overlay"></div>
+                <div class="enc-cabecera">
+                    <h2 class="enc-titulo shine-azul-fuerte">¿Te ha gustado la presentación?</h2>
+                </div>
+                <div class="enc-botones">
+                    <div class="enc-slot" id="enc-slot-si"><button type="button" class="enc-btn enc-si" id="enc-si">SÍ</button></div>
+                    <div class="enc-slot" id="enc-slot-no"></div>
+                </div>
+                <!-- El NO no es interactivo en ningún caso: deshabilitado, sin foco y sin eventos de puntero -->
+                <button type="button" class="enc-btn enc-no" id="enc-no" disabled aria-hidden="true" tabindex="-1">NO</button>
+                <div class="enc-gracias" role="status" aria-live="polite">
+                    <svg class="enc-check" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24"/><path d="M15 27l8 8 15-17"/></svg>
+                    <h2 class="enc-gracias-titulo shine-verde-fuerte">Gracias</h2>
+                    <p class="enc-gracias-texto">Su respuesta ha sido registrada</p>
+                </div>
+            </div>
+        </main>
+
     </div>
 
     <div id="ui-layer">
         <button class="ui-btn" onclick="irAnterior()">← <span class="ui-key">P</span></button>
-        <span id="slide-indicator">Diapositiva 1 / 10</span>
+        <span id="slide-indicator">Diapositiva 1 / 11</span>
         <button class="ui-btn" onclick="irSiguiente()"><span class="ui-key">N</span> →</button>
         <button class="ui-btn" id="btn-reiniciar" onclick="reiniciarCiclo()" title="Volver al inicio">↻ Reiniciar</button>
         <button class="ui-btn" onclick="toggleFullscreen()">⛶ <span class="ui-key">F</span></button>
@@ -1280,7 +1420,7 @@
     <script>
         let currentSlide = 1;
         let isTransitioning = false;
-        const totalSlides = 10;
+        const totalSlides = 11;
         const NEXT_FILE = '';
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -1292,8 +1432,37 @@
 
         Object.keys(VIDEO_RETORNO).forEach(id => {
             const v = document.getElementById(id);
-            if (v) { v.src = VIDEO_RETORNO[id]; v.load(); }
+            if (v) { v.src = VIDEO_RETORNO[id]; v.muted = true; v.load(); }
         });
+
+        // FIX: helper central para arrancar el video de fondo de forma robusta.
+        // - Fuerza muted (los navegadores bloquean autoplay con audio).
+        // - Si el navegador rechaza play(), reintenta en la primera interacción.
+        function arrancarVideoFondo() {
+            const v = document.getElementById('main-video');
+            if (!v) return;
+            v.muted = true;
+            v.loop = true;
+            v.setAttribute('muted', '');
+            const p = v.play();
+            if (p && typeof p.catch === 'function') {
+                p.catch(err => {
+                    // Autoplay bloqueado: se reintentará en la primera interacción.
+                    console.warn('[bg-video] autoplay bloqueado:', err && err.name);
+                });
+            }
+        }
+
+        // FIX: vigilante que reanuda el video de fondo si se pausa solo
+        // (cambio de pestaña, política del navegador, etc.).
+        setInterval(() => {
+            const v = document.getElementById('main-video');
+            if (!v) return;
+            if (v.paused && v.readyState >= 2) {
+                v.muted = true;
+                v.play().catch(() => {});
+            }
+        }, 2500);
 
         function arrancarPresentacion() {
             const container = document.getElementById('presentation-container');
@@ -1303,6 +1472,9 @@
             container.classList.add('listo');
             container.classList.add('state-1');
             entrada.classList.add('arrancar');
+
+            // FIX: arrancar el video de fondo en cuanto aparece la presentación.
+            arrancarVideoFondo();
 
             setTimeout(() => { container.classList.add('animaciones-activas'); }, 300);
 
@@ -1314,25 +1486,30 @@
             }
             entrada.addEventListener('animationend', onFadeEnd);
 
+            // FIX: quitar la capa negra SIEMPRE, aunque animationend no dispare.
             setTimeout(() => {
-                if (document.getElementById('black-cover')) {
-                    cover.classList.add('quitar');
-                    setTimeout(() => { if (cover.parentNode) cover.remove(); }, 600);
+                const c = document.getElementById('black-cover');
+                if (c) {
+                    c.classList.add('quitar');
+                    setTimeout(() => { if (c.parentNode) c.remove(); }, 600);
                 }
             }, 2000);
         }
 
         window.addEventListener('load', () => {
-            const video = document.getElementById('main-video');
-            if (video) video.play().catch(() => {});
+            // FIX: arrancar el video de fondo antes de la animación de entrada.
+            arrancarVideoFondo();
+
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => { arrancarPresentacion(); });
             });
         });
 
+        // FIX: fallback extra por si 'load' tarda o no dispara.
         setTimeout(() => {
             const container = document.getElementById('presentation-container');
             if (!container.classList.contains('listo')) { arrancarPresentacion(); }
+            arrancarVideoFondo();
         }, 3000);
 
         function salirAlSiguiente() {
@@ -1364,7 +1541,10 @@
             if (target === 9) {
                 Object.keys(VIDEO_RETORNO).forEach(id => {
                     const v = document.getElementById(id);
-                    if (v && v.paused) { v.currentTime = 0; v.play().catch(() => {}); }
+                    if (v) {
+                        v.muted = true;
+                        if (v.paused) { v.currentTime = 0; v.play().catch(() => {}); }
+                    }
                 });
             } else {
                 Object.keys(VIDEO_RETORNO).forEach(id => {
@@ -1375,6 +1555,7 @@
 
             const graciasVideo = document.getElementById('gracias-video');
             if (graciasVideo) {
+                graciasVideo.muted = true;
                 if (target === 10) {
                     graciasVideo.currentTime = 0;
                     graciasVideo.play().catch(() => {});
@@ -1382,6 +1563,11 @@
                     graciasVideo.pause();
                 }
             }
+
+            if (window.encuesta) { if (target === 11) window.encuesta.activar(); else window.encuesta.desactivar(); }
+
+            // FIX: al cambiar de slide, asegurarse de que el video de fondo sigue vivo.
+            arrancarVideoFondo();
 
             setTimeout(() => { isTransitioning = false; }, reducedMotion.matches ? 50 : 1200);
         }
@@ -1410,10 +1596,17 @@
                     primeraInteraccionHecha = true;
                     solicitarFullscreen();
                 }
+                // FIX: en cada interacción, reafirmar muted + play del video de fondo.
                 const video = document.getElementById('main-video');
-                if (video && video.paused) video.play().catch(() => {});
+                if (video) {
+                    video.muted = true;
+                    if (video.paused) video.play().catch(() => {});
+                }
                 const gv = document.getElementById('gracias-video');
-                if (gv && currentSlide === 10 && gv.paused) gv.play().catch(() => {});
+                if (gv) {
+                    gv.muted = true;
+                    if (currentSlide === 10 && gv.paused) gv.play().catch(() => {});
+                }
             }, { passive: true });
         });
 
@@ -1446,6 +1639,170 @@
         }
         document.addEventListener('mousemove', mostrarCursorTemporalmente);
         document.addEventListener('mousedown', mostrarCursorTemporalmente);
+    </script>
+    <script>
+    /* ===== SLIDE 11 — encuesta: SÍ crece / NO se esquiva con suavidad ===== */
+    window.encuesta = (() => {
+        const wrap = document.getElementById('enc-wrap');
+        const btnSi = document.getElementById('enc-si');
+        const btnNo = document.getElementById('enc-no');
+        const slotNo = document.getElementById('enc-slot-no');
+        const slotSi = document.getElementById('enc-slot-si');
+        if (!wrap || !btnSi || !btnNo || !slotNo || !slotSi) return { activar() {}, desactivar() {} };
+
+        const R = 135;                 // radio de esquive
+        const R_REGRESO = 320;         // el NO vuelve a su sitio si el cursor está más lejos
+        const ESCALA_MAX = 1.55, PASO_ESCALA = 0.07;
+        const INACTIVIDAD_MS = 8000;   // sin actividad, el SÍ empieza a encogerse
+        const VEL_ENCOGER = 0.05;      // escala por segundo (lento)
+        const MARGEN = 24, MARGEN_INF = 96;
+        const ALCANCE_X = 300, ALCANCE_Y = 170; // el NO nunca se aleja más que esto de su sitio
+
+        let activo = false, raf = 0, ultimoFrame = 0;
+        let cursor = null, pos = { x: 0, y: 0 }, colocado = false, salto = null;
+        let escala = 1, escalaObj = 1, empujando = false, atascado = 0;
+        let ultimoEsquive = 0, ultimoSalto = 0, ultimaActividad = 0, respondido = false;
+
+        const acotar = (v, min, max) => Math.min(Math.max(v, min), Math.max(min, max));
+
+        function registrarEsquive(t) {
+            if (t - ultimoEsquive < 700) return;
+            ultimoEsquive = t;
+            ultimaActividad = t;
+            escalaObj = Math.min(ESCALA_MAX, escalaObj + PASO_ESCALA);
+        }
+
+        function elegirSalto(c, d, lim, si) {
+            let mejor = null, mejorPuntaje = -Infinity;
+            for (let i = 0; i < 40; i++) {
+                const x = lim.minX + Math.random() * (lim.maxX - lim.minX);
+                const y = lim.minY + Math.random() * (lim.maxY - lim.minY);
+                const px = x + d / 2, py = y + d / 2;
+                if (Math.hypot(px - si.x, py - si.y) < si.r + d / 2 + 10) continue;
+                const dc = c ? Math.hypot(px - c.x, py - c.y) : 999;
+                const recorrido = Math.hypot(x - pos.x, y - pos.y);
+                // Preferir un destino seguro y lo más cercano posible (salto corto)
+                const puntaje = (dc >= 210 ? 1000 - recorrido * 0.5 : dc);
+                if (puntaje > mejorPuntaje) { mejorPuntaje = puntaje; mejor = { x, y }; }
+            }
+            return mejor;
+        }
+
+        function frame(t) {
+            if (!activo) return;
+            raf = requestAnimationFrame(frame);
+            const dt = Math.min(0.05, (t - ultimoFrame) / 1000 || 0.016);
+            ultimoFrame = t;
+            if (respondido) return;
+
+            const rect = wrap.getBoundingClientRect();
+            const W = wrap.clientWidth, H = wrap.clientHeight;
+            const sx = rect.width ? W / rect.width : 1, sy = rect.height ? H / rect.height : 1;
+            const d = btnNo.offsetWidth;
+            // Posiciones relativas al área de la diapositiva (independientes del padre posicionado)
+            const rNo = slotNo.getBoundingClientRect(), rSi = slotSi.getBoundingClientRect();
+            const home = { x: (rNo.left - rect.left) * sx, y: (rNo.top - rect.top) * sy };
+            const si = {
+                x: (rSi.left - rect.left) * sx + slotSi.offsetWidth / 2,
+                y: (rSi.top - rect.top) * sy + slotSi.offsetHeight / 2,
+                r: (slotSi.offsetWidth / 2) * escala
+            };
+            const lim = {
+                minX: Math.max(MARGEN, home.x - ALCANCE_X), maxX: Math.min(W - d - MARGEN, home.x + ALCANCE_X),
+                minY: Math.max(MARGEN, home.y - ALCANCE_Y), maxY: Math.min(H - d - MARGEN_INF, home.y + ALCANCE_Y)
+            };
+            if (!colocado) { pos.x = home.x; pos.y = home.y; colocado = true; }
+            const c = cursor ? { x: (cursor.x - rect.left) * sx, y: (cursor.y - rect.top) * sy } : null;
+
+            const volverAlOrigen = () => {
+                const k = 1 - Math.exp(-dt * 1.2);   // regreso lento
+                pos.x += (home.x - pos.x) * k;
+                pos.y += (home.y - pos.y) * k;
+            };
+
+            if (salto) {
+                // Deslizamiento rápido hacia un nuevo sitio (solo cuando está acorralado)
+                const k = Math.min(1, dt * 9);
+                pos.x += (salto.x - pos.x) * k;
+                pos.y += (salto.y - pos.y) * k;
+                if (Math.hypot(salto.x - pos.x, salto.y - pos.y) < 2) { salto = null; empujando = false; }
+            } else if (c) {
+                const cx = pos.x + d / 2, cy = pos.y + d / 2;
+                const dx = cx - c.x, dy = cy - c.y;
+                const dist = Math.hypot(dx, dy) || 0.001;
+                if (dist < R) {
+                    if (!empujando) { empujando = true; registrarEsquive(t); }
+                    const k = 1 - dist / R;
+                    const v = 140 + 900 * k;               // más cerca → más rápido, pero siempre suave
+                    const mx = (dx / dist) * v * dt, my = (dy / dist) * v * dt;
+                    let nx = pos.x + mx, ny = pos.y + my, bx = false, by = false;
+                    if (nx < lim.minX) { nx = lim.minX; bx = true; } else if (nx > lim.maxX) { nx = lim.maxX; bx = true; }
+                    if (ny < lim.minY) { ny = lim.minY; by = true; } else if (ny > lim.maxY) { ny = lim.maxY; by = true; }
+                    // Contra una pared: deslizarse a lo largo de ella en lugar de quedarse atrapado
+                    if (bx && !by) ny = acotar(ny + (Math.sign(dy) || 1) * Math.abs(mx) * 0.9, lim.minY, lim.maxY);
+                    if (by && !bx) nx = acotar(nx + (Math.sign(dx) || 1) * Math.abs(my) * 0.9, lim.minX, lim.maxX);
+                    pos.x = nx; pos.y = ny;
+
+                    const nd = Math.hypot(pos.x + d / 2 - c.x, pos.y + d / 2 - c.y);
+                    if ((bx && by) || nd < R * 0.55) atascado += dt; else atascado = Math.max(0, atascado - dt);
+                    if (atascado > 0.16 && t - ultimoSalto > 1200) {
+                        const destino = elegirSalto(c, d, lim, si);
+                        if (destino) { salto = destino; ultimoSalto = t; registrarEsquive(t); }
+                        atascado = 0;
+                    }
+                } else {
+                    empujando = false; atascado = 0;
+                    if (dist > R_REGRESO) volverAlOrigen();
+                }
+            } else {
+                empujando = false; atascado = 0;
+                volverAlOrigen();
+            }
+
+            // Nunca superponerse al botón SÍ (que puede estar agrandado)
+            const sdx = pos.x + d / 2 - si.x, sdy = pos.y + d / 2 - si.y;
+            const sdist = Math.hypot(sdx, sdy) || 0.001, smin = si.r + d / 2 + 8;
+            if (sdist < smin) { pos.x = si.x + (sdx / sdist) * smin - d / 2; pos.y = si.y + (sdy / sdist) * smin - d / 2; }
+            pos.x = acotar(pos.x, MARGEN, W - d - MARGEN);
+            pos.y = acotar(pos.y, MARGEN, H - d - MARGEN_INF);
+            btnNo.style.transform = `translate3d(${pos.x.toFixed(1)}px, ${pos.y.toFixed(1)}px, 0)`;
+
+            // SÍ: crece al esquivar; tras inactividad vuelve despacio a su tamaño original
+            if (t - ultimaActividad > INACTIVIDAD_MS && escalaObj > 1) escalaObj = Math.max(1, escalaObj - VEL_ENCOGER * dt);
+            escala += (escalaObj - escala) * (1 - Math.exp(-dt * 6));
+            btnSi.style.setProperty('--s', escala.toFixed(3));
+            btnSi.classList.toggle('max', escalaObj >= ESCALA_MAX - 0.001 && escala >= ESCALA_MAX - 0.03);
+        }
+
+        function reiniciar() {
+            respondido = false;
+            wrap.classList.remove('respondido');
+            escala = escalaObj = 1; atascado = 0; empujando = false;
+            salto = null; cursor = null; colocado = false;
+            btnSi.style.setProperty('--s', 1);
+            btnSi.classList.remove('max');
+        }
+
+        const marcar = (e) => { if (!activo) return; cursor = { x: e.clientX, y: e.clientY }; ultimaActividad = performance.now(); };
+        document.addEventListener('pointermove', marcar, { passive: true });
+        document.addEventListener('pointerdown', marcar, { passive: true });
+        document.addEventListener('pointerup', (e) => { if (e.pointerType !== 'mouse') cursor = null; }, { passive: true });
+        document.addEventListener('pointercancel', () => { cursor = null; }, { passive: true });
+        document.documentElement.addEventListener('mouseleave', () => { cursor = null; });
+
+        // El NO jamás responde: se bloquea cualquier evento que llegue a él
+        ['click', 'pointerdown', 'mousedown', 'touchstart', 'keydown', 'keyup'].forEach(ev =>
+            btnNo.addEventListener(ev, (e) => { e.preventDefault(); e.stopPropagation(); }));
+
+        // Con el teclado (Espacio) el SÍ debe activarse sin que la presentación avance
+        btnSi.addEventListener('keydown', (e) => { if (e.key === ' ' || e.key === 'Enter') e.stopPropagation(); });
+        btnSi.addEventListener('click', () => { respondido = true; wrap.classList.add('respondido'); btnSi.blur(); });
+
+        return {
+            activar() { reiniciar(); activo = true; ultimoFrame = ultimaActividad = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(frame); },
+            desactivar() { activo = false; cancelAnimationFrame(raf); }
+        };
+    })();
     </script>
 </body>
 </html>
