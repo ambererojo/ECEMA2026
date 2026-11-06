@@ -1017,8 +1017,6 @@
     <div id="presentation-container">
 
         <div class="bg-parallax">
-            <!-- FIX: añadido muted al video de fondo. Sin esto, los navegadores modernos
-                 bloquean el autoplay y el video queda congelado en el primer frame. -->
             <video class="bg-video" id="main-video" autoplay loop muted playsinline preload="auto" webkit-playsinline>
                 <source src="videos1/darpa1.mp4" type="video/mp4">
             </video>
@@ -1357,7 +1355,7 @@
                 <div id="hud-s3" class="hud hud-verde">
                     <div class="hud-tag">
                         <span>
-                            <i class="star">★</i><i class="star media">★</i><i class="star hueco">★</i><i class="star hueco">★</i><i class="star hueco">★</i>
+                            <i class="star">★</i><span class="star media">★</span><i class="star hueco">★</i><i class="star hueco">★</i><i class="star hueco">★</i>
                         </span>
                     </div>
                     <div class="hud-frame">
@@ -1424,6 +1422,119 @@
         const NEXT_FILE = '';
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
+        /* ============================================================
+           SISTEMA DE AUDIO
+           - love1.mp3 arranca en slide 10, sigue en slide 11 (loop)
+           - Al pulsar "SÍ": fade-off sinusoidal de love1 hasta 0,
+             y SOLO AL TERMINAR (love1 silenciado por completo),
+             arranca digimon1.mp3 con volumen normal (loop).
+           ============================================================ */
+        const audioLove = new Audio('videos1/love1.mp3');
+        audioLove.loop = true;
+        audioLove.volume = 0.0;
+
+        const audioDigimon = new Audio('videos1/digimon1.mp3');
+        audioDigimon.loop = true;
+        audioDigimon.volume = 0.8;   // volumen normal
+
+        let audioFadeRaf = null;
+        let audioIniciado = false;
+        let crossfadeHecho = false;
+
+        // Curva sinusoidal (S-curve): t∈[0,1] → [0,1]
+        function sinusoidalEase(t) {
+            return (1 - Math.cos(Math.PI * t)) / 2;
+        }
+
+        // Fade genérico con requestAnimationFrame (más suave que setInterval)
+        function fadeAudio(audioEl, desde, hasta, duracionMs, alTerminar) {
+            if (audioFadeRaf) { cancelAnimationFrame(audioFadeRaf); audioFadeRaf = null; }
+            const t0 = performance.now();
+            audioEl.volume = Math.max(0, Math.min(1, desde));
+            function step(now) {
+                const t = Math.min(1, (now - t0) / duracionMs);
+                const v = desde + (hasta - desde) * sinusoidalEase(t);
+                audioEl.volume = Math.max(0, Math.min(1, v));
+                if (t < 1) {
+                    audioFadeRaf = requestAnimationFrame(step);
+                } else {
+                    audioFadeRaf = null;
+                    if (alTerminar) alTerminar();
+                }
+            }
+            audioFadeRaf = requestAnimationFrame(step);
+        }
+
+        // Arranca love1.mp3 (con fade-in sinusoidal suave)
+        function iniciarLove() {
+            if (audioIniciado) return;
+            audioIniciado = true;
+            audioLove.currentTime = 0;
+            audioLove.volume = 0;
+            const p = audioLove.play();
+            if (p && typeof p.catch === 'function') {
+                p.catch(() => {
+                    // Si el navegador bloquea el autoplay, reintentar en la primera interacción
+                    const reintentar = () => {
+                        audioLove.play().catch(() => {});
+                        document.removeEventListener('click', reintentar);
+                        document.removeEventListener('touchstart', reintentar);
+                    };
+                    document.addEventListener('click', reintentar, { once: true });
+                    document.addEventListener('touchstart', reintentar, { once: true });
+                });
+            }
+            // Fade-in desde 0 hasta 0.8 (volumen normal) en 1.5 s
+            fadeAudio(audioLove, 0, 0.8, 1500);
+        }
+
+        // Al pulsar SÍ: fade-off de love1 y, AL TERMINAR, arranca digimon1
+        function fundirLoveYArrancarDigimon() {
+            if (crossfadeHecho) return;
+            crossfadeHecho = true;
+
+            // 1) Fade-off sinusoidal de love1
+            fadeAudio(audioLove, audioLove.volume, 0, 1800, () => {
+                // 2) Cuando love1 ya está en silencio total:
+                audioLove.pause();
+                audioLove.currentTime = 0;
+                audioLove.volume = 0;
+
+                // 3) Arrancar digimon1 con volumen normal (sin fade-in, como pide el usuario)
+                audioDigimon.currentTime = 0;
+                audioDigimon.volume = 0.8;
+                const p = audioDigimon.play();
+                if (p && typeof p.catch === 'function') {
+                    p.catch(() => {
+                        // Reintentar en interacción si el navegador lo bloquea
+                        const reintentar = () => {
+                            audioDigimon.play().catch(() => {});
+                            document.removeEventListener('click', reintentar);
+                            document.removeEventListener('touchstart', reintentar);
+                        };
+                        document.addEventListener('click', reintentar, { once: true });
+                        document.addEventListener('touchstart', reintentar, { once: true });
+                    });
+                }
+            });
+        }
+
+        // Detener toda la música (reinicio)
+        function detenerMusica() {
+            if (audioFadeRaf) { cancelAnimationFrame(audioFadeRaf); audioFadeRaf = null; }
+            try { audioLove.pause(); } catch (e) {}
+            audioLove.currentTime = 0;
+            audioLove.volume = 0;
+            try { audioDigimon.pause(); } catch (e) {}
+            audioDigimon.currentTime = 0;
+            audioDigimon.volume = 0.8;
+            audioIniciado = false;
+            crossfadeHecho = false;
+        }
+
+        /* ============================================================
+           VIDEOS DE RETORNO
+           ============================================================ */
         const VIDEO_RETORNO = {
             'ret-sujeto1': 'videos1/sujeto1.mp4',
             'ret-sujeto2': 'videos1/sujeto2.mp4',
@@ -1435,9 +1546,9 @@
             if (v) { v.src = VIDEO_RETORNO[id]; v.muted = true; v.load(); }
         });
 
-        // FIX: helper central para arrancar el video de fondo de forma robusta.
-        // - Fuerza muted (los navegadores bloquean autoplay con audio).
-        // - Si el navegador rechaza play(), reintenta en la primera interacción.
+        /* ============================================================
+           VIDEO DE FONDO
+           ============================================================ */
         function arrancarVideoFondo() {
             const v = document.getElementById('main-video');
             if (!v) return;
@@ -1446,15 +1557,10 @@
             v.setAttribute('muted', '');
             const p = v.play();
             if (p && typeof p.catch === 'function') {
-                p.catch(err => {
-                    // Autoplay bloqueado: se reintentará en la primera interacción.
-                    console.warn('[bg-video] autoplay bloqueado:', err && err.name);
-                });
+                p.catch(() => {});
             }
         }
 
-        // FIX: vigilante que reanuda el video de fondo si se pausa solo
-        // (cambio de pestaña, política del navegador, etc.).
         setInterval(() => {
             const v = document.getElementById('main-video');
             if (!v) return;
@@ -1464,6 +1570,9 @@
             }
         }, 2500);
 
+        /* ============================================================
+           ARRANQUE
+           ============================================================ */
         function arrancarPresentacion() {
             const container = document.getElementById('presentation-container');
             const entrada   = document.getElementById('entrada-fade');
@@ -1473,7 +1582,6 @@
             container.classList.add('state-1');
             entrada.classList.add('arrancar');
 
-            // FIX: arrancar el video de fondo en cuanto aparece la presentación.
             arrancarVideoFondo();
 
             setTimeout(() => { container.classList.add('animaciones-activas'); }, 300);
@@ -1486,7 +1594,6 @@
             }
             entrada.addEventListener('animationend', onFadeEnd);
 
-            // FIX: quitar la capa negra SIEMPRE, aunque animationend no dispare.
             setTimeout(() => {
                 const c = document.getElementById('black-cover');
                 if (c) {
@@ -1497,21 +1604,21 @@
         }
 
         window.addEventListener('load', () => {
-            // FIX: arrancar el video de fondo antes de la animación de entrada.
             arrancarVideoFondo();
-
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => { arrancarPresentacion(); });
             });
         });
 
-        // FIX: fallback extra por si 'load' tarda o no dispara.
         setTimeout(() => {
             const container = document.getElementById('presentation-container');
             if (!container.classList.contains('listo')) { arrancarPresentacion(); }
             arrancarVideoFondo();
         }, 3000);
 
+        /* ============================================================
+           NAVEGACIÓN
+           ============================================================ */
         function salirAlSiguiente() {
             if (!NEXT_FILE) return;
             const salida = document.createElement('div');
@@ -1522,6 +1629,7 @@
         }
 
         function reiniciarCiclo() {
+            detenerMusica();
             const salida = document.createElement('div');
             salida.style.cssText = 'position:fixed;inset:0;background:#000;z-index:99999;opacity:0;pointer-events:none;transition:opacity 0.9s ease;';
             document.body.appendChild(salida);
@@ -1566,7 +1674,15 @@
 
             if (window.encuesta) { if (target === 11) window.encuesta.activar(); else window.encuesta.desactivar(); }
 
-            // FIX: al cambiar de slide, asegurarse de que el video de fondo sigue vivo.
+            /* ---- AUDIO: love1.mp3 arranca en slide 10 y continúa en slide 11 ---- */
+            if (target === 10) {
+                iniciarLove();
+            } else if (target === 11) {
+                // Si por alguna razón love1 no se inició, arrancarlo aquí.
+                // NO se reinicia: debe seguir sonando desde slide 10.
+                if (!audioIniciado) iniciarLove();
+            }
+
             arrancarVideoFondo();
 
             setTimeout(() => { isTransitioning = false; }, reducedMotion.matches ? 50 : 1200);
@@ -1578,6 +1694,9 @@
             changeSlide(currentSlide + 1);
         }
 
+        /* ============================================================
+           FULLSCREEN Y CONTROLES
+           ============================================================ */
         let primeraInteraccionHecha = false;
         function solicitarFullscreen() {
             if (document.fullscreenElement || document.webkitFullscreenElement) return;
@@ -1596,7 +1715,6 @@
                     primeraInteraccionHecha = true;
                     solicitarFullscreen();
                 }
-                // FIX: en cada interacción, reafirmar muted + play del video de fondo.
                 const video = document.getElementById('main-video');
                 if (video) {
                     video.muted = true;
@@ -1606,6 +1724,10 @@
                 if (gv) {
                     gv.muted = true;
                     if (currentSlide === 10 && gv.paused) gv.play().catch(() => {});
+                }
+                // Si love1 no pudo arrancar antes por autoplay, reintentar
+                if (currentSlide >= 10 && audioIniciado && audioLove.paused && !crossfadeHecho) {
+                    audioLove.play().catch(() => {});
                 }
             }, { passive: true });
         });
@@ -1650,13 +1772,13 @@
         const slotSi = document.getElementById('enc-slot-si');
         if (!wrap || !btnSi || !btnNo || !slotNo || !slotSi) return { activar() {}, desactivar() {} };
 
-        const R = 135;                 // radio de esquive
-        const R_REGRESO = 320;         // el NO vuelve a su sitio si el cursor está más lejos
+        const R = 135;
+        const R_REGRESO = 320;
         const ESCALA_MAX = 1.55, PASO_ESCALA = 0.07;
-        const INACTIVIDAD_MS = 8000;   // sin actividad, el SÍ empieza a encogerse
-        const VEL_ENCOGER = 0.05;      // escala por segundo (lento)
+        const INACTIVIDAD_MS = 8000;
+        const VEL_ENCOGER = 0.05;
         const MARGEN = 24, MARGEN_INF = 96;
-        const ALCANCE_X = 300, ALCANCE_Y = 170; // el NO nunca se aleja más que esto de su sitio
+        const ALCANCE_X = 300, ALCANCE_Y = 170;
 
         let activo = false, raf = 0, ultimoFrame = 0;
         let cursor = null, pos = { x: 0, y: 0 }, colocado = false, salto = null;
@@ -1681,7 +1803,6 @@
                 if (Math.hypot(px - si.x, py - si.y) < si.r + d / 2 + 10) continue;
                 const dc = c ? Math.hypot(px - c.x, py - c.y) : 999;
                 const recorrido = Math.hypot(x - pos.x, y - pos.y);
-                // Preferir un destino seguro y lo más cercano posible (salto corto)
                 const puntaje = (dc >= 210 ? 1000 - recorrido * 0.5 : dc);
                 if (puntaje > mejorPuntaje) { mejorPuntaje = puntaje; mejor = { x, y }; }
             }
@@ -1699,7 +1820,6 @@
             const W = wrap.clientWidth, H = wrap.clientHeight;
             const sx = rect.width ? W / rect.width : 1, sy = rect.height ? H / rect.height : 1;
             const d = btnNo.offsetWidth;
-            // Posiciones relativas al área de la diapositiva (independientes del padre posicionado)
             const rNo = slotNo.getBoundingClientRect(), rSi = slotSi.getBoundingClientRect();
             const home = { x: (rNo.left - rect.left) * sx, y: (rNo.top - rect.top) * sy };
             const si = {
@@ -1715,13 +1835,12 @@
             const c = cursor ? { x: (cursor.x - rect.left) * sx, y: (cursor.y - rect.top) * sy } : null;
 
             const volverAlOrigen = () => {
-                const k = 1 - Math.exp(-dt * 1.2);   // regreso lento
+                const k = 1 - Math.exp(-dt * 1.2);
                 pos.x += (home.x - pos.x) * k;
                 pos.y += (home.y - pos.y) * k;
             };
 
             if (salto) {
-                // Deslizamiento rápido hacia un nuevo sitio (solo cuando está acorralado)
                 const k = Math.min(1, dt * 9);
                 pos.x += (salto.x - pos.x) * k;
                 pos.y += (salto.y - pos.y) * k;
@@ -1733,12 +1852,11 @@
                 if (dist < R) {
                     if (!empujando) { empujando = true; registrarEsquive(t); }
                     const k = 1 - dist / R;
-                    const v = 140 + 900 * k;               // más cerca → más rápido, pero siempre suave
+                    const v = 140 + 900 * k;
                     const mx = (dx / dist) * v * dt, my = (dy / dist) * v * dt;
                     let nx = pos.x + mx, ny = pos.y + my, bx = false, by = false;
                     if (nx < lim.minX) { nx = lim.minX; bx = true; } else if (nx > lim.maxX) { nx = lim.maxX; bx = true; }
                     if (ny < lim.minY) { ny = lim.minY; by = true; } else if (ny > lim.maxY) { ny = lim.maxY; by = true; }
-                    // Contra una pared: deslizarse a lo largo de ella en lugar de quedarse atrapado
                     if (bx && !by) ny = acotar(ny + (Math.sign(dy) || 1) * Math.abs(mx) * 0.9, lim.minY, lim.maxY);
                     if (by && !bx) nx = acotar(nx + (Math.sign(dx) || 1) * Math.abs(my) * 0.9, lim.minX, lim.maxX);
                     pos.x = nx; pos.y = ny;
@@ -1759,7 +1877,6 @@
                 volverAlOrigen();
             }
 
-            // Nunca superponerse al botón SÍ (que puede estar agrandado)
             const sdx = pos.x + d / 2 - si.x, sdy = pos.y + d / 2 - si.y;
             const sdist = Math.hypot(sdx, sdy) || 0.001, smin = si.r + d / 2 + 8;
             if (sdist < smin) { pos.x = si.x + (sdx / sdist) * smin - d / 2; pos.y = si.y + (sdy / sdist) * smin - d / 2; }
@@ -1767,7 +1884,6 @@
             pos.y = acotar(pos.y, MARGEN, H - d - MARGEN_INF);
             btnNo.style.transform = `translate3d(${pos.x.toFixed(1)}px, ${pos.y.toFixed(1)}px, 0)`;
 
-            // SÍ: crece al esquivar; tras inactividad vuelve despacio a su tamaño original
             if (t - ultimaActividad > INACTIVIDAD_MS && escalaObj > 1) escalaObj = Math.max(1, escalaObj - VEL_ENCOGER * dt);
             escala += (escalaObj - escala) * (1 - Math.exp(-dt * 6));
             btnSi.style.setProperty('--s', escala.toFixed(3));
@@ -1790,13 +1906,19 @@
         document.addEventListener('pointercancel', () => { cursor = null; }, { passive: true });
         document.documentElement.addEventListener('mouseleave', () => { cursor = null; });
 
-        // El NO jamás responde: se bloquea cualquier evento que llegue a él
         ['click', 'pointerdown', 'mousedown', 'touchstart', 'keydown', 'keyup'].forEach(ev =>
             btnNo.addEventListener(ev, (e) => { e.preventDefault(); e.stopPropagation(); }));
 
-        // Con el teclado (Espacio) el SÍ debe activarse sin que la presentación avance
         btnSi.addEventListener('keydown', (e) => { if (e.key === ' ' || e.key === 'Enter') e.stopPropagation(); });
-        btnSi.addEventListener('click', () => { respondido = true; wrap.classList.add('respondido'); btnSi.blur(); });
+
+        // ---- AL PULSAR "SÍ": fade-off de love1 y arranque de digimon1 al terminar ----
+        btnSi.addEventListener('click', () => {
+            if (respondido) return;
+            respondido = true;
+            wrap.classList.add('respondido');
+            btnSi.blur();
+            fundirLoveYArrancarDigimon();
+        });
 
         return {
             activar() { reiniciar(); activo = true; ultimoFrame = ultimaActividad = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(frame); },
