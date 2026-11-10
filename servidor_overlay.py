@@ -28,7 +28,7 @@ def buscar_escudo():
 ESCUDO = buscar_escudo()
 
 # Tamaño máximo 2 cm x 3 cm (CSS cm).
-ANCHO, ALTO, MARGEN_SUP, MARGEN_DER = "2.1cm", "3.15cm", "0.8cm", "1.3cm"
+ANCHO, ALTO, MARGEN_SUP, MARGEN_DER = "2.4cm", "3.30cm", "0.8cm", "1.3cm"
 
 # OJO: string NORMAL (sin f), para no tener que doblar llaves del JS/CSS.
 # Los placeholders %%...%% se sustituyen abajo con .replace().
@@ -45,9 +45,9 @@ _PLANTILLA = """
 
 <!-- Temporizador de 30 minutos (oculto hasta la primera interacción o si ya se inició antes) -->
 <div id="temporizador-tesis"
- style="position:fixed;top:15px;left:15px;z-index:2147483647;
+ style="position:fixed;top:35px;left:35px;z-index:2147483647;
  font-family:monospace, sans-serif;font-size:24px;font-weight:bold;
- color:#ff3333;background:rgba(0,0,0,0.7);padding:5px 10px;border-radius:5px;
+ color:#fff333;background:rgba(0,0,0,0.7);padding:5px 10px;border-radius:5px;
  pointer-events:none;display:none;opacity:0;transition:opacity 0.6s ease;">30:00</div>
 
 <script>
