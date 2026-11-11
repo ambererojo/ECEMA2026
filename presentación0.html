@@ -1021,6 +1021,7 @@
         }
 #deck-marco .timeline-wrap {
             position: relative;
+            transform: translateY(max(-3cm, -11vh)); /* 3 cm; en pantallas bajas sube menos para no pisar el título */
             width: 100%;
             max-width: 1400px;
             padding: 28px 0 16px 0;
@@ -1028,7 +1029,7 @@
         }
 #deck-marco .timeline-line {
             position: absolute;
-            top: 65px;
+            top: calc(28px + clamp(1.43rem, 3.12vh, 1.885rem) * 1.2 + 8px + 9px);
             left: 0; right: 0;
             height: 2px;
             background: linear-gradient(to right,
@@ -1063,7 +1064,8 @@
 #deck-marco .timeline-item.verde .timeline-dot { background: #10b981; box-shadow: 0 0 16px rgba(16, 185, 129, 0.8); }
 #deck-marco .timeline-year {
             font-family: 'JetBrains Mono', monospace;
-            font-size: clamp(1.1rem, 2.4vh, 1.45rem);
+            font-size: clamp(1.43rem, 3.12vh, 1.885rem);
+            line-height: 1.2;
             font-weight: 700;
             letter-spacing: 0.1em;
             color: #38bdf8;
@@ -1082,6 +1084,36 @@
 #deck-marco .timeline-item.verde .timeline-card { border-color: rgba(16, 185, 129, 0.3); }
 #deck-marco .timeline-card p { font-size: clamp(1.14rem, 2.6vh, 1.56rem); line-height: 1.42; }
 #deck-marco .timeline-card strong { color: #f1f5f9; font-weight: 600; }
+/* ===== MARCO HISTÓRICO · videos que se materializan bajo cada cuadro ===== */
+#deck-marco .timeline-card { position: relative; z-index: 2; }
+#deck-marco .timeline-vslot { position: relative; width: 100%; height: 0; z-index: 1; }
+#deck-marco .timeline-video {
+            position: absolute; left: 6%; top: 4px; z-index: 1;
+            width: 88%;
+            border-radius: 10px; overflow: hidden;
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5), 0 0 18px rgba(56, 189, 248, 0.18);
+            background: #000; pointer-events: none;
+            opacity: 0; transform: scale(2); filter: blur(30px);
+            transform-origin: 50% 0%;
+            will-change: transform, filter, opacity;
+        }
+#deck-marco .timeline-item.ambar .timeline-video { border-color: rgba(245, 158, 11, 0.4); box-shadow: 0 8px 22px rgba(0,0,0,.5), 0 0 18px rgba(245,158,11,.2); }
+#deck-marco .timeline-item.verde .timeline-video { border-color: rgba(16, 185, 129, 0.4); box-shadow: 0 8px 22px rgba(0,0,0,.5), 0 0 18px rgba(16,185,129,.2); }
+#deck-marco .timeline-video.tv43  { aspect-ratio: 4 / 3; }
+#deck-marco .timeline-video.tv169 { aspect-ratio: 16 / 9; }
+#deck-marco .timeline-video video { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+@keyframes marco-materializar {
+            0%   { opacity: 0;   transform: scale(2);    filter: blur(30px); }
+            35%  { opacity: .45; transform: scale(1.55); filter: blur(18px); }
+            100% { opacity: 1;   transform: scale(1);    filter: blur(0); }
+        }
+/* link1 -> doom1 (+2 s) -> simulador1 (+2 s) -> estatica1 (+2 s) */
+#deck-marco.state-4 .timeline-item:nth-child(1) .timeline-video { animation: marco-materializar 2.4s cubic-bezier(.16,.84,.3,1) 1.6s both; }
+#deck-marco.state-4 .timeline-item:nth-child(2) .timeline-video { animation: marco-materializar 2.4s cubic-bezier(.16,.84,.3,1) 3.6s both; }
+#deck-marco.state-4 .timeline-item:nth-child(3) .timeline-video { animation: marco-materializar 2.4s cubic-bezier(.16,.84,.3,1) 5.6s both; }
+#deck-marco.state-4 .timeline-item:nth-child(4) .timeline-video { animation: marco-materializar 2.4s cubic-bezier(.16,.84,.3,1) 7.6s both; }
 #deck-marco .glass-container.desarrollo::before {
             content: ''; position: absolute; inset: -1px;
             border-radius: 25px; padding: 2px; pointer-events: none;
@@ -1603,8 +1635,8 @@
                 <p class="sumario-subtitulo">10 estaciones</p>
                 <p class="sumario-pregunta shine-ambar-fuerte">
                     Defensa del trabajo de investigación profesional<br>
-                    como requisito para el título de Máster en<br>
-                    planificación, administración y conducción naval
+                    como requisito para la Maestría en Planificación,<br>
+                    Administración y Comando Naval
                 </p>
                 <div class="sumario-sep"></div>
                 <div class="sumario-grid">
@@ -2015,6 +2047,7 @@
                             <div class="timeline-card">
                                 <p class="shine-texto-claro"><strong>Link Trainer.</strong> Trasladó parte de la instrucción de vuelo a tierra: practicar procedimientos sin exponer una aeronave real.</p>
                             </div>
+                            <div class="timeline-vslot"><div class="timeline-video tv43"><video data-mh="link1" src="videos1/link1.mp4" muted loop playsinline preload="auto"></video></div></div>
                         </div>
                         <div class="timeline-item ambar">
                             <div class="timeline-year shine-ambar-fuerte">Años 1990</div>
@@ -2022,6 +2055,7 @@
                             <div class="timeline-card">
                                 <p class="shine-texto-claro"><strong>Marine Doom.</strong> Adaptó un videojuego comercial para ejercitar decisiones tácticas y cooperación, mostrando que una plataforma existente puede tener uso formativo.</p>
                             </div>
+                            <div class="timeline-vslot"><div class="timeline-video tv43"><video data-mh="doom1" src="videos1/doom1.mp4" muted loop playsinline preload="auto"></video></div></div>
                         </div>
                         <div class="timeline-item verde">
                             <div class="timeline-year shine-verde-fuerte">2015–2026</div>
@@ -2029,6 +2063,7 @@
                             <div class="timeline-card">
                                 <p class="shine-texto-claro"><strong>Simuladores FPV.</strong> Los programas para ordenadores personales facilitaron repetir maniobras antes de emplear drones físicos; la práctica real sigue siendo necesaria para validar destrezas.</p>
                             </div>
+                            <div class="timeline-vslot"><div class="timeline-video tv169"><video data-mh="simulador1" src="videos1/simulador1.mp4" muted loop playsinline preload="auto"></video></div></div>
                         </div>
                         <div class="timeline-item">
                             <div class="timeline-year shine-azul-fuerte">Paraguay</div>
@@ -2036,6 +2071,7 @@
                             <div class="timeline-card">
                                 <p class="shine-texto-claro"><strong>Brecha por explorar.</strong> La revisión no identificó antecedentes formales de simulación FPV en el SMO. Esta ausencia justifica estudiar la viabilidad, pero no demuestra de antemano que el modelo funcione.</p>
                             </div>
+                            <div class="timeline-vslot"><div class="timeline-video tv169"><video data-mh="estatica1" src="videos1/estatica1.mp4" muted loop playsinline preload="auto"></video></div></div>
                         </div>
                     </div>
                 </div>
@@ -2380,6 +2416,26 @@
             aperturaVideo.volume = 0;
         }
 
+        /* Marco histórico (lámina 15): cada video arranca cuando empieza a materializarse y se pausa al salir */
+        const mhVideos = [...document.querySelectorAll('video[data-mh]')];
+        const mhRetardos = [1600, 3600, 5600, 7600];
+        let mhTimers = [];
+        mhVideos.forEach(v => v.addEventListener('error', () => {
+            const src = v.getAttribute('src') || '';
+            if (src.indexOf('videos1/') === 0) v.setAttribute('src', src.replace('videos1/', 'video1/'));
+        }));
+        function gestionarMarcoHistorico(activa) {
+            mhTimers.forEach(clearTimeout); mhTimers = [];
+            mhVideos.forEach((v, k) => {
+                if (activa) {
+                    try { v.currentTime = 0; } catch (e) {}
+                    mhTimers.push(setTimeout(() => { const p = v.play(); if (p && p.catch) p.catch(() => {}); }, mhRetardos[k] || 0));
+                } else {
+                    v.pause();
+                }
+            });
+        }
+
         function reproducirVideo() {
             if (!video) return;
             video.muted = true; video.defaultMuted = true; video.volume = 0;
@@ -2405,6 +2461,7 @@
             const d = DECKS[i];
             const portada = d.sinFondo ? d.sinFondo.includes(s) : (d.portada && s === 1);
             gestionarApertura(i === 0 && s === 2);
+            gestionarMarcoHistorico(i === 2 && s === 4);
             bgWrap.classList.toggle('oculto', portada);
             bgWrap.style.transform = d.video[String(s)] || '';
             indicator.textContent = `Diapositiva ${g} / ${totalSlides}`;

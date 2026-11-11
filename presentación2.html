@@ -2016,9 +2016,9 @@ Tu navegador no soporta reproducción de video HTML5.
 
     function volumenMusica(t) {
         const a = MUSICA.fadeIn, b = a + MUSICA.sustain, c = b + MUSICA.fadeDown;
-        if (t < a) return Math.sin((t / a) * Math.PI / 2);                       // 0 → 1
-        if (t < b) return 0.8;                                                      // sustain
-        if (t < c) return MUSICA.volFinal + (1 - MUSICA.volFinal) * Math.cos(((t - b) / MUSICA.fadeDown) * Math.PI / 2); // 1 → 0,10
+        if (t < a) return 0.7 * Math.sin((t / a) * Math.PI / 2);                       // 0 → 0,7
+        if (t < b) return 0.7;                                                      // sustain 0,7
+        if (t < c) return MUSICA.volFinal + (0.7 - MUSICA.volFinal) * Math.cos(((t - b) / MUSICA.fadeDown) * Math.PI / 2); // 0,7 → 0,10
         return MUSICA.volFinal;
     }
     function envolventeMusica() {

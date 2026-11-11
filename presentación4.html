@@ -1424,29 +1424,232 @@
 
         /* ============================================================
            SISTEMA DE AUDIO
-           - love1.mp3 arranca en slide 10, sigue en slide 11 (loop)
-           - Al pulsar "SÍ": fade-off sinusoidal de love1 hasta 0,
-             y SOLO AL TERMINAR (love1 silenciado por completo),
-             arranca digimon1.mp3 con volumen normal (loop).
+           ------------------------------------------------------------
+           1) guitar1.mp3 → música de fondo slides 1–9.
+              Envolvente senoidal igual que Presentación 2:
+              0 → 70 % (fade-in) → sustain 70 % → bajada 70 % → 12 % → loop 12 %.
+           2) love1.mp3 (Whitney) → slide 10 (Preguntas).
+              Sin loop. Fade-in suave y, durante toda su duración,
+              el volumen DESCIENDE progresivamente (curva polinómica
+              invertida) desde 0.85 hasta 0.02 justo cuando termina.
+              Así no tapa a la mesa examinadora y nunca vuelve a sonar.
+           3) Al pulsar SÍ en slide 11 → fade-out de love1 (si sigue
+              sonando) y arranca digimon1.mp3 a volumen 0.8 (loop).
            ============================================================ */
-        const audioLove = new Audio('videos1/love1.mp3');
-        audioLove.loop = true;
-        audioLove.volume = 0.0;
 
+        /* ---------- 1. GUITAR1 — MÚSICA DE FONDO SLIDES 1–9 ---------- */
+        const GUITAR = {
+            src: 'videos1/guitar1.mp3',
+            fadeIn: 2.5,       // s · 0 → volMax
+            sustain: 4,        // s · sustain
+            fadeDown: 4,       // s · volMax → volFinal
+            volMax: 0.70,      // pico y sustain
+            volFinal: 0.12     // loop permanente (bajo, para no tapar la voz)
+        };
+
+        const audioGuitar = new Audio(GUITAR.src);
+        audioGuitar.loop = true;
+        audioGuitar.preload = 'auto';
+        audioGuitar.volume = 0;
+
+        let guitarIniciada = false;
+        let guitarRaf = null;
+
+        function volGuitar(t) {
+            const a = GUITAR.fadeIn;
+            const b = a + GUITAR.sustain;
+            const c = b + GUITAR.fadeDown;
+            const V = GUITAR.volMax;
+            const F = GUITAR.volFinal;
+            if (t < a) return V * Math.sin((t / a) * Math.PI / 2);                     // 0 → V
+            if (t < b) return V;                                                        // sustain
+            if (t < c) return F + (V - F) * Math.cos(((t - b) / GUITAR.fadeDown) * Math.PI / 2); // V → F
+            return F;
+        }
+
+        function envolventeGuitar() {
+            if (guitarRaf) cancelAnimationFrame(guitarRaf);
+            const t0 = performance.now();
+            const total = GUITAR.fadeIn + GUITAR.sustain + GUITAR.fadeDown;
+            (function paso(now) {
+                const t = (now - t0) / 1000;
+                audioGuitar.volume = Math.max(0, Math.min(1, volGuitar(t)));
+                if (t < total) guitarRaf = requestAnimationFrame(paso);
+                else { audioGuitar.volume = GUITAR.volFinal; guitarRaf = null; }
+            })(t0);
+        }
+
+        function iniciarGuitar() {
+            if (guitarIniciada) return;
+            audioGuitar.volume = 0;
+            const p = audioGuitar.play();
+            if (p && typeof p.then === 'function') {
+                p.then(() => { guitarIniciada = true; envolventeGuitar(); })
+                 .catch(() => {
+                    // Reintentar en la primera interacción si el navegador bloquea
+                    const reintentar = () => {
+                        if (guitarIniciada) return;
+                        audioGuitar.volume = 0;
+                        audioGuitar.play().then(() => {
+                            guitarIniciada = true;
+                            envolventeGuitar();
+                        }).catch(() => {});
+                        document.removeEventListener('click', reintentar);
+                        document.removeEventListener('touchstart', reintentar);
+                    };
+                    document.addEventListener('click', reintentar, { once: true });
+                    document.addEventListener('touchstart', reintentar, { once: true });
+                 });
+            } else {
+                guitarIniciada = true;
+                envolventeGuitar();
+            }
+        }
+
+        function detenerGuitar() {
+            if (guitarRaf) { cancelAnimationFrame(guitarRaf); guitarRaf = null; }
+            audioGuitar.pause();
+            audioGuitar.currentTime = 0;
+            audioGuitar.volume = 0;
+            guitarIniciada = false;
+        }
+
+        /* Fade-out sinusoidal de guitar1, luego pausa y resetea.
+           Se usa al salir de la slide 9 para que la guitarra no se
+           corte de golpe al entrar a "Preguntas" (slide 10). */
+        function fadeOutGuitar(duracionMs, alTerminar) {
+            if (guitarRaf) { cancelAnimationFrame(guitarRaf); guitarRaf = null; }
+            const desde = audioGuitar.volume;
+            const t0 = performance.now();
+            (function paso(now) {
+                const t = Math.min(1, (now - t0) / duracionMs);
+                const ease = (1 - Math.cos(Math.PI * t)) / 2;   // S-curve
+                audioGuitar.volume = Math.max(0, desde * (1 - ease));
+                if (t < 1) {
+                    guitarRaf = requestAnimationFrame(paso);
+                } else {
+                    guitarRaf = null;
+                    audioGuitar.pause();
+                    audioGuitar.currentTime = 0;
+                    audioGuitar.volume = 0;
+                    guitarIniciada = false;
+                    if (alTerminar) alTerminar();
+                }
+            })(t0);
+        }
+
+        /* ---------- 2. LOVE1 — WHITNEY, SLIDE 10 ---------- */
+        const LOVE = {
+            src: 'videos1/love1.mp3',
+            volInicio: 0.85,   // volumen inicial (alto, para que se escuche al entrar)
+            volFinal: 0.02,    // volumen objetivo al terminar el tema (casi inaudible)
+            fadeInDur: 1.2,    // s · fade-in inicial 0 → volInicio
+            curva: 2.0         // exponente de la curva de descenso (2 = lento al principio, acelera al final)
+        };
+
+        const audioLove = new Audio(LOVE.src);
+        audioLove.loop = false;            // ← clave: NO hacer loop
+        audioLove.preload = 'auto';
+        audioLove.volume = 0;
+
+        let loveIniciada = false;
+        let loveRaf = null;
+        let loveBajadaActiva = false;
+
+        /* Curva de descenso progresivo:
+           v(t) = volInicio - (volInicio - volFinal) * (t/duration)^curva
+           Con curva = 2, los primeros segundos bajan muy poco (no tapa
+           las preguntas) y solo al final acelera hasta volFinal.
+           Cuando el audio llega a 'ended', se pausa y NO se repite. */
+        function iniciarBajadaLove() {
+            if (loveRaf) cancelAnimationFrame(loveRaf);
+            const dur = audioLove.duration;
+            if (!isFinite(dur) || dur <= 0) return;
+            loveBajadaActiva = true;
+            const Vi = LOVE.volInicio;
+            const Vf = LOVE.volFinal;
+            const p = LOVE.curva;
+            (function paso() {
+                if (audioLove.paused || audioLove.ended) { loveRaf = null; return; }
+                const t = audioLove.currentTime / dur;     // 0 → 1
+                const v = Vi - (Vi - Vf) * Math.pow(Math.min(1, Math.max(0, t)), p);
+                audioLove.volume = Math.max(0, Math.min(1, v));
+                loveRaf = requestAnimationFrame(paso);
+            })();
+        }
+
+        function iniciarLove() {
+            if (loveIniciada) return;
+            loveIniciada = true;
+            loveBajadaActiva = false;
+
+            audioLove.currentTime = 0;
+            audioLove.volume = 0;
+
+            const reproducir = () => {
+                const p = audioLove.play();
+                if (p && typeof p.then === 'function') {
+                    p.then(() => {
+                        // Fade-in corto hasta volInicio, y al terminar arranca la bajada
+                        const t0 = performance.now();
+                        (function fadeIn(now) {
+                            const t = Math.min(1, (now - t0) / (LOVE.fadeInDur * 1000));
+                            audioLove.volume = LOVE.volInicio * t;
+                            if (t < 1) requestAnimationFrame(fadeIn);
+                            else {
+                                audioLove.volume = LOVE.volInicio;
+                                iniciarBajadaLove();
+                            }
+                        })(t0);
+                    }).catch(() => {
+                        loveIniciada = false;
+                        // Reintentar en la primera interacción
+                        const reintentar = () => {
+                            if (loveIniciada) return;
+                            loveIniciada = true;
+                            audioLove.play().then(() => {
+                                audioLove.volume = LOVE.volInicio;
+                                iniciarBajadaLove();
+                            }).catch(() => { loveIniciada = false; });
+                            document.removeEventListener('click', reintentar);
+                            document.removeEventListener('touchstart', reintentar);
+                        };
+                        document.addEventListener('click', reintentar, { once: true });
+                        document.addEventListener('touchstart', reintentar, { once: true });
+                    });
+                }
+            };
+            reproducir();
+        }
+
+        function detenerLove() {
+            if (loveRaf) { cancelAnimationFrame(loveRaf); loveRaf = null; }
+            audioLove.pause();
+            audioLove.currentTime = 0;
+            audioLove.volume = 0;
+            loveIniciada = false;
+            loveBajadaActiva = false;
+        }
+
+        // Cuando love1 termina por sí solo: se pausa y NO se repite
+        audioLove.addEventListener('ended', () => {
+            audioLove.pause();
+            audioLove.volume = 0;
+            loveBajadaActiva = false;
+        });
+
+        /* ---------- 3. DIGIMON1 — AL PULSAR "SÍ" ---------- */
         const audioDigimon = new Audio('videos1/digimon1.mp3');
         audioDigimon.loop = true;
-        audioDigimon.volume = 0.8;   // volumen normal
+        audioDigimon.volume = 0.8;
 
-        let audioFadeRaf = null;
-        let audioIniciado = false;
         let crossfadeHecho = false;
 
-        // Curva sinusoidal (S-curve): t∈[0,1] → [0,1]
+        // Fade genérico con requestAnimationFrame (más suave que setInterval)
+        let audioFadeRaf = null;
         function sinusoidalEase(t) {
             return (1 - Math.cos(Math.PI * t)) / 2;
         }
-
-        // Fade genérico con requestAnimationFrame (más suave que setInterval)
         function fadeAudio(audioEl, desde, hasta, duracionMs, alTerminar) {
             if (audioFadeRaf) { cancelAnimationFrame(audioFadeRaf); audioFadeRaf = null; }
             const t0 = performance.now();
@@ -1465,48 +1668,25 @@
             audioFadeRaf = requestAnimationFrame(step);
         }
 
-        // Arranca love1.mp3 (con fade-in sinusoidal suave)
-        function iniciarLove() {
-            if (audioIniciado) return;
-            audioIniciado = true;
-            audioLove.currentTime = 0;
-            audioLove.volume = 0;
-            const p = audioLove.play();
-            if (p && typeof p.catch === 'function') {
-                p.catch(() => {
-                    // Si el navegador bloquea el autoplay, reintentar en la primera interacción
-                    const reintentar = () => {
-                        audioLove.play().catch(() => {});
-                        document.removeEventListener('click', reintentar);
-                        document.removeEventListener('touchstart', reintentar);
-                    };
-                    document.addEventListener('click', reintentar, { once: true });
-                    document.addEventListener('touchstart', reintentar, { once: true });
-                });
-            }
-            // Fade-in desde 0 hasta 0.8 (volumen normal) en 1.5 s
-            fadeAudio(audioLove, 0, 0.8, 1500);
-        }
-
         // Al pulsar SÍ: fade-off de love1 y, AL TERMINAR, arranca digimon1
         function fundirLoveYArrancarDigimon() {
             if (crossfadeHecho) return;
             crossfadeHecho = true;
 
-            // 1) Fade-off sinusoidal de love1
+            // Detener la bajada progresiva de love1 (por si seguía activa)
+            if (loveRaf) { cancelAnimationFrame(loveRaf); loveRaf = null; }
+            loveBajadaActiva = false;
+
             fadeAudio(audioLove, audioLove.volume, 0, 1800, () => {
-                // 2) Cuando love1 ya está en silencio total:
                 audioLove.pause();
                 audioLove.currentTime = 0;
                 audioLove.volume = 0;
 
-                // 3) Arrancar digimon1 con volumen normal (sin fade-in, como pide el usuario)
                 audioDigimon.currentTime = 0;
                 audioDigimon.volume = 0.8;
                 const p = audioDigimon.play();
                 if (p && typeof p.catch === 'function') {
                     p.catch(() => {
-                        // Reintentar en interacción si el navegador lo bloquea
                         const reintentar = () => {
                             audioDigimon.play().catch(() => {});
                             document.removeEventListener('click', reintentar);
@@ -1521,14 +1701,11 @@
 
         // Detener toda la música (reinicio)
         function detenerMusica() {
-            if (audioFadeRaf) { cancelAnimationFrame(audioFadeRaf); audioFadeRaf = null; }
-            try { audioLove.pause(); } catch (e) {}
-            audioLove.currentTime = 0;
-            audioLove.volume = 0;
+            detenerGuitar();
+            detenerLove();
             try { audioDigimon.pause(); } catch (e) {}
             audioDigimon.currentTime = 0;
             audioDigimon.volume = 0.8;
-            audioIniciado = false;
             crossfadeHecho = false;
         }
 
@@ -1583,6 +1760,7 @@
             entrada.classList.add('arrancar');
 
             arrancarVideoFondo();
+            iniciarGuitar();   // ← música de fondo desde la slide 1
 
             setTimeout(() => { container.classList.add('animaciones-activas'); }, 300);
 
@@ -1674,13 +1852,24 @@
 
             if (window.encuesta) { if (target === 11) window.encuesta.activar(); else window.encuesta.desactivar(); }
 
-            /* ---- AUDIO: love1.mp3 arranca en slide 10 y continúa en slide 11 ---- */
-            if (target === 10) {
-                iniciarLove();
+            /* ---- AUDIO ----
+               guitar1.mp3: solo en slides 1–9
+               love1.mp3: arranca en slide 10 (Whitney), sin loop, con bajada progresiva
+               digimon1.mp3: solo al pulsar SÍ en la encuesta */
+            if (target <= 9) {
+                if (!guitarIniciada) iniciarGuitar();
+            } else if (target === 10) {
+                // Fade-out suave de guitar1 antes de arrancar love1
+                if (guitarIniciada) {
+                    fadeOutGuitar(1500, () => {
+                        if (!loveIniciada) iniciarLove();
+                    });
+                } else {
+                    if (!loveIniciada) iniciarLove();
+                }
             } else if (target === 11) {
-                // Si por alguna razón love1 no se inició, arrancarlo aquí.
-                // NO se reinicia: debe seguir sonando desde slide 10.
-                if (!audioIniciado) iniciarLove();
+                // Si love1 no se inició (por salto raro), iniciarlo
+                if (!loveIniciada) iniciarLove();
             }
 
             arrancarVideoFondo();
@@ -1725,8 +1914,10 @@
                     gv.muted = true;
                     if (currentSlide === 10 && gv.paused) gv.play().catch(() => {});
                 }
-                // Si love1 no pudo arrancar antes por autoplay, reintentar
-                if (currentSlide >= 10 && audioIniciado && audioLove.paused && !crossfadeHecho) {
+                // Reintentos de autoplay bloqueado
+                if (currentSlide <= 9 && !guitarIniciada) iniciarGuitar();
+                if (currentSlide >= 10 && !loveIniciada) iniciarLove();
+                if (currentSlide >= 10 && audioLove.paused && !crossfadeHecho && loveIniciada) {
                     audioLove.play().catch(() => {});
                 }
             }, { passive: true });
