@@ -1114,6 +1114,30 @@
 #deck-marco.state-4 .timeline-item:nth-child(2) .timeline-video { animation: marco-materializar 2.4s cubic-bezier(.16,.84,.3,1) 3.6s both; }
 #deck-marco.state-4 .timeline-item:nth-child(3) .timeline-video { animation: marco-materializar 2.4s cubic-bezier(.16,.84,.3,1) 5.6s both; }
 #deck-marco.state-4 .timeline-item:nth-child(4) .timeline-video { animation: marco-materializar 2.4s cubic-bezier(.16,.84,.3,1) 7.6s both; }
+/* ===== ESCENA UAV · lámina 4 ===== */
+#escena-uav {
+    position: fixed; inset: 0; width: 100%; height: 100%;
+    z-index: 500; pointer-events: none; overflow: hidden; display: none;
+}
+#soldado-enemigo {
+    position: absolute; width: 276px; height: 228px; object-fit: contain;
+    left: calc(25% + 2.8cm); bottom: 0.8cm; transform: translateX(-50%);   /* +2.8 cm a la derecha: cambiar este valor para reubicarlo */
+    image-rendering: pixelated; opacity: 0;
+}
+#soldado-pixel {
+    position: absolute; width: 276px; height: 228px;
+    left: calc(25% + 2.8cm); bottom: 0.8cm; transform: translateX(-50%);   /* mismo valor que #soldado-enemigo */
+    image-rendering: pixelated; opacity: 0; display: none; pointer-events: none;
+}
+#dron-uav {
+    position: fixed; width: 90px; height: auto; object-fit: contain;
+    display: none; image-rendering: pixelated; will-change: left, top;
+}
+#explosion-uav {
+    position: fixed; width: 393px; height: 486px; object-fit: contain;
+    display: none; transform: translate(-50%, -50%);
+    image-rendering: pixelated;
+}
 #deck-marco .glass-container.desarrollo::before {
             content: ''; position: absolute; inset: -1px;
             border-radius: 25px; padding: 2px; pointer-events: none;
@@ -2249,6 +2273,14 @@
 
     </div>
 
+    <!-- ESCENA UAV · lámina 4 (La transformación del conflicto): soldado, UAV y explosión -->
+    <div id="escena-uav" aria-hidden="true">
+        <img id="soldado-enemigo" alt="">
+        <canvas id="soldado-pixel" width="276" height="228"></canvas>
+        <img id="dron-uav" alt="">
+        <img id="explosion-uav" alt="">
+    </div>
+
     <div id="ui-layer">
         <button class="ui-btn" onclick="irAnterior()">← <span class="ui-key">P</span></button>
         <span id="slide-indicator">Diapositiva 1 / 18</span>
@@ -2436,6 +2468,134 @@
             });
         }
 
+        /* ============================================================
+           ESCENA UAV (lámina 4): al terminar las animaciones de entrada aparece el
+           soldado; 5 s después entra el UAV, lo alcanza y explota. Luego no hay más animación.
+           Se reinicia cada vez que se entra a la lámina y se limpia al salir.
+           ============================================================ */
+        const escenaUav = document.getElementById('escena-uav');
+        const uavSoldado = document.getElementById('soldado-enemigo');
+        const uavPixel = document.getElementById('soldado-pixel');
+        const uavDron = document.getElementById('dron-uav');
+        const uavExplosion = document.getElementById('explosion-uav');
+        const UAV_RUTA = 'videos1/';
+        const UAV_ENTRADA_MS = 2000;      // fin de las animaciones de entrada de la lámina
+        const UAV_ESPERA_MS = 5000;       // soldado visible antes de que aparezca el UAV
+        const UAV_VUELO_MS = 1600;        // duración del vuelo hasta el impacto
+        const UAV_EXPLOSION_MS = 1250;    // 25 fotogramas x 50 ms
+        const UAV_DRON_ANCHO = 90;        // px (alto ≈ 72 px): la mitad del alto visible del soldado (≈ 144 px)
+        const UAV_EXPLOSION_SUBE = '2cm'; // la explosión se eleva para nacer del soldado
+        let uavTimers = [];
+        let uavRaf = null;
+        let uavPixRaf = null;
+        const UAV_PIXEL_MS = 1100;                                   // duración de la materialización
+        const UAV_PIXEL_BLOQUES = [48, 36, 27, 21, 15, 12, 9, 6, 3]; // tamaño del bloque en px (3 = píxel real del sprite)
+
+        function limpiarEscenaUav() {
+            uavTimers.forEach(clearTimeout); uavTimers = [];
+            if (uavRaf) { cancelAnimationFrame(uavRaf); uavRaf = null; }
+            if (uavPixRaf) { cancelAnimationFrame(uavPixRaf); uavPixRaf = null; }
+            escenaUav.style.display = 'none';
+            uavPixel.style.display = 'none'; uavPixel.style.opacity = '0';
+            uavSoldado.style.opacity = '0'; uavSoldado.style.display = '';
+            uavDron.style.display = 'none';
+            uavExplosion.style.display = 'none';
+            uavSoldado.removeAttribute('src'); uavDron.removeAttribute('src'); uavExplosion.removeAttribute('src');
+        }
+
+        function lanzarUav() {
+            const objetivo = uavSoldado.getBoundingClientRect();
+            const centroX = objetivo.left + objetivo.width / 2;
+            const centroY = objetivo.top + objetivo.height / 2;
+            // punto de impacto: centro visible del sprite (algo por debajo del centro del cuadro)
+            const impactoY = centroY + 25;
+
+            uavDron.style.width = UAV_DRON_ANCHO + 'px';
+            uavDron.src = UAV_RUTA + 'UAV1.gif?t=' + Date.now();
+            uavDron.style.display = 'block';
+            const ancho = UAV_DRON_ANCHO;
+            const alto = uavDron.getBoundingClientRect().height || ancho * 125 / 157;
+
+            const inicioX = -ancho;
+            const inicioY = impactoY - alto / 2 - 190;
+            const finalX = centroX - ancho / 2;
+            const finalY = impactoY - alto / 2;
+            const t0 = performance.now();
+
+            function paso(ahora) {
+                let t = Math.max(0, Math.min((ahora - t0) / UAV_VUELO_MS, 1));
+                t = 1 - Math.pow(1 - t, 2);
+                uavDron.style.left = (inicioX + (finalX - inicioX) * t) + 'px';
+                uavDron.style.top = (inicioY + (finalY - inicioY) * t - 85 * 4 * t * (1 - t)) + 'px';
+                if (t < 1) { uavRaf = requestAnimationFrame(paso); } else { uavRaf = null; impactoUav(centroX, centroY); }
+            }
+            uavRaf = requestAnimationFrame(paso);
+        }
+
+        function impactoUav(centroX, centroY) {
+            uavDron.style.display = 'none';
+            uavSoldado.style.display = 'none';
+            uavPixel.style.display = 'none';
+            uavExplosion.src = UAV_RUTA + 'explosion1.gif?t=' + Date.now();
+            uavExplosion.style.left = centroX + 'px';
+            uavExplosion.style.top = 'calc(' + centroY + 'px - ' + UAV_EXPLOSION_SUBE + ')';
+            uavExplosion.style.display = 'block';
+            uavTimers.push(setTimeout(() => { limpiarEscenaUav(); }, UAV_EXPLOSION_MS));
+        }
+
+        /* El soldado se materializa pixelándose: de bloques gruesos a su resolución real, con fundido de entrada */
+        function soldadoVisibleSinEfecto() {
+            if (uavPixRaf) { cancelAnimationFrame(uavPixRaf); uavPixRaf = null; }
+            uavPixel.style.display = 'none';
+            uavSoldado.style.opacity = '1';
+        }
+        function materializarSoldado() {
+            const ctx = uavPixel.getContext('2d');
+            const W = uavPixel.width, H = uavPixel.height;
+            const chico = document.createElement('canvas');
+            const cctx = chico.getContext('2d');
+            const t0 = performance.now();
+            uavPixel.style.display = 'block';
+            function paso(ahora) {
+              try {
+                const t = Math.max(0, Math.min((ahora - t0) / UAV_PIXEL_MS, 1));
+                const k = Math.max(0, Math.min(UAV_PIXEL_BLOQUES.length - 1, Math.floor(t * UAV_PIXEL_BLOQUES.length)));
+                const b = UAV_PIXEL_BLOQUES[k];
+                chico.width = Math.max(1, Math.ceil(W / b)); chico.height = Math.max(1, Math.ceil(H / b));
+                cctx.clearRect(0, 0, chico.width, chico.height);
+                cctx.drawImage(uavSoldado, 0, 0, chico.width, chico.height);   // toma el cuadro actual del GIF
+                ctx.clearRect(0, 0, W, H);
+                ctx.imageSmoothingEnabled = false;
+                ctx.drawImage(chico, 0, 0, chico.width, chico.height, 0, 0, chico.width * b, chico.height * b);
+                uavPixel.style.opacity = String(Math.min(1, t * 2.2));
+                if (t < 1) { uavPixRaf = requestAnimationFrame(paso); }
+                else {
+                    uavPixRaf = null;
+                    uavSoldado.style.opacity = '1';       // el GIF real toma el relevo en el mismo cuadro
+                    uavPixel.style.display = 'none';
+                }
+              } catch (e) { soldadoVisibleSinEfecto(); }
+            }
+            uavPixRaf = requestAnimationFrame(paso);
+        }
+
+        function gestionarEscenaUav(activa) {
+            limpiarEscenaUav();
+            if (!activa) return;
+            uavTimers.push(setTimeout(() => {
+                escenaUav.style.display = 'block';
+                let efectoIniciado = false;
+                const iniciarEfecto = () => { if (efectoIniciado) return; efectoIniciado = true; try { materializarSoldado(); } catch (e) { soldadoVisibleSinEfecto(); } };
+                uavSoldado.onload = () => { uavSoldado.onload = null; iniciarEfecto(); };
+                uavSoldado.onerror = () => { soldadoVisibleSinEfecto(); };
+                uavSoldado.src = UAV_RUTA + 'soldado1.gif?t=' + Date.now();
+                if (uavSoldado.complete && uavSoldado.naturalWidth) iniciarEfecto();
+                // red de seguridad: pase lo que pase, el soldado queda visible al terminar el efecto
+                uavTimers.push(setTimeout(() => { if (uavSoldado.style.opacity !== '1' && uavSoldado.style.display !== 'none') soldadoVisibleSinEfecto(); }, UAV_PIXEL_MS + 900));
+                uavTimers.push(setTimeout(lanzarUav, UAV_ESPERA_MS));
+            }, UAV_ENTRADA_MS));
+        }
+
         function reproducirVideo() {
             if (!video) return;
             video.muted = true; video.defaultMuted = true; video.volume = 0;
@@ -2462,6 +2622,7 @@
             const portada = d.sinFondo ? d.sinFondo.includes(s) : (d.portada && s === 1);
             gestionarApertura(i === 0 && s === 2);
             gestionarMarcoHistorico(i === 2 && s === 4);
+            gestionarEscenaUav(i === 0 && s === 4);
             bgWrap.classList.toggle('oculto', portada);
             bgWrap.style.transform = d.video[String(s)] || '';
             indicator.textContent = `Diapositiva ${g} / ${totalSlides}`;

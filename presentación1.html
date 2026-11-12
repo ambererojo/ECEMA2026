@@ -1004,6 +1004,10 @@
                 <source src="videos1/fondo4.mp3" type="audio/mpeg">
                 <source src="videos1/fondo4.opus" type="audio/ogg">
             </audio>
+            <!-- Pitido de transición final (slides 18 → 19) -->
+            <audio id="pitido-audio" preload="auto" playsinline>
+                <source src="videos1/pitido1.mp3" type="audio/mpeg">
+            </audio>
         </div>
 
         <!-- ============================================================
@@ -1787,6 +1791,126 @@
         }
 
         /* ============================================================
+           PITIDO — TRANSICIÓN FINAL (slide 18 → 19)
+           ------------------------------------------------------------
+           · Se dispara AL ENTRAR AL SLIDE 18 (no al 19).
+           · Retraso de 1 s antes de empezar.
+           · Fade-in senoidal 0 → 70 % en 1.5 s.
+           · Sustain al 70 % durante el audio.
+           · Fade-out senoidal 70 % → 0 en los últimos 1.5 s del archivo.
+           · NO hace loop.
+           · NO se repite aunque vuelvas al 18 (bandera pitidoIniciado).
+           ============================================================ */
+        const PITIDO = {
+            retrasoMs: 1000,      // 1 s de espera antes de empezar
+            fadeInMs: 1500,       // 1.5 s de subida sinusoidal
+            fadeOutMs: 1500,      // 1.5 s de bajada sinusoidal
+            volSustain: 0.70      // sustain al 70 %
+        };
+
+        const audioPitido = document.getElementById('pitido-audio');
+        let pitidoTimeoutId = null;
+        let pitidoRafId = null;
+        let pitidoIniciado = false;
+
+        function reproducirPitido() {
+            if (!audioPitido || pitidoIniciado) return;
+            pitidoIniciado = true;
+
+            audioPitido.loop = false;
+            audioPitido.volume = 0;
+
+            // 1) Retraso de 1 s antes de empezar
+            pitidoTimeoutId = setTimeout(() => {
+                pitidoTimeoutId = null;
+                audioPitido.currentTime = 0;
+                audioPitido.volume = 0;
+
+                const p = audioPitido.play();
+                const arrancarEnvolvente = () => {
+                    // 2) Envolvente sinusoidal con requestAnimationFrame
+                    const t0 = performance.now();
+                    const dur = audioPitido.duration;
+
+                    // Si por lo que sea no tenemos duration todavía, esperamos 'loadedmetadata'
+                    if (!isFinite(dur) || dur <= 0) {
+                        audioPitido.addEventListener('loadedmetadata', arrancarEnvolvente, { once: true });
+                        return;
+                    }
+
+                    // Calculamos cuánto dura el sustain
+                    // (duración total - fadeIn - fadeOut; mínimo 0)
+                    const sustainS = Math.max(0, dur * 1000 - PITIDO.fadeInMs - PITIDO.fadeOutMs);
+                    const fadeInS = PITIDO.fadeInMs;
+                    const fadeOutStart = (fadeInS + sustainS) / 1000; // en segundos
+                    const totalS = dur;
+
+                    const step = (now) => {
+                        if (audioPitido.paused || audioPitido.ended) {
+                            pitidoRafId = null;
+                            return;
+                        }
+                        const t = (now - t0) / 1000;
+
+                        let vol;
+                        if (t < fadeInS / 1000) {
+                            // Fade-in sinusoidal 0 → 70 %
+                            const prog = t / (fadeInS / 1000);
+                            vol = PITIDO.volSustain * Math.sin(prog * Math.PI / 2);
+                        } else if (t < fadeOutStart) {
+                            // Sustain 70 %
+                            vol = PITIDO.volSustain;
+                        } else {
+                            // Fade-out sinusoidal 70 % → 0
+                            const prog = Math.min(1, (t - fadeOutStart) / (PITIDO.fadeOutMs / 1000));
+                            vol = PITIDO.volSustain * Math.cos(prog * Math.PI / 2);
+                        }
+
+                        audioPitido.volume = Math.max(0, Math.min(1, vol));
+
+                        if (t < totalS) {
+                            pitidoRafId = requestAnimationFrame(step);
+                        } else {
+                            pitidoRafId = null;
+                            audioPitido.volume = 0;
+                            audioPitido.pause();
+                        }
+                    };
+                    pitidoRafId = requestAnimationFrame(step);
+                };
+
+                if (p && typeof p.then === 'function') {
+                    p.then(arrancarEnvolvente).catch(() => {
+                        // Autoplay bloqueado: reintentar en la primera interacción
+                        const reintentar = () => {
+                            if (!audioPitido.paused) return;
+                            audioPitido.currentTime = 0;
+                            audioPitido.volume = 0;
+                            audioPitido.play().then(arrancarEnvolvente).catch(() => {});
+                            document.removeEventListener('click', reintentar);
+                            document.removeEventListener('touchstart', reintentar);
+                        };
+                        document.addEventListener('click', reintentar, { once: true });
+                        document.addEventListener('touchstart', reintentar, { once: true });
+                    });
+                } else {
+                    arrancarEnvolvente();
+                }
+            }, PITIDO.retrasoMs);
+        }
+
+        function detenerPitido() {
+            if (pitidoTimeoutId) { clearTimeout(pitidoTimeoutId); pitidoTimeoutId = null; }
+            if (pitidoRafId) { cancelAnimationFrame(pitidoRafId); pitidoRafId = null; }
+            if (audioPitido) {
+                audioPitido.pause();
+                audioPitido.currentTime = 0;
+                audioPitido.volume = 0;
+            }
+            pitidoIniciado = false;
+        }
+
+        /* ============================================================
            Cambio de slide
            ============================================================ */
         let currentSlide = 1;
@@ -1866,6 +1990,11 @@
             } else if (target === 19) {
                 const v = videosState.juramento.element;
                 if (v && !v.paused) { v.pause(); }
+            }
+
+            /* ---- PITIDO: se dispara UNA VEZ al entrar al slide 18 ---- */
+            if (target === 18) {
+                reproducirPitido();
             }
 
             [[fondo2Env, 2, 8], [fondo3Env, 9, 13], [fondo4Env, 14, 16]].forEach(([env, lo, hi]) => {
