@@ -1008,6 +1008,10 @@
             <audio id="pitido-audio" preload="auto" playsinline>
                 <source src="videos1/pitido1.mp3" type="audio/mpeg">
             </audio>
+            <!-- Latido que suena junto con el pitido (slide 18) -->
+            <audio id="latido-audio" preload="auto" playsinline>
+                <source src="videos1/latido1.mp3" type="audio/mpeg">
+            </audio>
         </div>
 
         <!-- ============================================================
@@ -1386,8 +1390,8 @@
 
             const VOL_MIN = 0.5;
             const VOL_MAX = 1.0;
-            const VOL_SUSTAIN = 0.2;      // sustain de fondo tras la ejecución
-            const SWELL_UP_MS = 220;      // brevísimo fadeup al salir del slide
+            const VOL_SUSTAIN = 0.2;
+            const SWELL_UP_MS = 220;
             const SWELL_DELTA = 0.18;
             const T_RAMP_UP = 3.0;
             const T_HOLD_END = 7.0;
@@ -1417,7 +1421,7 @@
                 if (t < T_RAMP_DOWN_END) {
                     const p = (t - T_HOLD_END) / (T_RAMP_DOWN_END - T_HOLD_END);
                     const s = Math.sin(p * Math.PI / 2);
-                    return VOL_MAX - (VOL_MAX - VOL_SUSTAIN) * s;   // fadedown sinusoidal al 20%
+                    return VOL_MAX - (VOL_MAX - VOL_SUSTAIN) * s;
                 }
                 return VOL_SUSTAIN;
             }
@@ -1430,7 +1434,7 @@
                     if (tunnelKilled || realAudio.paused) { volRafId = null; return; }
                     const t = (now - volStartTime) / 1000;
                     realAudio.volume = Math.max(0, Math.min(1, volumeEnvelope(t)));
-                    if (t >= T_RAMP_DOWN_END) { volRafId = null; return; }   // queda sosteniendo al 20%
+                    if (t >= T_RAMP_DOWN_END) { volRafId = null; return; }
                     volRafId = requestAnimationFrame(step);
                 };
                 volRafId = requestAnimationFrame(step);
@@ -1458,11 +1462,9 @@
                     const elapsed = performance.now() - start;
                     let vol, done = false;
                     if (elapsed < SWELL_UP_MS) {
-                        // brevísimo fadeup sinusoidal
                         const p = elapsed / SWELL_UP_MS;
                         vol = startVol + (peakVol - startVol) * Math.sin(p * Math.PI / 2);
                     } else {
-                        // fadeoff sinusoidal
                         const p = Math.min(1, (elapsed - SWELL_UP_MS) / durationMs);
                         vol = peakVol * Math.cos(p * Math.PI / 2);
                         done = p >= 1;
@@ -1652,18 +1654,16 @@
         const FONDO3_VOL = 0.6;
         const FONDO4_VOL = 0.6;
 
-        // Parámetros de la envolvente de fondo (editar aquí)
-        const BG_SUSTAIN_VOL   = 0.20;  // volumen de sustain durante la exposición
-        const BG_HOLD_MS       = 6000;  // hold por defecto (fondo4)
+        const BG_SUSTAIN_VOL   = 0.20;
+        const BG_HOLD_MS       = 6000;
         const FONDO2_HOLD_MS   = 5200;
         const FONDO3_HOLD_MS   = 5200;
-        const FONDO3_DROP_MS   = 5000;   // Ode to Joy: fadedown el doble de largo
-        const BG_DROP_MS       = 2500;  // fadedown sinusoidal hacia el sustain
-        const BG_SWELL_UP_MS   = 220;   // brevísimo fadeup al hacer siguiente
-        const BG_SWELL_DELTA   = 0.18;  // cuánto sube ese fadeup sobre el sustain
-        const BG_SWELL_DOWN_MS = 1100;  // fadeoff de regreso al sustain
+        const FONDO3_DROP_MS   = 5000;
+        const BG_DROP_MS       = 2500;
+        const BG_SWELL_UP_MS   = 220;
+        const BG_SWELL_DELTA   = 0.18;
+        const BG_SWELL_DOWN_MS = 1100;
 
-        // Cuarto de seno: sube (fadeup) o baja (fadedown) de forma sinusoidal.
         function sineRamp(from, to, p) {
             return to >= from
                 ? from + (to - from) * Math.sin(p * Math.PI / 2)
@@ -1706,7 +1706,6 @@
                 }, 25);
             }
 
-            // Entrada al rango de slides: ejecución (fadeup) → hold → fadedown al 20%.
             state.start = () => {
                 if (!state.el) return;
                 clearTimers();
@@ -1724,7 +1723,6 @@
                 }).catch(() => {});
             };
 
-            // Siguiente slide dentro del rango: brevísimo fadeup y fadeoff de vuelta al 20%.
             state.pulse = () => {
                 if (!state.el || !state.active || state.el.paused) return;
                 clearTimers();
@@ -1732,7 +1730,6 @@
                 ramp(peak, BG_SWELL_UP_MS, () => ramp(BG_SUSTAIN_VOL, BG_SWELL_DOWN_MS));
             };
 
-            // Salida del rango: brevísimo fadeup y luego fadeoff a cero.
             state.stop = (cb) => {
                 if (!state.el) { if (cb) cb(); return; }
                 if (!state.active) { if (cb) cb(); return; }
@@ -1755,7 +1752,7 @@
         let fondo4Env = null;
 
         function initEnvelopes() {
-            if (fondo2Env || fondo3Env || fondo4Env) return;   // evita doble init
+            if (fondo2Env || fondo3Env || fondo4Env) return;
             const f2 = document.getElementById('fondo2-audio');
             const f3 = document.getElementById('fondo3-audio');
             const f4 = document.getElementById('fondo4-audio');
@@ -1766,8 +1763,6 @@
 
         /* ============================================================
            Fade sinusoidal del audio del juramento.
-           Acepta callback onDone → se usa para avanzar al slide 18
-           (NO para navegar a presentación2.html).
            ============================================================ */
         let juramentoFadeInterval = null;
 
@@ -1791,111 +1786,120 @@
         }
 
         /* ============================================================
-           PITIDO — TRANSICIÓN FINAL (slide 18 → 19)
+           PITIDO + LATIDO — TRANSICIÓN FINAL (slide 18)
            ------------------------------------------------------------
-           · Se dispara AL ENTRAR AL SLIDE 18 (no al 19).
+           · Ambos se disparan AL ENTRAR AL SLIDE 18.
            · Retraso de 1 s antes de empezar.
-           · Fade-in senoidal 0 → 70 % en 1.5 s.
-           · Sustain al 70 % durante el audio.
-           · Fade-out senoidal 70 % → 0 en los últimos 1.5 s del archivo.
-           · NO hace loop.
-           · NO se repite aunque vuelvas al 18 (bandera pitidoIniciado).
+           · Los dos play() se lanzan en el mismo tick (simultáneos).
+           · Un único requestAnimationFrame actualiza ambos volúmenes
+             en el mismo frame → envolventes sincronizadas.
+           · Fade-in senoidal → sustain → fade-out senoidal.
+           · NO hacen loop.
+           · NO se repiten aunque vuelvas al 18 (bandera pitidoIniciado).
            ============================================================ */
         const PITIDO = {
-            retrasoMs: 1000,      // 1 s de espera antes de empezar
-            fadeInMs: 1500,       // 1.5 s de subida sinusoidal
-            fadeOutMs: 1500,      // 1.5 s de bajada sinusoidal
-            volSustain: 0.70      // sustain al 70 %
+            retrasoMs: 1000,
+            fadeInMs: 1500,
+            fadeOutMs: 1500,
+            volSustainPitido: 0.70,
+            volSustainLatido: 0.55
         };
 
         const audioPitido = document.getElementById('pitido-audio');
+        const audioLatido = document.getElementById('latido-audio');
+
         let pitidoTimeoutId = null;
         let pitidoRafId = null;
         let pitidoIniciado = false;
 
-        function reproducirPitido() {
-            if (!audioPitido || pitidoIniciado) return;
+        function reproducirPitidoYLatido() {
+            if (pitidoIniciado) return;
             pitidoIniciado = true;
 
-            audioPitido.loop = false;
-            audioPitido.volume = 0;
+            const lista = [
+                { el: audioPitido, volSustain: PITIDO.volSustainPitido },
+                { el: audioLatido, volSustain: PITIDO.volSustainLatido }
+            ].filter(a => a && a.el);
 
-            // 1) Retraso de 1 s antes de empezar
+            if (!lista.length) return;
+
             pitidoTimeoutId = setTimeout(() => {
                 pitidoTimeoutId = null;
-                audioPitido.currentTime = 0;
-                audioPitido.volume = 0;
 
-                const p = audioPitido.play();
-                const arrancarEnvolvente = () => {
-                    // 2) Envolvente sinusoidal con requestAnimationFrame
-                    const t0 = performance.now();
-                    const dur = audioPitido.duration;
+                // Preparar todos
+                lista.forEach(({ el }) => {
+                    el.loop = false;
+                    el.volume = 0;
+                    el.currentTime = 0;
+                });
 
-                    // Si por lo que sea no tenemos duration todavía, esperamos 'loadedmetadata'
-                    if (!isFinite(dur) || dur <= 0) {
-                        audioPitido.addEventListener('loadedmetadata', arrancarEnvolvente, { once: true });
-                        return;
+                // Disparar todos los play() en el MISMO tick
+                const promesas = lista.map(({ el }) => {
+                    try {
+                        const p = el.play();
+                        return (p && typeof p.then === 'function') ? p : Promise.resolve();
+                    } catch (e) {
+                        return Promise.reject(e);
                     }
+                });
 
-                    // Calculamos cuánto dura el sustain
-                    // (duración total - fadeIn - fadeOut; mínimo 0)
-                    const sustainS = Math.max(0, dur * 1000 - PITIDO.fadeInMs - PITIDO.fadeOutMs);
-                    const fadeInS = PITIDO.fadeInMs;
-                    const fadeOutStart = (fadeInS + sustainS) / 1000; // en segundos
-                    const totalS = dur;
+                Promise.all(promesas).then(() => {
+                    const duraciones = lista
+                        .map(({ el }) => el.duration)
+                        .filter(d => isFinite(d) && d > 0);
+
+                    if (!duraciones.length) return;   // sin duration, no animamos
+
+                    const dur = Math.min(...duraciones);
+                    const fadeInS = PITIDO.fadeInMs / 1000;
+                    const fadeOutS = PITIDO.fadeOutMs / 1000;
+                    const sustainS = Math.max(0, dur - fadeInS - fadeOutS);
+                    const fadeOutStart = fadeInS + sustainS;
+
+                    const t0 = performance.now();
 
                     const step = (now) => {
-                        if (audioPitido.paused || audioPitido.ended) {
-                            pitidoRafId = null;
-                            return;
-                        }
                         const t = (now - t0) / 1000;
 
-                        let vol;
-                        if (t < fadeInS / 1000) {
-                            // Fade-in sinusoidal 0 → 70 %
-                            const prog = t / (fadeInS / 1000);
-                            vol = PITIDO.volSustain * Math.sin(prog * Math.PI / 2);
+                        let factor;
+                        if (t < fadeInS) {
+                            factor = Math.sin((t / fadeInS) * Math.PI / 2);
                         } else if (t < fadeOutStart) {
-                            // Sustain 70 %
-                            vol = PITIDO.volSustain;
+                            factor = 1;
+                        } else if (t < dur) {
+                            factor = Math.cos(Math.min(1, (t - fadeOutStart) / fadeOutS) * Math.PI / 2);
                         } else {
-                            // Fade-out sinusoidal 70 % → 0
-                            const prog = Math.min(1, (t - fadeOutStart) / (PITIDO.fadeOutMs / 1000));
-                            vol = PITIDO.volSustain * Math.cos(prog * Math.PI / 2);
+                            factor = 0;
                         }
 
-                        audioPitido.volume = Math.max(0, Math.min(1, vol));
+                        lista.forEach(({ el, volSustain }) => {
+                            if (!el.paused && !el.ended) {
+                                el.volume = Math.max(0, Math.min(1, volSustain * factor));
+                            }
+                        });
 
-                        if (t < totalS) {
+                        if (t < dur) {
                             pitidoRafId = requestAnimationFrame(step);
                         } else {
+                            lista.forEach(({ el }) => {
+                                el.volume = 0;
+                                el.pause();
+                            });
                             pitidoRafId = null;
-                            audioPitido.volume = 0;
-                            audioPitido.pause();
                         }
                     };
                     pitidoRafId = requestAnimationFrame(step);
-                };
-
-                if (p && typeof p.then === 'function') {
-                    p.then(arrancarEnvolvente).catch(() => {
-                        // Autoplay bloqueado: reintentar en la primera interacción
-                        const reintentar = () => {
-                            if (!audioPitido.paused) return;
-                            audioPitido.currentTime = 0;
-                            audioPitido.volume = 0;
-                            audioPitido.play().then(arrancarEnvolvente).catch(() => {});
-                            document.removeEventListener('click', reintentar);
-                            document.removeEventListener('touchstart', reintentar);
-                        };
-                        document.addEventListener('click', reintentar, { once: true });
-                        document.addEventListener('touchstart', reintentar, { once: true });
-                    });
-                } else {
-                    arrancarEnvolvente();
-                }
+                }).catch(() => {
+                    // Autoplay bloqueado: reintentar en la primera interacción
+                    const reintentar = () => {
+                        pitidoIniciado = false;
+                        reproducirPitidoYLatido();
+                        document.removeEventListener('click', reintentar);
+                        document.removeEventListener('touchstart', reintentar);
+                    };
+                    document.addEventListener('click', reintentar, { once: true });
+                    document.addEventListener('touchstart', reintentar, { once: true });
+                });
             }, PITIDO.retrasoMs);
         }
 
@@ -1906,6 +1910,11 @@
                 audioPitido.pause();
                 audioPitido.currentTime = 0;
                 audioPitido.volume = 0;
+            }
+            if (audioLatido) {
+                audioLatido.pause();
+                audioLatido.currentTime = 0;
+                audioLatido.volume = 0;
             }
             pitidoIniciado = false;
         }
@@ -1922,7 +1931,6 @@
             if (isTransitioning) return;
             if (target < 1) return;
 
-            // Salir del 19 → navegar al siguiente archivo
             if (target > totalSlides) {
                 window.location.href = NEXT_FILE;
                 return;
@@ -1982,7 +1990,6 @@
                 void creditos.offsetWidth;
                 creditos.style.animation = 'creditosScroll 55s linear forwards';
             } else if (target === 18) {
-                // Si venimos del 17, el fade ya se encargó; solo aseguramos pausa.
                 const v = videosState.juramento.element;
                 if (v && !v.paused && !juramentoFadeInterval) {
                     v.pause();
@@ -1992,17 +1999,17 @@
                 if (v && !v.paused) { v.pause(); }
             }
 
-            /* ---- PITIDO: se dispara UNA VEZ al entrar al slide 18 ---- */
+            /* ---- PITIDO + LATIDO: se disparan juntos al entrar al slide 18 ---- */
             if (target === 18) {
-                reproducirPitido();
+                reproducirPitidoYLatido();
             }
 
             [[fondo2Env, 2, 8], [fondo3Env, 9, 13], [fondo4Env, 14, 16]].forEach(([env, lo, hi]) => {
                 if (!env) return;
                 const enRango = target >= lo && target <= hi;
-                if (enRango && !env.active) env.start();       // entra: ejecución → sustain 20%
-                else if (enRango) env.pulse();                  // siguiente: fadeup breve → fadeoff al 20%
-                else env.stop();                                // sale: fadeup breve → fadeoff a 0
+                if (enRango && !env.active) env.start();
+                else if (enRango) env.pulse();
+                else env.stop();
             });
 
             sincronizarVideos(target);
@@ -2015,7 +2022,6 @@
         }
 
         function irSiguiente() {
-            // Slide 17 → fade del juramento y luego avanzar al 18 (bisagra).
             if (currentSlide === 17) {
                 const v = videosState.juramento.element;
                 if (v && !v.paused) {
