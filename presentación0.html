@@ -1169,6 +1169,11 @@
     position: fixed; width: 90px; height: auto; object-fit: contain;
     display: none; image-rendering: pixelated; will-change: left, top;
 }
+#tanque-machine {
+    position: absolute; width: 257.4px; height: 218.4px; object-fit: contain;   /* 66x56 px a escala 3,9 (el JS lo recalcula desde TANQUE_ESCALA) */
+    left: 0; bottom: 0; display: none; image-rendering: pixelated;
+    transform-origin: 50% 100%; will-change: left, bottom, transform;
+}
 #explosion-uav {
     position: fixed; width: 393px; height: 486px; object-fit: contain;
     display: none; transform: translate(-50%, -50%);
@@ -2325,6 +2330,7 @@
         <canvas id="soldado-pixel" width="276" height="228"></canvas>
         <img id="dron-uav" alt="">
         <img id="explosion-uav" alt="">
+        <img id="tanque-machine" alt="">
     </div>
 
     <div id="ui-layer">
@@ -2543,6 +2549,7 @@
         const escenaUav = document.getElementById('escena-uav');
         const uavSoldado = document.getElementById('soldado-enemigo');
         const uavPixel = document.getElementById('soldado-pixel');
+        const uavTanque = document.getElementById('tanque-machine');
         const uavDron = document.getElementById('dron-uav');
         const uavExplosion = document.getElementById('explosion-uav');
         const UAV_RUTA = 'videos1/';
@@ -2555,6 +2562,28 @@
         let uavTimers = [];
         let uavRaf = null;
         let uavPixRaf = null;
+        /* Tanque (machine1.gif): sale por la izquierda al nivel del suelo del soldado, sube sobre el menú interactivo,
+           baja, y es alcanzado por el UAV (mismo punto de partida, recorrido más largo) */
+        const TANQUE_NAT_W = 66, TANQUE_NAT_H = 56;
+        const TANQUE_ESCALA = 6 * 0.65;    // 6 (el doble de la escala del soldado) reducido un 35 % = 3,9
+        const TANQUE_VEL_REL = 0.11;       // fracción del ancho de pantalla que avanza por segundo
+        const TANQUE_PAUSA_MS = 800;       // pausa tras la explosión del soldado
+        const TANQUE_VUELO_MIN = 2200, TANQUE_VUELO_MAX = 3200;
+        let tanqueRaf = null;
+        /* Sonido de las explosiones (soldado y tanque): videos1/explosion1.mp3 al 50 % de volumen */
+        const sonidoExplosion = new Audio(UAV_RUTA + 'explosion1.mp3');
+        sonidoExplosion.preload = 'auto';
+        sonidoExplosion.volume = 0.5;
+        function sonarExplosion() {
+            try {
+                sonidoExplosion.volume = 0.5;
+                sonidoExplosion.currentTime = 0;
+                const p = sonidoExplosion.play();
+                if (p && p.catch) p.catch(() => {});
+            } catch (e) {}
+        }
+        function detenerSonidoExplosion() { try { sonidoExplosion.pause(); } catch (e) {} }
+        let uavOrigen = null;
         const UAV_PIXEL_MS = 1100;                                   // duración de la materialización
         const UAV_PIXEL_BLOQUES = [48, 36, 27, 21, 15, 12, 9, 6, 3]; // tamaño del bloque en px (3 = píxel real del sprite)
 
@@ -2562,6 +2591,8 @@
             uavTimers.forEach(clearTimeout); uavTimers = [];
             if (uavRaf) { cancelAnimationFrame(uavRaf); uavRaf = null; }
             if (uavPixRaf) { cancelAnimationFrame(uavPixRaf); uavPixRaf = null; }
+            if (tanqueRaf) { cancelAnimationFrame(tanqueRaf); tanqueRaf = null; }
+            uavTanque.style.display = 'none'; uavTanque.removeAttribute('src');
             escenaUav.style.display = 'none';
             uavPixel.style.display = 'none'; uavPixel.style.opacity = '0';
             uavSoldado.style.opacity = '0'; uavSoldado.style.display = '';
@@ -2587,6 +2618,7 @@
             const inicioY = impactoY - alto / 2 - 190;
             const finalX = centroX - ancho / 2;
             const finalY = impactoY - alto / 2;
+            uavOrigen = { x: inicioX, y: inicioY, dist: Math.hypot(finalX - inicioX, finalY - inicioY) };
             const t0 = performance.now();
 
             function paso(ahora) {
@@ -2604,10 +2636,95 @@
             uavSoldado.style.display = 'none';
             uavPixel.style.display = 'none';
             uavExplosion.src = UAV_RUTA + 'explosion1.gif?t=' + Date.now();
+            sonarExplosion();
             uavExplosion.style.left = centroX + 'px';
             uavExplosion.style.top = 'calc(' + centroY + 'px - ' + UAV_EXPLOSION_SUBE + ')';
             uavExplosion.style.display = 'block';
-            uavTimers.push(setTimeout(() => { limpiarEscenaUav(); }, UAV_EXPLOSION_MS));
+            uavTimers.push(setTimeout(() => {
+                uavExplosion.style.display = 'none';
+                uavTimers.push(setTimeout(lanzarTanque, TANQUE_PAUSA_MS));
+            }, UAV_EXPLOSION_MS));
+        }
+
+        function lanzarTanque() {
+            const W = window.innerWidth, H = window.innerHeight;
+            const w = TANQUE_NAT_W * TANQUE_ESCALA, h = TANQUE_NAT_H * TANQUE_ESCALA;
+            let suelo = parseFloat(getComputedStyle(uavSoldado).bottom) + 15;      // línea de suelo = pies del soldado (px desde abajo)
+            if (!isFinite(suelo)) suelo = 45;
+            const barra = document.getElementById('ui-layer').getBoundingClientRect();   // menú interactivo = obstáculo
+            const alturaBarra = Math.max(22, (H - suelo) - barra.top);
+            const paso = (x, a, b) => { const k = Math.min(1, Math.max(0, (x - a) / (b - a))); return k * k * (3 - 2 * k); };
+            const terreno = x => alturaBarra * (paso(x, barra.left - 30, barra.left + 30) - paso(x, barra.right - 30, barra.right + 30));
+            const semiBase = 0.38 * w;                                             // distancia entre el centro y cada punto de apoyo
+            const v = TANQUE_VEL_REL * W;
+            const angMax = Math.atan2(alturaBarra, 2 * semiBase);                       // ángulo geométrico máximo para subir a la barra
+            const factorIncl = Math.min(1.8, Math.max(1, (12.5 * Math.PI / 180) / angMax));   // mantiene ≈ 12,5° visibles
+            let xc = -w / 2 - 10;
+            uavTanque.style.width = w + 'px'; uavTanque.style.height = h + 'px';
+
+            function pose(x) {
+                const gr = terreno(x - semiBase), gf = terreno(x + semiBase);
+                return { y: (gr + gf) / 2, ang: Math.atan2(gf - gr, 2 * semiBase) };
+            }
+            function colocar() {
+                const p = pose(xc);
+                const grados = Math.max(-16, Math.min(16, p.ang * 180 / Math.PI * factorIncl));   // inclinación acorde al tamaño del tanque
+                uavTanque.style.left = (xc - w / 2) + 'px';
+                uavTanque.style.bottom = (suelo + p.y) + 'px';
+                uavTanque.style.transform = 'rotate(' + (-grados) + 'deg)';
+            }
+
+            uavTanque.src = UAV_RUTA + 'machine1.gif?t=' + Date.now();
+            colocar();
+            uavTanque.style.display = 'block';
+
+            let uavLanzado = false;
+            const t0 = performance.now();
+            function mover(ahora) {
+                const seg = Math.max(0, (ahora - t0) / 1000);
+                xc = -w / 2 - 10 + v * seg;
+                colocar();
+                if (!uavLanzado && xc >= barra.right - semiBase + 20) { uavLanzado = true; lanzarUavTanque(); }
+                tanqueRaf = requestAnimationFrame(mover);
+            }
+            tanqueRaf = requestAnimationFrame(mover);
+
+            function lanzarUavTanque() {
+                uavDron.style.width = UAV_DRON_ANCHO + 'px';
+                uavDron.src = UAV_RUTA + 'UAV1.gif?t=' + Date.now();
+                uavDron.style.display = 'block';
+                const ancho = UAV_DRON_ANCHO;
+                const alto = uavDron.getBoundingClientRect().height || ancho * 125 / 157;
+                const origen = uavOrigen || { x: -ancho, y: H * 0.6, dist: 600 };
+                const destino = () => { const p = pose(xc); return { x: xc - ancho / 2, y: H - (suelo + p.y) - h * 0.5 - alto / 2 }; };
+                const d0 = destino();
+                const dist = Math.hypot(d0.x - origen.x, d0.y - origen.y);
+                const dur = Math.min(TANQUE_VUELO_MAX, Math.max(TANQUE_VUELO_MIN, UAV_VUELO_MS * dist / origen.dist));
+                const tv0 = performance.now();
+                function vuelo(ahora) {
+                    let t = Math.max(0, Math.min((ahora - tv0) / dur, 1));
+                    t = 1 - Math.pow(1 - t, 2);
+                    const d = destino();                        // el UAV sigue al tanque en movimiento
+                    uavDron.style.left = (origen.x + (d.x - origen.x) * t) + 'px';
+                    uavDron.style.top = (origen.y + (d.y - origen.y) * t - 85 * 4 * t * (1 - t)) + 'px';
+                    if (t < 1) { uavRaf = requestAnimationFrame(vuelo); } else { uavRaf = null; impactoTanque(); }
+                }
+                uavRaf = requestAnimationFrame(vuelo);
+            }
+
+            function impactoTanque() {
+                if (tanqueRaf) { cancelAnimationFrame(tanqueRaf); tanqueRaf = null; }
+                const p = pose(xc);
+                const cx = xc, cy = H - (suelo + p.y) - h * 0.5;       // centro del tanque
+                uavDron.style.display = 'none';
+                uavTanque.style.display = 'none';
+                uavExplosion.src = UAV_RUTA + 'explosion1.gif?t=' + Date.now();
+                sonarExplosion();
+                uavExplosion.style.left = cx + 'px';
+                uavExplosion.style.top = (cy - 35) + 'px';
+                uavExplosion.style.display = 'block';
+                uavTimers.push(setTimeout(limpiarEscenaUav, UAV_EXPLOSION_MS));
+            }
         }
 
         /* El soldado se materializa pixelándose: de bloques gruesos a su resolución real, con fundido de entrada */
@@ -2647,6 +2764,7 @@
         }
 
         function gestionarEscenaUav(activa) {
+            detenerSonidoExplosion();
             limpiarEscenaUav();
             if (!activa) return;
             uavTimers.push(setTimeout(() => {
